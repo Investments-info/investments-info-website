@@ -1,6 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Web.Scotty
+import Network.Wreq
+
+import Control.Lens
+import Data.Aeson (toJSON)
+
+-- Easy traversal of JSON data.
+import Data.Aeson.Lens (key, nth)
 import Data.Text
 
 
@@ -21,6 +27,9 @@ buildApiUrl download period1 period2 interval crumb =
      interval ++ "&events=history&crumb=" ++ crumb
 
 main :: IO ()
-main = scotty 3000 $ do
-  get "/" $ do
-    html $ mconcat ["<h1>Yahoo historical data downloader</h1>"]
+main = do
+    putStrLn "Yahoo historical data downloader"
+    putStrLn "get http://httpbin.org/get"
+    r <- get "http://httpbin.org/get"
+    putStrLn "response status : "
+    print (r ^. responseStatus . statusCode)
