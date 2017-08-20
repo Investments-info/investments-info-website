@@ -15,3 +15,4 @@ executable          yahoo-finance
                   , aeson  > 1.1.2   && <= 1.1.2.0
                   , lens-aeson  > 1.0.1   && <= 1.0.2
                   , containers  >  0.5.7.0   && <= 0.5.7.1
+                  , either      > 4.4.1.0    && <= 4.4.1.1

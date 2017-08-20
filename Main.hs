@@ -14,7 +14,7 @@ import Data.Aeson (Value)
 import Control.Monad.IO.Class
 import GHC.Generics (Generic)
 import qualified Control.Exception as E
-
+import Control.Monad.Trans.Either
 
 type Resp = Response (Map String Value)
 
@@ -57,12 +57,14 @@ buildApiUrl download period1 period2 interval crumb =
 main :: IO ()
 main = do
   putStrLn "Yahoo historical data downloader"
-  r <- get history
+  r <- asJSON =<< get history
+  -- r <-  asJSON =<< get history :: Response Fdata
+  let results = r ^? responseBody . key "results"
   -- This first conversion attempt will fail, but because we're using
   -- Either, it will not throw an exception that kills execution.
-  let failing = asJSON r :: Either E.SomeException (Response [Int])
+  let failing = results :: EitherT E.SomeException (Response [Int])
   print failing
 
   -- Our second conversion attempt will succeed.
-  let succeeding = asJSON r :: Either E.SomeException (Response Fdata)
+  let succeeding = r :: EitherT E.SomeException (Response Fdata)
   print succeeding
