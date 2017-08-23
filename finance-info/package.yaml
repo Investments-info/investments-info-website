@@ -1,4 +1,4 @@
-name:    yahoo-finance
+name:    finance-info
 version: "0.0.0"
 
 dependencies:
@@ -66,7 +66,7 @@ library:
 
 # Runnable executable for our application
 executables:
-  yahoo-finance:
+  finance-info:
     main: main.hs
     source-dirs: app
     ghc-options:
@@ -74,7 +74,7 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - yahoo-finance
+    - finance-info
     when:
     - condition: flag(library-only)
       buildable: false
@@ -86,7 +86,7 @@ tests:
     source-dirs: test
     ghc-options: -Wall
     dependencies:
-    - yahoo-finance
+    - finance-info
     - hspec >=2.0.0
     - yesod-test
     - microlens
