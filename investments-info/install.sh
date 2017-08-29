@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sudo chmod a+x investments-info
-sudo mv haskell-serbia /var/www/html/investments-info/investments-info/investments-info_bin
+sudo mv investments-info /var/www/html/investments-info/investments-info/investments-info_bin
 sudo killall investments-info_bin
 sleep 3
 cd /var/www/html/investments-info/investments-info/
