@@ -17,7 +17,7 @@ static:
 	touch Settings/StaticFiles.hs
 
 ghci:
-	stack ghci haskell-serbia:lib
+	stack ghci investments-info:lib
 
 dev:
 	stack exec -- yesod devel
