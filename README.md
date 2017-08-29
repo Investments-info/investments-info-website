@@ -1,2 +1,2 @@
-# Finance portal
+# Investments info portal
 
