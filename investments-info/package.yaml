@@ -46,6 +46,7 @@ dependencies:
 - time
 - case-insensitive
 - wai
+- generic-deriving > 1.11.0 && <= 1.11.1
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.

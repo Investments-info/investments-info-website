@@ -59,6 +59,7 @@ library
     , time
     , case-insensitive
     , wai
+    , generic-deriving > 1.11.0 && <= 1.11.1
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -122,6 +123,7 @@ executable investments-info
     , time
     , case-insensitive
     , wai
+    , generic-deriving > 1.11.0 && <= 1.11.1
     , investments-info
   if flag(library-only)
     buildable: False
@@ -174,6 +176,7 @@ test-suite test
     , time
     , case-insensitive
     , wai
+    , generic-deriving > 1.11.0 && <= 1.11.1
     , investments-info
     , hspec >=2.0.0
     , yesod-test
