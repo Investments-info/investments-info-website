@@ -141,7 +141,7 @@ develMain :: IO ()
 develMain = develMainHelper getApplicationDev
 
 tlsS :: TLSSettings
-tlsS = tlsSettings "/etc/letsencrypt/live/DOMAIN/fullchain.pem" "/etc/letsencrypt/live/DOMAIN/privkey.pem"
+tlsS = tlsSettings "/etc/letsencrypt/live/investments-info/fullchain.pem" "/etc/letsencrypt/live/investments-info/privkey.pem"
 
 -- | The @main@ function for an executable running this site.
 appMain :: IO ()
