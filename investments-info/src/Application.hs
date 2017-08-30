@@ -29,6 +29,7 @@ import Network.Wai.Handler.Warp             (Settings, defaultSettings,
                                              defaultShouldDisplayException,
                                              runSettings, setHost,
                                              setOnException, setPort, getPort)
+import Network.Wai.Handler.WarpTLS
 import Network.Wai.Middleware.RequestLogger (Destination (Logger),
                                              IPAddrSource (..),
                                              OutputFormat (..), destination,
@@ -139,26 +140,21 @@ getAppSettings = loadYamlSettings [configSettingsYml] [] useEnv
 develMain :: IO ()
 develMain = develMainHelper getApplicationDev
 
+tlsS :: TLSSettings
+tlsS = tlsSettings "/etc/letsencrypt/live/DOMAIN/fullchain.pem" "/etc/letsencrypt/live/DOMAIN/privkey.pem"
+
 -- | The @main@ function for an executable running this site.
 appMain :: IO ()
 appMain = do
-    -- Get the settings from all relevant sources
     settings <- loadYamlSettingsArgs
-        -- fall back to compile-time values, set to [] to require values at runtime
         [configSettingsYmlValue]
-
-        -- allow environment variables to override
         useEnv
 
-    -- Generate the foundation from the settings
     foundation <- makeFoundation settings
-
-    -- Generate a WAI Application from the foundation
     app <- makeApplication foundation
 
-    -- Run the application with Warp
-    runSettings (warpSettings foundation) app
-
+    -- runSettings (warpSettings foundation) app
+    runTLS tlsS  (warpSettings foundation)  app
 
 --------------------------------------------------------------
 -- Functions for DevelMain.hs (a way to run the app from GHCi)
