@@ -27,7 +27,7 @@ ghci-object:
 
 
 copy-remote:
-	scp -i  ~/Documents/investments-info/finance-info.pem ~/code/investments-info/investments-info/bin/investments-info  ubuntu@ec2-34-192-129-154.compute-1.amazonaws.com:/home/ubuntu
+	scp -i  ~/Documents/investments-info/finance-info.pem ~/code/investments-info/bin/investments-info  ubuntu@ec2-34-192-129-154.compute-1.amazonaws.com:/home/ubuntu
 
 deploy-bin: build copy-bins
 	sudo ./deploy.sh
