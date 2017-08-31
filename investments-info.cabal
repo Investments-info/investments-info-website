@@ -75,6 +75,7 @@ library
       Import
       Import.NoFoundation
       Model
+      Scripts.YahooHistorical
       Settings
       Settings.StaticFiles
   default-language: Haskell2010
