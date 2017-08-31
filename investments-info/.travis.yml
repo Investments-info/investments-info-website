@@ -1,6 +1,5 @@
 language: haskell
 
-
 install:
   - mkdir -p ~/.local/bin
   - export PATH=~/.local/bin:$PATH
