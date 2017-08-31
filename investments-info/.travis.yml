@@ -1,0 +1,26 @@
+language: haskell
+
+
+install:
+  - mkdir -p ~/.local/bin
+  - export PATH=~/.local/bin:$PATH
+  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
+  - chmod +x ~/.local/bin/stack
+
+
+script:
+  - stack setup --no-terminal
+  - stack build -j2 --fast --no-terminal
+  - stack test --fast --no-terminal
+
+cache:
+  timeout: 2000
+  directories:
+  - $HOME/.cabal
+  - $HOME/.ghc
+  - $HOME/.stack
+  - .stack-work/
+
+  apt: true
+
+  dist: trusty
