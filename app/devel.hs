@@ -1,5 +1,5 @@
 {-# LANGUAGE PackageImports #-}
-import "yahoo-finance" Application (develMain)
+import "investments-info" Application (develMain)
 import Prelude (IO)
 
 main :: IO ()
