@@ -2,6 +2,11 @@ resolver: lts-8.4
 
 packages:
 - '.'
+- location:
+    git: https://github.com/qtests/yadata.git
+    commit: 58d40f6e4ee002472dedbecefb853cd6da91992f
+  extra-dep: true
+
 extra-deps: []
 
 flags: {}

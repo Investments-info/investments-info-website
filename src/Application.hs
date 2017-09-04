@@ -40,6 +40,8 @@ import Handler.Comment
 import Handler.Common
 import Handler.Home
 import Handler.Profile
+import Handler.GraphLink
+
 
 mkYesodDispatch "App" resourcesApp
 

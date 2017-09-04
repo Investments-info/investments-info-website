@@ -120,6 +120,13 @@ instance Yesod App
             , menuItemRoute = AuthR LogoutR
             , menuItemAccessCallback = isJust muser
             }
+          , NavbarRight $
+            MenuItem
+            { menuItemLabel = "Financial Graphs"
+            , menuItemRoute = GraphLinkR
+            , menuItemAccessCallback = isNothing muser
+            }
+
           ]
     let navbarLeftMenuItems = [x | NavbarLeft x <- menuItems]
     let navbarRightMenuItems = [x | NavbarRight x <- menuItems]
@@ -143,6 +150,7 @@ instance Yesod App
   isAuthorized (AuthR _) _ = return Authorized
   isAuthorized CommentR _ = return Authorized
   isAuthorized HomeR _ = return Authorized
+  isAuthorized GraphLinkR _ = return Authorized
   isAuthorized FaviconR _ = return Authorized
   isAuthorized RobotsR _ = return Authorized
   isAuthorized (StaticR _) _ = return Authorized

@@ -71,6 +71,7 @@ library
       Foundation
       Handler.Comment
       Handler.Common
+      Handler.GraphLink
       Handler.Home
       Handler.Profile
       Import
