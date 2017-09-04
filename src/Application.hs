@@ -40,7 +40,6 @@ import Handler.Comment
 import Handler.Common
 import Handler.Home
 import Handler.Profile
-import Scripts.YahooHistorical
 
 mkYesodDispatch "App" resourcesApp
 
