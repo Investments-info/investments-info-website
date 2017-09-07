@@ -5,9 +5,19 @@ packages:
 - location:
     git: https://github.com/qtests/yadata.git
     commit: 58d40f6e4ee002472dedbecefb853cd6da91992f
-  extra-dep: true
+  extra-dep: false
+- location:
+    git: https://github.com/v0d1ch/financial-news-scraper.git
+    commit: df6bfe568ecffde74addb576d58f8122fbab3cc7
 
-extra-deps: []
+  extra-dep: false
+
+
+extra-deps:
+  - wreq-0.5.1.0
+  - scalpel-core-0.5.1
+  - scalpel-0.5.1
+  - webdriver-0.8.5
 
 flags: {}
 

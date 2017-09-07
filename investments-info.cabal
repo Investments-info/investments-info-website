@@ -61,6 +61,7 @@ library
     , wai
     , generic-deriving > 1.11.0 && <= 1.11.1
     , cookie
+    , financial-news-scraper
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -127,6 +128,7 @@ executable investments-info
     , wai
     , generic-deriving > 1.11.0 && <= 1.11.1
     , cookie
+    , financial-news-scraper
     , investments-info
   if flag(library-only)
     buildable: False
@@ -181,6 +183,7 @@ test-suite test
     , wai
     , generic-deriving > 1.11.0 && <= 1.11.1
     , cookie
+    , financial-news-scraper
     , investments-info
     , hspec >=2.0.0
     , yesod-test
