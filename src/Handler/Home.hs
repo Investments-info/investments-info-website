@@ -89,6 +89,7 @@ sampleForm =
 commentIds :: (Text, Text, Text)
 commentIds = ("js-commentForm", "js-createCommentTextarea", "js-commentList")
 
+insertStory :: F.News -> Handler (Key Story)
 insertStory news = do
   now <- liftIO getCurrentTime
   let story = Story { storyTitle = pack $ F.newstitle news
@@ -98,5 +99,5 @@ insertStory news = do
         , storyCreated = now
         }
 
-  _ <- runDB insert $ story
-  redirect HomeR
+  sid  <- runDB $ insert $ story
+  return sid
