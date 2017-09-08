@@ -88,3 +88,15 @@ sampleForm =
 
 commentIds :: (Text, Text, Text)
 commentIds = ("js-commentForm", "js-createCommentTextarea", "js-commentList")
+
+insertStory news = do
+  now <- liftIO getCurrentTime
+  let story = Story { storyTitle = pack $ F.newstitle news
+        , storyLink = pack $ F.newslink news
+        , storyContent = Just (pack $ F.newstext news)
+        , storyImage = Just (pack $ F.newsimage news)
+        , storyCreated = now
+        }
+
+  _ <- runDB insert $ story
+  redirect HomeR
