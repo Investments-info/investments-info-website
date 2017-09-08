@@ -62,6 +62,7 @@ library
     , generic-deriving > 1.11.0 && <= 1.11.1
     , cookie
     , financial-news-scraper
+    , esqueleto
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -129,6 +130,7 @@ executable investments-info
     , generic-deriving > 1.11.0 && <= 1.11.1
     , cookie
     , financial-news-scraper
+    , esqueleto
     , investments-info
   if flag(library-only)
     buildable: False
@@ -184,6 +186,7 @@ test-suite test
     , generic-deriving > 1.11.0 && <= 1.11.1
     , cookie
     , financial-news-scraper
+    , esqueleto
     , investments-info
     , hspec >=2.0.0
     , yesod-test
