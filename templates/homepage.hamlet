@@ -18,15 +18,15 @@
                         $forall news <- topn
                             <li .list-group-item>
                                 <div>
-                                    <h4><a href=#{F.newslink news}> #{F.newstitle news}
+                                    <h4><a href=#{F.reutersUrl <> F.newslink news} target=_blank> #{F.newstitle news}
                                     <p>
-                                        <a href=#{F.newslink news}><img src=#{F.newsimage news} width=100 />
+                                        <a href=#{F.reutersUrl <> F.newslink news} target=_blank><img src=#{F.newsimage news} width=100 />
                                         <span>#{F.newstext news}
                     <ul .list-group>
                         $forall sidenews <- siden
                             <li .list-group-item>
                                 <div>
-                                    <h4><a href=#{F.newslink sidenews}>#{F.newstitle sidenews}
+                                    <h4><a href=#{F.reutersUrl <> F.newslink sidenews}  target=_blank>#{F.newstitle sidenews}
                                     <p>
                                         #{F.newstext sidenews}
 
@@ -34,9 +34,9 @@
                         $forall fnews <- featuren
                             <li .list-group-item>
                                 <div>
-                                    <h4><a href=#{F.newslink fnews}>#{F.newstitle fnews}
+                                    <h4><a href=#{F.reutersUrl <> F.newslink fnews}  target=_blank >#{F.newstitle fnews}
                                     <p>
-                                        <a href=#{F.newslink fnews}><img src=#{F.newsimage fnews} width=100 />
+                                        <a href=#{F.reutersUrl <> F.newslink fnews}  target=_blank ><img src=#{F.newsimage fnews} width=100 />
                                         <span>#{F.newstext fnews}
     <hr>
     <!-- Forms
