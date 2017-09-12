@@ -21,7 +21,15 @@ data FileForm = FileForm
 
 getHomeR :: Handler Html
 getHomeR = do
-  -- firststory <- runDB $ selectFirst [StoryTitle Import.!=. storyTitle ""]
+  now <- liftIO getCurrentTime
+  firststory <- runDB $ selectFirst [] [Desc StoryCreated]
+  topnews <- liftIO getTopStory
+  fnews <- liftIO getFeatureStories
+  snews <- liftIO getSideStories
+  let topstories =  mapM convertImageStory topnews now
+  let fstories =  mapM convertImageStory fnews now
+  let sstories =  mapM convertStory snews now
+  mapM (runDB . insert) (topstories <> fstories <> sstories)
   allStories <- runDB $ selectList [] [Desc StoryCreated]
   (formWidget, formEnctype) <- generateFormPost sampleForm
   let submission = Nothing :: Maybe FileForm
@@ -33,31 +41,29 @@ getHomeR = do
     $(widgetFile "homepage")
 
 
-getTopStory :: IO [Handler (Key Story)]
+getTopStory :: IO [F.News]
 getTopStory = do
   headStory <- F.topStory "olympics-topStory" F.reutersUrl
   case headStory of
     Nothing -> return []
-    Just a -> do
-      return $ map insertStory $ a
+    Just a -> return a
 
 
-getFeatureStories :: IO [Handler (Key Story)]
+
+getFeatureStories :: IO [F.News]
 getFeatureStories = do
   stories <- F.featureNews "feature" F.reutersUrl
   case stories of
     Nothing -> return []
-    Just a -> do
-      return $ map insertStory $ a
+    Just a -> return a
 
 
-getSideStories :: IO [Handler (Key Story)]
+getSideStories :: IO [F.News]
 getSideStories = do
   stories <- F.leftColumnNews "column2" F.reutersUrl
   case stories of
     Nothing -> return []
-    Just a -> do
-      return $ map insertStory $ a
+    Just a -> return a
 
 
 sampleForm :: Form FileForm
@@ -82,19 +88,22 @@ commentIds :: (Text, Text, Text)
 commentIds = ("js-commentForm", "js-createCommentTextarea", "js-commentList")
 
 
-insertStory :: F.News -> Handler (Key Story)
-insertStory news = do
-  now <- liftIO getCurrentTime
-  let story = Story { storyTitle = pack $ F.newstitle news
+convertImageStory :: F.News -> UTCTime -> Story
+convertImageStory news now =  Story { storyTitle = pack $ F.newstitle news
         , storyLink = pack $ F.newslink news
         , storyContent = Just (pack $ F.newstext news)
         , storyImage = Just (pack $ F.newsimage news)
         , storyCreated = now
         }
 
-  sid  <- runDB $ insert $ story
-  return sid
 
+convertStory :: F.News -> UTCTime -> Story
+convertStory news now =  Story { storyTitle = pack $ F.newstitle news
+        , storyLink = pack $ F.newslink news
+        , storyContent = Just (pack $ F.newstext news)
+        , storyImage = Nothing
+        , storyCreated = now
+        }
 
 selectCount
   :: (BaseBackend backend ~ SqlBackend,

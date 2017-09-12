@@ -11,7 +11,6 @@
             <div .col-lg-12>
                 <div .page-header>
                     <h2 #start>Information about financial investing
-
                     <ul .list-group>
                         $forall Entity id news <- allStories
                             <li .list-group-item>
