@@ -91,10 +91,7 @@ tests:
     source-dirs: test
     ghc-options: -Wall
     dependencies:
-    - investments-info
-    - hspec >=2.0.0
     - yesod-test
-    - microlens
 
 # Define flags used by "yesod devel" to make compilation faster
 flags:

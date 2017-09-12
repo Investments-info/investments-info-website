@@ -12,7 +12,7 @@
                 <div .page-header>
                     <h2 #start>Information about financial investing
                     <ul .list-group>
-                        $forall Entity id news <- allStories
+                        $forall Entity _ news <- allStories
                             <li .list-group-item>
                                 <div>
                                     <h4><a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}

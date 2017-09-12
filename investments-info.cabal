@@ -76,6 +76,7 @@ library
       Handler.GraphLink
       Handler.Home
       Handler.Profile
+      Helper.Helper
       Import
       Import.NoFoundation
       Model
@@ -187,10 +188,7 @@ test-suite test
     , cookie
     , financial-news-scraper
     , esqueleto
-    , investments-info
-    , hspec >=2.0.0
     , yesod-test
-    , microlens
   other-modules:
       Handler.CommentSpec
       Handler.CommonSpec
