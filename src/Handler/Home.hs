@@ -32,6 +32,7 @@ getHomeR = do
           let tdiff = diffUTCTime now  (storyCreated $ entityVal fs)
           if(tdiff > 3600) then
               do
+                -- _ <- pure $ truncateTable "story" [PersistText "truncate"]
                 _ <- mapM (runDB . insert) (topstories <> fstories <> sstories)
                 return ()
           else

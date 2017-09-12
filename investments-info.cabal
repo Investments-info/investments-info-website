@@ -33,7 +33,7 @@ library
     , bytestring >=0.9 && <0.11
     , text >=0.11 && <2.0
     , persistent >=2.0 && <2.8
-    , persistent-sqlite >=2.6.0 && <2.6.2
+    , persistent-sqlite >2.6.0 && <= 2.6.2
     , persistent-template >=2.0 && <2.8
     , template-haskell
     , shakespeare >=2.0 && <2.1
@@ -44,7 +44,7 @@ library
     , http-conduit >=2.1 && <2.3
     , directory >=1.1 && <1.4
     , warp >=3.0 && <3.3
-    , warp-tls > 3.2.0 && <= 3.2.3
+    , warp-tls > 3.2.0 && <= 3.2.4
     , data-default
     , aeson >=0.6 && <1.3
     , conduit >=1.0 && <2.0
@@ -59,7 +59,7 @@ library
     , time
     , case-insensitive
     , wai
-    , generic-deriving > 1.11.0 && <= 1.11.1
+    , generic-deriving > 1.11.0 && <= 1.11.2
     , cookie
     , financial-news-scraper
     , esqueleto
@@ -76,7 +76,6 @@ library
       Handler.GraphLink
       Handler.Home
       Handler.Profile
-      Helper.Helper
       Import
       Import.NoFoundation
       Model
@@ -102,7 +101,7 @@ executable investments-info
     , bytestring >=0.9 && <0.11
     , text >=0.11 && <2.0
     , persistent >=2.0 && <2.8
-    , persistent-sqlite >=2.6.0 && <2.6.2
+    , persistent-sqlite >2.6.0 && <= 2.6.2
     , persistent-template >=2.0 && <2.8
     , template-haskell
     , shakespeare >=2.0 && <2.1
@@ -113,7 +112,7 @@ executable investments-info
     , http-conduit >=2.1 && <2.3
     , directory >=1.1 && <1.4
     , warp >=3.0 && <3.3
-    , warp-tls > 3.2.0 && <= 3.2.3
+    , warp-tls > 3.2.0 && <= 3.2.4
     , data-default
     , aeson >=0.6 && <1.3
     , conduit >=1.0 && <2.0
@@ -128,7 +127,7 @@ executable investments-info
     , time
     , case-insensitive
     , wai
-    , generic-deriving > 1.11.0 && <= 1.11.1
+    , generic-deriving > 1.11.0 && <= 1.11.2
     , cookie
     , financial-news-scraper
     , esqueleto
@@ -158,7 +157,7 @@ test-suite test
     , bytestring >=0.9 && <0.11
     , text >=0.11 && <2.0
     , persistent >=2.0 && <2.8
-    , persistent-sqlite >=2.6.0 && <2.6.2
+    , persistent-sqlite >2.6.0 && <= 2.6.2
     , persistent-template >=2.0 && <2.8
     , template-haskell
     , shakespeare >=2.0 && <2.1
@@ -169,7 +168,7 @@ test-suite test
     , http-conduit >=2.1 && <2.3
     , directory >=1.1 && <1.4
     , warp >=3.0 && <3.3
-    , warp-tls > 3.2.0 && <= 3.2.3
+    , warp-tls > 3.2.0 && <= 3.2.4
     , data-default
     , aeson >=0.6 && <1.3
     , conduit >=1.0 && <2.0
@@ -184,11 +183,14 @@ test-suite test
     , time
     , case-insensitive
     , wai
-    , generic-deriving > 1.11.0 && <= 1.11.1
+    , generic-deriving > 1.11.0 && <= 1.11.2
     , cookie
     , financial-news-scraper
     , esqueleto
     , yesod-test
+    , hspec
+    , investments-info
+    , microlens
   other-modules:
       Handler.CommentSpec
       Handler.CommonSpec
