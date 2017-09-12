@@ -12,6 +12,7 @@ import Text.Julius (RawJS (..))
 import qualified Text.HTML.Fscraper as F
 import Database.Esqueleto as E
 import Database.Esqueleto.Internal.Language
+import Data.Time.Clock (diffUTCTime)
 
 -- Define our data that will be used for creating the form.
 data FileForm = FileForm
@@ -23,22 +24,55 @@ getHomeR :: Handler Html
 getHomeR = do
   now <- liftIO getCurrentTime
   firststory <- runDB $ selectFirst [] [Desc StoryCreated]
-  topnews <- liftIO getTopStory
-  fnews <- liftIO getFeatureStories
-  snews <- liftIO getSideStories
-  let topstories =  mapM convertImageStory topnews now
-  let fstories =  mapM convertImageStory fnews now
-  let sstories =  mapM convertStory snews now
-  mapM (runDB . insert) (topstories <> fstories <> sstories)
-  allStories <- runDB $ selectList [] [Desc StoryCreated]
-  (formWidget, formEnctype) <- generateFormPost sampleForm
-  let submission = Nothing :: Maybe FileForm
-      handlerName = "getHomeR" :: Text
-  defaultLayout $ do
-    let (commentFormId, commentTextareaId, commentListId) = commentIds
-    aDomId <- newIdent
-    setTitle "Finance portal"
-    $(widgetFile "homepage")
+  case firststory of
+      Nothing -> do
+              topnews <- liftIO getTopStory
+              fnews <- liftIO getFeatureStories
+              snews <- liftIO getSideStories
+              let topstories =  mapM convertImageStory topnews now
+              let fstories =  mapM convertImageStory fnews now
+              let sstories =  mapM convertStory snews now
+              mapM (runDB . insert) (topstories <> fstories <> sstories)
+              allStories <- runDB $ selectList [] [Desc StoryCreated]
+              (formWidget, formEnctype) <- generateFormPost sampleForm
+              let submission = Nothing :: Maybe FileForm
+                  handlerName = "getHomeR" :: Text
+              defaultLayout $ do
+                let (commentFormId, commentTextareaId, commentListId) = commentIds
+                aDomId <- newIdent
+                setTitle "Finance portal"
+                $(widgetFile "homepage")
+      Just fs -> do
+          let tdiff = diffUTCTime now  (storyCreated $ entityVal fs)
+          if(tdiff > 3600) then
+             do
+              topnews <- liftIO getTopStory
+              fnews <- liftIO getFeatureStories
+              snews <- liftIO getSideStories
+              let topstories =  mapM convertImageStory topnews now
+              let fstories =  mapM convertImageStory fnews now
+              let sstories =  mapM convertStory snews now
+              mapM (runDB . insert) (topstories <> fstories <> sstories)
+              allStories <- runDB $ selectList [] [Desc StoryCreated]
+              (formWidget, formEnctype) <- generateFormPost sampleForm
+              let submission = Nothing :: Maybe FileForm
+                  handlerName = "getHomeR" :: Text
+              defaultLayout $ do
+                let (commentFormId, commentTextareaId, commentListId) = commentIds
+                aDomId <- newIdent
+                setTitle "Finance portal"
+                $(widgetFile "homepage")
+          else
+            do
+             allStories <- runDB $ selectList [] [Desc StoryCreated]
+             (formWidget, formEnctype) <- generateFormPost sampleForm
+             let submission = Nothing :: Maybe FileForm
+                 handlerName = "getHomeR" :: Text
+             defaultLayout $ do
+                let (commentFormId, commentTextareaId, commentListId) = commentIds
+                aDomId <- newIdent
+                setTitle "Finance portal"
+                $(widgetFile "homepage")
 
 
 getTopStory :: IO [F.News]
