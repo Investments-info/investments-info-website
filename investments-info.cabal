@@ -76,6 +76,7 @@ library
       Handler.GraphLink
       Handler.Home
       Handler.Profile
+      Helper.Helper
       Import
       Import.NoFoundation
       Model

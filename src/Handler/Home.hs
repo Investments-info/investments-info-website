@@ -9,7 +9,7 @@ module Handler.Home where
 import Import
 import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
-
+import Helper.Helper  as H
 
 getHomeR :: Handler Html
 getHomeR = do
@@ -32,7 +32,7 @@ getHomeR = do
           let tdiff = diffUTCTime now  (storyCreated $ entityVal fs)
           if(tdiff > 3600) then
               do
-                -- _ <- pure $ truncateTable "story" [PersistText "truncate"]
+                _ <- runDB  $ H.truncateTables
                 _ <- mapM (runDB . insert) (topstories <> fstories <> sstories)
                 return ()
           else
