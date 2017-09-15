@@ -63,6 +63,7 @@ library
     , cookie
     , financial-news-scraper
     , esqueleto
+    , hashable
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -132,6 +133,7 @@ executable investments-info
     , cookie
     , financial-news-scraper
     , esqueleto
+    , hashable
     , investments-info
   if flag(library-only)
     buildable: False
@@ -188,6 +190,7 @@ test-suite test
     , cookie
     , financial-news-scraper
     , esqueleto
+    , hashable
     , yesod-test
     , hspec
     , investments-info

@@ -11,6 +11,7 @@ import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
 
+
 getHomeR :: Handler Html
 getHomeR = do
   now <- liftIO getCurrentTime
@@ -67,18 +68,24 @@ getSideStories = do
     Just a -> return a
 
 convertImageStory :: F.News -> UTCTime -> Story
-convertImageStory news now =  Story { storyTitle = pack $ F.newstitle news
-        , storyLink = pack $ F.newslink news
-        , storyContent = Just (pack $ F.newstext news)
-        , storyImage = Just (pack $ F.newsimage news)
-        , storyCreated = now
-        }
+convertImageStory news now =
+  Story
+  { storyHashId = H.makeHash (F.newstitle news)
+  , storyTitle = pack $ F.newstitle news
+  , storyLink = pack $ F.newslink news
+  , storyContent = Just (pack $ F.newstext news)
+  , storyImage = Just (pack $ F.newsimage news)
+  , storyCreated = now
+  }
 
 
 convertStory :: F.News -> UTCTime -> Story
-convertStory news now =  Story { storyTitle = pack $ F.newstitle news
-        , storyLink = pack $ F.newslink news
-        , storyContent = Just (pack $ F.newstext news)
-        , storyImage = Nothing
-        , storyCreated = now
-        }
+convertStory news now =
+  Story
+  { storyHashId = H.makeHash (F.newstitle news)
+  , storyTitle = pack $ F.newstitle news
+  , storyLink = pack $ F.newslink news
+  , storyContent = Just (pack $ F.newstext news)
+  , storyImage = Nothing
+  , storyCreated = now
+  }
