@@ -22,11 +22,11 @@ getHomeR = do
       fstories =  mapM convertImageStory fnews now
       sstories =  mapM convertStory snews now
       allS     = topstories <> fstories <> sstories
-  filteredStories <- mapM H.checkStorySaved allS
+  -- filteredStories <- mapM H.checkStorySaved allS
   firststory <- runDB $ selectFirst [] [Desc StoryCreated]
   case firststory of
       Nothing -> do
-              _ <- mapM (runDB . insert) allS
+              _ <- mapM checkStorySaved allS
               allStories <- runDB $ selectList [] [Desc StoryCreated]
               defaultLayout $ do
                 setTitle "Finance portal"
@@ -36,7 +36,7 @@ getHomeR = do
           if(tdiff > 3600) then
               do
                 _ <- runDB  $ H.truncateTables
-                _ <- mapM (runDB . insert) allS
+                _ <- mapM checkStorySaved allS
                 return ()
           else
               return ()
@@ -45,6 +45,15 @@ getHomeR = do
             setTitle "Finance portal"
             $(widgetFile "homepage")
 
+
+checkStorySaved :: Story -> HandlerT App IO (Maybe (Entity Story))
+checkStorySaved story = do
+    insertedStory <- runDB $ selectFirst [StoryHashId ==. storyHashId story] []
+    case insertedStory of
+        Nothing -> do
+            _ <- runDB $ insert story
+            return Nothing
+        Just s -> return $ Just s
 
 getTopStory :: IO [F.News]
 getTopStory = do

@@ -10,7 +10,6 @@ module Helper.Helper where
 import Database.Persist.Sql  (SqlBackend, rawSql, unSingle)
 import Data.Text
 import Data.Hashable
-import Data.Map.Strict as M
 import Import
 
 
@@ -21,10 +20,3 @@ truncateTables = do
 
 makeHash :: Hashable a => a -> Int
 makeHash s = hash s
-
-checkStorySaved :: Story -> HandlerT App IO Bool
-checkStorySaved story = do
-    insertedStory <- runDB $ selectFirst [StoryHashId ==. storyHashId story] []
-    case insertedStory of
-        Nothing -> return False
-        Just s -> return True
