@@ -19,12 +19,14 @@ getHomeR = do
   fnews <- liftIO getFeatureStories
   snews <- liftIO getSideStories
   let topstories =  mapM convertImageStory topnews now
-  let fstories =  mapM convertImageStory fnews now
-  let sstories =  mapM convertStory snews now
+      fstories =  mapM convertImageStory fnews now
+      sstories =  mapM convertStory snews now
+      allS     = topstories <> fstories <> sstories
+  filteredStories <- mapM H.checkStorySaved allS
   firststory <- runDB $ selectFirst [] [Desc StoryCreated]
   case firststory of
       Nothing -> do
-              _ <- mapM (runDB . insert) (topstories <> fstories <> sstories)
+              _ <- mapM (runDB . insert) allS
               allStories <- runDB $ selectList [] [Desc StoryCreated]
               defaultLayout $ do
                 setTitle "Finance portal"
@@ -34,7 +36,7 @@ getHomeR = do
           if(tdiff > 3600) then
               do
                 _ <- runDB  $ H.truncateTables
-                _ <- mapM (runDB . insert) (topstories <> fstories <> sstories)
+                _ <- mapM (runDB . insert) allS
                 return ()
           else
               return ()
