@@ -20,3 +20,12 @@ truncateTables = do
 
 makeHash :: Hashable a => a -> Int
 makeHash s = hash s
+
+checkStorySaved :: [Story] -> HandlerT App IO [Maybe (Entity Story)]
+checkStorySaved stories = do
+    insertedStories <- mapM (\s -> runDB $ selectFirst [StoryHashId ==. storyHashId s] []) stories
+    liftIO $ print insertedStories
+    return undefined
+
+
+filterSavedStory storyList s = undefined
