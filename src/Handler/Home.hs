@@ -22,7 +22,6 @@ getHomeR = do
       fstories =  mapM convertImageStory fnews now
       sstories =  mapM convertStory snews now
       allS     = topstories <> fstories <> sstories
-  -- filteredStories <- mapM H.checkStorySaved allS
   firststory <- runDB $ selectFirst [] [Desc StoryCreated]
   case firststory of
       Nothing -> do
@@ -35,7 +34,7 @@ getHomeR = do
           let tdiff = diffUTCTime now  (storyCreated $ entityVal fs)
           if(tdiff > 3600) then
               do
-                _ <- runDB  $ H.truncateTables
+                -- _ <- runDB  $ H.truncateTables
                 _ <- mapM checkStorySaved allS
                 return ()
           else
