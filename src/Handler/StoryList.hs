@@ -12,7 +12,7 @@ import Database.Esqueleto.Internal.Language
 import qualified Text.HTML.Fscraper as F
 
 postsByPage :: Int
-postsByPage = 5
+postsByPage = 10
 
 selectCount
   :: (BaseBackend backend ~ SqlBackend,
@@ -32,15 +32,15 @@ calculatePreviousPage entries pageSize currentPage =
     then Just n
     else Nothing
   where
-    n = (pageSize * currentPage) - pageSize
+    n = (pageSize * (currentPage - 1)) `div` pageSize
 
 calculateNextPage :: Int -> Int -> Int -> Maybe Int
 calculateNextPage entries pageSize currentPage =
-  if n <= entries && n > 0
+  if n <= (entries `div` pageSize) && n > 0
     then Just n
     else Nothing
   where
-    n = (pageSize * currentPage) + pageSize
+    n = (pageSize * (currentPage + 1)) `div` pageSize
 
 getStoryListR :: Page -> Handler Html
 getStoryListR currentPage = do
@@ -49,11 +49,9 @@ getStoryListR currentPage = do
       runDB $ selectCount $ \story ->  E.where_ (story ^. StoryCreated E.<=. E.val now)
     let next = calculateNextPage entriesCount postsByPage currentPage
     let previous = calculatePreviousPage entriesCount postsByPage currentPage
-    let off =
-           if currentPage - postsByPage < 0
-           then 0
-           else currentPage - postsByPage
+    let off = (currentPage - 1) * postsByPage
+
     allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo postsByPage, OffsetBy off]
     defaultLayout $ do
        setTitle "Finance portal"
-       $(widgetFile "homepage")
+       $(widgetFile "storylist")

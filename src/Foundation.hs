@@ -158,6 +158,7 @@ instance Yesod App
   isAuthorized RobotsR _ = return Authorized
   isAuthorized (StaticR _) _ = return Authorized
   isAuthorized ProfileR _ = isAuthenticated
+  isAuthorized (StoryListR _) _ = return Authorized
     -- This function creates static content files in the static folder
     -- and names them based on a hash of their content. This allows
     -- expiration dates to be set far in the future without worry of
@@ -186,6 +187,7 @@ instance Yesod App
 -- Define breadcrumbs.
 instance YesodBreadcrumbs App where
   breadcrumb HomeR = return ("Home", Nothing)
+  breadcrumb (StoryListR _) = return ("Articles", Nothing)
   breadcrumb (AuthR _) = return ("Login", Just HomeR)
   breadcrumb ProfileR = return ("Profile", Just HomeR)
   breadcrumb _ = return ("home", Nothing)

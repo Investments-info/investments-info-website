@@ -26,7 +26,7 @@ getHomeR = do
   case firststory of
       Nothing -> do
               _ <- mapM checkStorySaved allS
-              allStories <- runDB $ selectList [] [Desc StoryCreated]
+              allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
               defaultLayout $ do
                 setTitle "Finance portal"
                 $(widgetFile "homepage")
@@ -39,7 +39,7 @@ getHomeR = do
                 return ()
           else
               return ()
-          allStories <- runDB $ selectList [] [Desc StoryCreated]
+          allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
           defaultLayout $ do
             setTitle "Finance portal"
             $(widgetFile "homepage")
