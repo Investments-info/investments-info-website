@@ -36,7 +36,7 @@ calculatePreviousPage entries pageSize currentPage =
 
 calculateNextPage :: Int -> Int -> Int -> Maybe Int
 calculateNextPage entries pageSize currentPage =
-  if n <= (entries `div` pageSize) && n > 0
+  if n <= ((entries `div` pageSize) + 1) && n > 0
     then Just n
     else Nothing
   where
