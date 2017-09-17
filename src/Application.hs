@@ -39,10 +39,8 @@ import System.Log.FastLogger
 
 import Handler.Auth
 import Handler.Admin
-import Handler.Comment
 import Handler.Common
 import Handler.Home
-import Handler.Profile
 import Handler.GraphLink
 import Handler.StoryList
 

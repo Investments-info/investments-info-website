@@ -36,7 +36,7 @@ type DBVal val =
 fetchThingByField
   :: (PersistField typ, DBVal val)
   => EntityField val typ -> typ -> DB (Maybe (Entity val))
-fetchThingByField field u = selectFirst [field ==. u] []
+fetchThingByField field u = undefined -- selectFirst [field ==. u] []
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User sql=users
@@ -64,13 +64,13 @@ Admin sql=admins
   deriving Eq Show
 |]
 
--- getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
--- getUserPassword email = fmap listToMaybe $
---   select $
---   from $ \(user `InnerJoin` pass) -> do
---   on (user ^. UserId ==. pass ^. PasswordUser)
---   where_ (user ^. UserEmail ==. val email)
---   return (user, pass)
+getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
+getUserPassword email = fmap listToMaybe $
+  select $
+  from $ \(user `InnerJoin` pass) -> do
+  on (user ^. UserId ==. pass ^. PasswordUser)
+  where_ (user ^. UserEmail ==. val email)
+  return (user, pass)
 
 getUserEntity :: Text -> DB (Maybe (Entity User))
 getUserEntity email = fmap listToMaybe $
