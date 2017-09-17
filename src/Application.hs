@@ -37,6 +37,8 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
+import Handler.Auth
+import Handler.Admin
 import Handler.Comment
 import Handler.Common
 import Handler.Home
