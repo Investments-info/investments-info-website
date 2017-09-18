@@ -27,7 +27,7 @@ getAdminDeckR = do
 postAdminDeckR :: Handler Html
 postAdminDeckR = do
   _ <- requireAdmin
-  baseLayout "Admin - Create a Deck" Nothing [whamlet|
+  baseLayout "Admin" Nothing [whamlet|
 <div .row #content>
   <div .medium-8 .columns>
     <h3>Create a deck
@@ -37,7 +37,7 @@ postAdminDeckR = do
 getAdminCardR :: Handler Html
 getAdminCardR = do
   _ <- requireAdmin
-  baseLayout "Admin - Create a Deck" Nothing [whamlet|
+  baseLayout "Admin" Nothing [whamlet|
 <div .row #content>
   <div .medium-8 .columns>
     <h3>Create a deck
@@ -46,7 +46,7 @@ getAdminCardR = do
 postAdminCardR :: Handler Html
 postAdminCardR = do
   _ <- requireAdmin
-  baseLayout "Admin - Create a Deck" Nothing [whamlet|
+  baseLayout "Admin" Nothing [whamlet|
 <div .row #content>
   <div .medium-8 .columns>
     <h3>Create a deck

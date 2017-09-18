@@ -41,7 +41,6 @@ import Handler.Auth
 import Handler.Admin
 import Handler.Common
 import Handler.Home
-import Handler.GraphLink
 import Handler.StoryList
 
 mkYesodDispatch "App" resourcesApp

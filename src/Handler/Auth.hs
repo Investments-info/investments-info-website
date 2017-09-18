@@ -92,6 +92,7 @@ postSignupR = do
       case maybeUP of
         -- If it does, render the form again (?)
         (Just _) -> do
+          setMessage "User already exists"
           renderSignup widget
         -- If not, create a user
         Nothing -> do

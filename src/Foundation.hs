@@ -16,7 +16,6 @@ import qualified Data.Text.Encoding as TE
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
-import Handler.Sessions
 
 data App = App
   { appSettings :: AppSettings

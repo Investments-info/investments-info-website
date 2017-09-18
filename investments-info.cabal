@@ -82,7 +82,6 @@ library
       Handler.Admin
       Handler.Auth
       Handler.Common
-      Handler.GraphLink
       Handler.Home
       Handler.Sessions
       Handler.StoryList

@@ -7,8 +7,6 @@
 
 /page/#Page StoryListR GET
 
-/graph GraphLinkR GET
-
 /login      LoginR   GET POST
 
 /signup     SignupR  GET POST
