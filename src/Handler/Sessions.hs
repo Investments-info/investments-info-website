@@ -120,7 +120,7 @@ requireAdmin = do
   case maybeUser of
     Nothing -> notAuthenticated
     (Just user) -> do
-      maybeAdmin <- runDB $ fetchThingByField AdminAccount (entityKey user)
+      maybeAdmin <- runDB $ selectFirst [AdminAccount ==. (entityKey user)] []
       case maybeAdmin of
         Nothing -> permissionDenied "You are not an administrator"
         (Just admin) -> return (user, admin)

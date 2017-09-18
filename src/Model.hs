@@ -33,10 +33,10 @@ type DBVal val =
   , PersistEntityBackend val ~ SqlBackend
   , PersistStore (PersistEntityBackend val))
 
-fetchThingByField
-  :: (PersistField typ, DBVal val)
-  => EntityField val typ -> typ -> DB (Maybe (Entity val))
-fetchThingByField field u = undefined -- selectFirst [field ==. u] []
+-- fetchThingByField
+--   :: (PersistField typ, DBVal val)
+--   => EntityField val typ -> typ -> DB (Maybe (Entity val))
+-- fetchThingByField field u = selectFirst [field ==. u] []
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User sql=users
