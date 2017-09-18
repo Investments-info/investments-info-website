@@ -1,5 +1,4 @@
 /static StaticR Static appStatic
-/auth   AuthR   Auth   getAuth
 
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
@@ -8,8 +7,10 @@
 
 /page/#Page StoryListR GET
 
-/comments CommentR POST
+/login      LoginR   GET POST
 
-/profile ProfileR GET
+/signup     SignupR  GET POST
 
-/graph GraphLinkR GET
+/signout    SignoutR GET
+
+/admin      AdminR       GET

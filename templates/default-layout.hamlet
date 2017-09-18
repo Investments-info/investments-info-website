@@ -1,4 +1,3 @@
-
 <!-- Static navbar -->
 <nav .navbar.navbar-default.navbar-static-top>
     <div .container>
@@ -11,15 +10,14 @@
 
         <div #navbar .collapse.navbar-collapse>
             <ul .nav.navbar-nav>
-                $forall MenuItem label route _ <- navbarLeftFilteredMenuItems
-                    <li :Just route == mcurrentRoute:.active>
-                        <a href="@{route}">#{label}
+                    <li>
+                        <a href="@{HomeR}">Home
+                    <li>
+                        <a href="@{StoryListR 1}">Articles
 
             <ul .nav.navbar-nav.navbar-right>
-                $forall MenuItem label route _ <- navbarRightFilteredMenuItems
-                    <li :Just route == mcurrentRoute:.active>
-                        <a href="@{route}">#{label}
-
+                    <li>
+                        <a href="http://investments-info.com:3000" target=_blank >Financial Graphs
 <!-- Page Contents -->
 
 <div .container>
