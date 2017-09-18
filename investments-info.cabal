@@ -63,6 +63,7 @@ library
     , generic-deriving > 1.11.0 && <= 1.11.2
     , cookie
     , financial-news-scraper
+    , yadata
     , esqueleto
     , hashable
     , transformers >= 0.4 && < 0.6
@@ -71,6 +72,7 @@ library
     , bcrypt >= 0.0.8      && < 0.0.11
     , uuid                          >= 1.3        && < 1.4
     , uuid-types                    >= 1.0        && < 2.0
+    , lens
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -144,6 +146,7 @@ executable investments-info
     , generic-deriving > 1.11.0 && <= 1.11.2
     , cookie
     , financial-news-scraper
+    , yadata
     , esqueleto
     , hashable
     , transformers >= 0.4 && < 0.6
@@ -152,6 +155,7 @@ executable investments-info
     , bcrypt >= 0.0.8      && < 0.0.11
     , uuid                          >= 1.3        && < 1.4
     , uuid-types                    >= 1.0        && < 2.0
+    , lens
     , investments-info
   if flag(library-only)
     buildable: False
@@ -208,6 +212,7 @@ test-suite test
     , generic-deriving > 1.11.0 && <= 1.11.2
     , cookie
     , financial-news-scraper
+    , yadata
     , esqueleto
     , hashable
     , transformers >= 0.4 && < 0.6
@@ -216,6 +221,7 @@ test-suite test
     , bcrypt >= 0.0.8      && < 0.0.11
     , uuid                          >= 1.3        && < 1.4
     , uuid-types                    >= 1.0        && < 2.0
+    , lens
     , yesod-test
     , hspec
     , investments-info

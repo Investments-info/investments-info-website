@@ -10,7 +10,19 @@ import Import
 import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
+import LibYahoo (getYahooData)
+import Control.Exception as X hiding (Handler)
+import qualified Data.ByteString.Lazy as L
 
+data YahooData = YahooData
+  { date		:: UTCTime
+  , open		:: Float
+  , high		:: Float
+  , low			:: Float
+  , close		:: Float
+  , adjClose	:: Float
+  , volume		:: Int
+  } deriving (Show, Eq)
 
 getHomeR :: Handler Html
 getHomeR = do
@@ -35,6 +47,8 @@ getHomeR = do
       if (tdiff > 3600)
         then do
           _ <- mapM checkStorySaved allS
+          graphData <- liftIO (getYahooData "KO")
+          print graphData
           return ()
         else return ()
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
@@ -42,6 +56,11 @@ getHomeR = do
         setTitle "Finance portal"
         $(widgetFile "homepage")
 
+httpExceptionHandler ::   HttpExceptionContent -> IO (Either String L.ByteString)
+httpExceptionHandler (StatusCodeException _ _) = do
+          return $ Left "oops"
+httpExceptionHandler _ = do
+          return $ Left "oops some error"
 
 checkStorySaved :: Story -> HandlerT App IO (Maybe (Entity Story))
 checkStorySaved story = do
