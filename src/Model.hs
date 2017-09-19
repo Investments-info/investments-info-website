@@ -7,14 +7,13 @@
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE DeriveGeneric              #-}
 module Model
   ( module Import
   , module Model
   ) where
 
-import Database.Persist.Quasi
 import ClassyPrelude.Yesod hiding ((==.), hash, on)
-import Control.Monad.Logger hiding (LoggingT, runLoggingT)
 import Data.Maybe (listToMaybe)
 import Database.Esqueleto
 import Model.BCrypt as Import
@@ -63,6 +62,19 @@ Admin sql=admins
   UniqueAdminUser account
   deriving Eq Show
 |]
+
+newtype EntityStory = ES (Entity Story)
+
+instance ToJSON (EntityStory) where
+    toJSON (ES (Entity uid (Story hashId title link content image created))) = object
+        [ "hid" .= hashId
+        , "title" .= title
+        , "link" .= link
+        , "content" .= content
+        , "image" .= image
+        , "created" .= created
+        ]
+
 
 getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
 getUserPassword email = fmap listToMaybe $
