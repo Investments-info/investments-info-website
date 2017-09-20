@@ -59,8 +59,6 @@ getStoryListR currentPage = do
         <div .row>
             <div .col-lg-12>
                 <div .page-header>
-                    <div .pull-right .col-md-3>
-                        <input type="text" #article-finder .form-control placeholder="Search articles" />
                     <h2 #start>Financial news
                     <ul .list-group>
                         $forall Entity _ news <- allStories
@@ -80,23 +78,4 @@ getStoryListR currentPage = do
                         <a href=@{StoryListR next} class="btn btn-primary">>>
                     <p class="pull-right">Number of articles : #{entriesCount}
 
-|]
-
-        toWidget [julius|
- $(document).ready(function(){
-   var searchString = "";
-   $("#article-finder").on('keyup', function(e){
-    if (e.which !== 0) {
-       searchString += e.which;
-       $.ajax({
-            contentType: "application/json",
-            url: "@{SearchArticlesR}/" + searchString,
-            type: "GET",
-            success: function(data) {
-                console.log(data);
-            }
-        });
-    }
-  });
- });
 |]

@@ -63,18 +63,13 @@ Admin sql=admins
   deriving Eq Show
 |]
 
-newtype EntityStory = ES (Entity Story)
-
-instance ToJSON (EntityStory) where
-    toJSON (ES (Entity uid (Story hashId title link content image created))) = object
-        [ "hid" .= hashId
-        , "title" .= title
-        , "link" .= link
-        , "content" .= content
-        , "image" .= image
-        , "created" .= created
+instance ToJSON (Entity Story) where
+    toJSON (Entity pid p) = object
+        [ "title"   .= storyTitle p
+        , "link"    .= storyLink p
+        , "content" .= storyContent p
+        , "image"   .= storyImage p
         ]
-
 
 getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
 getUserPassword email = fmap listToMaybe $

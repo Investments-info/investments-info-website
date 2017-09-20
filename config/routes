@@ -3,10 +3,10 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/ HomeR                                        GET
+/                              HomeR           GET
 /page/#Page                    StoryListR      GET
 /login                         LoginR          GET POST
 /signup                        SignupR         GET POST
 /signout                       SignoutR        GET
 /admin                         AdminR          GET
-/search/#ArticleSearchString   SearchArticlesR GET
+/search                        SearchArticlesR POST

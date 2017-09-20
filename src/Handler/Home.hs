@@ -15,17 +15,17 @@ import Control.Exception as X hiding (Handler)
 import qualified Data.ByteString.Lazy as L
 
 data YahooData = YahooData
-  { date		:: UTCTime
-  , open		:: Float
-  , high		:: Float
-  , low			:: Float
-  , close		:: Float
-  , adjClose	:: Float
-  , volume		:: Int
+  { date :: UTCTime
+  , open :: Float
+  , high :: Float
+  , low :: Float
+  , close :: Float
+  , adjClose :: Float
+  , volume :: Int
   } deriving (Show, Eq)
 
 getHomeR :: Handler Html
-getHomeR = do
+getHomeR  = do
   now <- liftIO getCurrentTime
   topnews <- getTopStory
   fnews <- getFeatureStories
@@ -53,8 +53,64 @@ getHomeR = do
         else return ()
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
       defaultLayout $ do
-        setTitle "Finance portal"
-        $(widgetFile "homepage")
+        toWidget [whamlet|
+<div .masthead>
+    <div .container>
+        <div .row>
+            <h1 .header>
+               Investments Info - Finance portal
+            <h2>
+<div .container>
+    <div .bs-docs-section>
+        <div .row>
+            <div .col-lg-12>
+                <div .page-header>
+                    <div .pull-right .col-md-3>
+                        <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
+                        <div id="search-results" style="z-index:5000;border:1px solid gray"></div>
+                    <h2 #start>Financial news
+                    <ul .list-group>
+                        $forall Entity _ news <- allStories
+                            <li .list-group-item>
+                                <div>
+                                    <h4><a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
+                                    <p>
+                                        $maybe img <- storyImage news
+                                            <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
+                                        $maybe content <- storyContent news
+                                            <p>#{content}
+                    <a href=@{StoryListR 1} class="btn btn-primary pull-right">All articles
+|]
+        toWidget [julius|
+ $(document).ready(function(){
+   var searchString = "";
+   $("#article-finder").on('keyup', function(e){
+       searchString = $(this).val();
+       $("#search0-results").empty();
+       $.ajax({
+            url: "@{SearchArticlesR}",
+            type: "post",
+            data: {"sstr": searchString},
+            success: function(data) {
+            console.log(data);
+                if(data.result){
+                   for(var i = 0;i < data.result.length;i++){
+                      var div = $('<div/>', {
+                           id: "story-" + i
+                       }).appendTo('#search-results');
+                      var l = $('<a/>', {
+                          href: data.result[i].link,
+                          title: data.result[i].title,
+                          rel: 'external',
+                          text: data.result[i].title,
+                       }).appendTo('#story' + i);
+                   }
+                }
+            }
+        });
+  });
+ });
+|]
 
 httpExceptionHandler ::   HttpExceptionContent -> IO (Either String L.ByteString)
 httpExceptionHandler (StatusCodeException _ _) = do
