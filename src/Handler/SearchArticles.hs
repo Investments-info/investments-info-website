@@ -12,7 +12,7 @@ import Database.Esqueleto as E
 postSearchArticlesR :: Handler Import.Value
 postSearchArticlesR = do
   postData <- lookupPostParam "sstr" -- :: Handler ArticleSearchString
-  let searchStr = "%" <> (fromMaybe "" postData) <> "%"
+  let searchStr = "%" <> (fromMaybe "###############" postData) <> "%"
   articles <-
     runDB $
     select $

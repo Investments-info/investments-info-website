@@ -67,7 +67,7 @@ getHomeR  = do
                 <div .page-header>
                     <div .pull-right .col-md-3>
                         <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
-                        <div id="search-results" style="z-index:5000;border:1px solid gray"></div>
+                        <div id="search-results" ></div>
                     <h2 #start>Financial news
                     <ul .list-group>
                         $forall Entity _ news <- allStories
@@ -86,28 +86,26 @@ getHomeR  = do
    var searchString = "";
    $("#article-finder").on('keyup', function(e){
        searchString = $(this).val();
-       $("#search0-results").empty();
-       $.ajax({
+        $("#search-results").css({'display':'none'});
+        $("#search-results").empty();
+       if(searchString.length > 1){
+        $("#search-results").css({'display':'block'});
+         $.ajax({
             url: "@{SearchArticlesR}",
             type: "post",
             data: {"sstr": searchString},
             success: function(data) {
-            console.log(data);
-                if(data.result){
+                if(data.result.length > 0){
                    for(var i = 0;i < data.result.length;i++){
-                      var div = $('<div/>', {
-                           id: "story-" + i
-                       }).appendTo('#search-results');
-                      var l = $('<a/>', {
-                          href: data.result[i].link,
-                          title: data.result[i].title,
-                          rel: 'external',
-                          text: data.result[i].title,
-                       }).appendTo('#story' + i);
+                       var item = $('<div class="search-item"><a href="http://www.reuters.com/finance/markets' + data.result[i].link +'" target="_blank" class="search-item" ><img src="'+ data.result[i].image +'" class="search-image" width="90px" />'+ data.result[i].title + '</a></div>');
+                       item.appendTo("#search-results");
                    }
+                }else{
+                     $("#search-results").css({'display':'none'});
                 }
             }
-        });
+         });
+       }
   });
  });
 |]
