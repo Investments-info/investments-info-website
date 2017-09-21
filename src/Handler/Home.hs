@@ -10,19 +10,9 @@ import Import
 import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
-import LibYahoo (getYahooData)
 import Control.Exception as X hiding (Handler)
 import qualified Data.ByteString.Lazy as L
 
-data YahooData = YahooData
-  { date :: UTCTime
-  , open :: Float
-  , high :: Float
-  , low :: Float
-  , close :: Float
-  , adjClose :: Float
-  , volume :: Int
-  } deriving (Show, Eq)
 
 getHomeR :: Handler Html
 getHomeR  = do
@@ -47,8 +37,6 @@ getHomeR  = do
       if (tdiff > 3600)
         then do
           _ <- mapM checkStorySaved allS
-          graphData <- liftIO (getYahooData "KO")
-          print graphData
           return ()
         else return ()
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
