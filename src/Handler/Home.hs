@@ -100,6 +100,10 @@ getHomeR  = do
                        var item = $('<div class="search-item"><a href="http://www.reuters.com/finance/markets' + data.result[i].link +'" target="_blank" class="search-item" ><img src="'+ data.result[i].image +'" class="search-image" width="90px" />'+ data.result[i].title + '</a><div style="clear:both"></div></div>');
                        item.appendTo("#search-results");
                    }
+                   $('#search-results img').each(function(index,element){
+                     var $el = $(this)
+                     if($el.attr('src') == '' || $el.attr('src') == 'null') $el.remove()
+                   });
                 }else{
                      $("#search-results").css({'display':'none'});
                 }
