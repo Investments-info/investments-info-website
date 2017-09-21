@@ -27,6 +27,7 @@ data App = App
 
 
 type Page = Int
+type ArticleSearchString = Text
 
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
@@ -35,11 +36,11 @@ type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 navLayout :: Maybe (Entity User) -> Widget
 navLayout user =
   [whamlet|
-<div class="top-bar">
+<!-- <div class="top-bar">
   <div class="top-bar-left">
     <ul class="menu">
       <li .menu-logo>
-        <a href="@{HomeR}" .plain>Cards With Comrades
+        <a href="@{HomeR}" .plain>Home
   <div class="top-bar-right">
     <ul class="menu">
       $maybe _ <- user
@@ -49,7 +50,7 @@ navLayout user =
         <li>
           <a href="@{LoginR}">Login
         <li>
-          <a href="@{SignupR}">Signup
+          <a href="@{SignupR}">Signup -->
 |]
 
 baseLayout :: Html -> Maybe (Entity User) -> WidgetT App IO () -> Handler Html

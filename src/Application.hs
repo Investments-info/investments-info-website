@@ -42,6 +42,7 @@ import Handler.Admin
 import Handler.Common
 import Handler.Home
 import Handler.StoryList
+import Handler.SearchArticles
 
 mkYesodDispatch "App" resourcesApp
 

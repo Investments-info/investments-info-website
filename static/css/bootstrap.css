@@ -7020,3 +7020,26 @@ a.list-group-item-danger.active:focus {
 .popover {
   color: #2c3e50;
 }
+.search-item{
+	padding:5px;
+	display:block;
+}
+#search-results{
+	z-index:5000;
+	border:1px solid #e4e4e4;
+	position:absolute;
+	padding:5px;
+	Background:#ffffff;
+	display:none;
+	-moz-box-shadow:    3px 3px 5px 0px #ccc;
+    -webkit-box-shadow: 3px 3px 5px 0px #ccc;
+    box-shadow:         3px 3px 5px 0px #ccc;
+}
+.search-image{
+	padding:0 5px 5px 0;
+	float:left;
+}
+
+.search-item a{
+	font-size:12px;
+}
