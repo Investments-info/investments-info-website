@@ -17,5 +17,7 @@ postSearchArticlesR = do
     runDB $
     select $
     E.from $ \a -> do E.where_ (a ^. StoryTitle `E.like` (E.val searchStr))
+                      E.limit 10
+                      E.orderBy [desc (a ^. StoryCreated)]
                       return a
   return $ object ["result" .= articles]
