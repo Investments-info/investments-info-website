@@ -75,6 +75,9 @@ library
     , lens
     , conduit
     , conduit-extra
+    , csv-conduit >= 0.6.7
+    , vector
+    , utf8-string >= 1.0.0.0
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -161,6 +164,9 @@ executable investments-info
     , lens
     , conduit
     , conduit-extra
+    , csv-conduit >= 0.6.7
+    , vector
+    , utf8-string >= 1.0.0.0
     , investments-info
   if flag(library-only)
     buildable: False
@@ -229,6 +235,9 @@ test-suite test
     , lens
     , conduit
     , conduit-extra
+    , csv-conduit >= 0.6.7
+    , vector
+    , utf8-string >= 1.0.0.0
     , yesod-test
     , hspec
     , investments-info
