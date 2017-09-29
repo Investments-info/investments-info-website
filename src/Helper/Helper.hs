@@ -92,9 +92,9 @@ instance ToRecord YahooData where
       , toField yahooDataVolume
       ]
 
-readToType :: IO [Parser YahooData]
-readToType = do
-  yd <- liftIO $ getYahooData "AAPL"
+readToType :: String -> IO [Parser YahooData]
+readToType ticker = do
+  yd <- liftIO $ getYahooData ticker
   let charList = lines $ C.unpack yd
   let charListofLists = fmap (splitOn ",") charList
   let bslListofLists = (fmap . fmap) C.pack charListofLists
@@ -102,8 +102,9 @@ readToType = do
   let recordsList = fmap record bsListofLists
   return $ fmap parseRecord recordsList
 
+-- example
 printYlist = do
-  pl <- readToType
+  pl <- readToType "AAPL"
   let yl = fmap runParser pl
   print yl
 
