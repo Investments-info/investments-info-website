@@ -26,6 +26,8 @@ import qualified Data.ByteString.Lazy.Internal as BLI
 import qualified Data.ByteString.Lazy.Char8 as C
 import Control.Monad.Trans.Class
 import Control.Monad.Trans.Maybe
+import Data.List.Split
+
 
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
@@ -61,18 +63,18 @@ fetchYahooHistoricalData companyCode = do
 --     YahooD :: YD YahooData
 
 data YahooData = YahooData
-  { yahooDataDate :: !Text
-  , yahooDataOpen :: !Text
-  , yahooDataHigh :: !Text
-  , yahooDataLow :: !Text
-  , yahooDataClose :: !Text
-  , yahooDataAdjClose :: !Text
-  , yahooDataVolume :: !Text
+  { yahooDataDate :: Text
+  , yahooDataOpen :: Double
+  , yahooDataHigh :: Double
+  , yahooDataLow :: Double
+  , yahooDataClose :: Double
+  , yahooDataAdjClose :: Double
+  , yahooDataVolume :: Int
   } deriving (Show, Eq)
 
 instance FromRecord YahooData where
   parseRecord v
-    | length v == 7 =
+    | length v == 6 =
       YahooData <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
       v .! 5 <*>
       v .! 6
@@ -90,27 +92,28 @@ instance ToRecord YahooData where
       , toField yahooDataVolume
       ]
 
-readToType :: IO (Parser YahooData)
+readToType :: IO [Parser YahooData]
 readToType = do
   yd <- liftIO $ getYahooData "AAPL"
-  let dataList = lines $ C.unpack yd
-  let cList = fmap C.pack dataList
-  let bList = fmap toStrict1 cList
-  let records = record bList
-  return $ parseRecord records
+  let charList = lines $ C.unpack yd
+  let charListofLists = fmap (splitOn ",") charList
+  let bslListofLists = (fmap . fmap) C.pack charListofLists
+  let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
+  let recordsList = fmap record bsListofLists
+  return $ fmap parseRecord recordsList
 
 printYlist = do
-    pl <- readToType
-    case runParser pl of
-        Left e -> print e
-        Right r -> print r
+  pl <- readToType
+  let yl = fmap runParser pl
+  print yl
 
 toStrict1 :: C.ByteString -> B.ByteString
 toStrict1 = B.concat . C.toChunks
 
 
-parseTimestamp :: (Monad m, ParseTime t)
-               => String   -- ^ Format string
-               -> String   -- ^ Input string
-               -> m t
+parseTimestamp ::
+     (Monad m, ParseTime t)
+  => String -- ^ Format string
+  -> String -- ^ Input string
+  -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale

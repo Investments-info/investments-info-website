@@ -64,6 +64,7 @@ dependencies:
 - csv-conduit >= 0.6.7
 - vector
 - utf8-string >= 1.0.0.0
+- split >= 0.2.3.1
 
 
 default-extensions:
