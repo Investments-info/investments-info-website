@@ -54,28 +54,25 @@ getStoryListR currentPage = do
     allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo postsByPage, OffsetBy off]
     defaultLayout $ do
         toWidget [whamlet|
-<div .container>
-    <div .bs-docs-section>
-        <div .row>
-            <div .col-lg-12>
-                <div .page-header>
-                    <h2 #start>Financial news
-                    <ul .list-group>
-                        $forall Entity _ news <- allStories
-                            <li .list-group-item>
-                                <div>
-                                    <h4><a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
-                                    <p>
-                                        $maybe img <- storyImage news
-                                            <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
-                                        $maybe content <- storyContent news
-                                            <p>#{content}
-                    <hr />
-                    $maybe previous <- previous
-                        <a href=@{StoryListR previous} class="btn btn-primary"><<
+<section id="content" class="main">
+  <span class="image main"><img src="images/pic04.jpg" alt="" /></span>
+  <h2>Financial news</h2>
+    <ul .alt>
+    $forall Entity _ news <- allStories
+          <li .list-group-item>
+            <div>
+              <h4><a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
+              <p>
+                $maybe img <- storyImage news
+                  <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
+                $maybe content <- storyContent news
+                  <p>#{content}
+  <hr />
+  $maybe previous <- previous
+    <a href=@{StoryListR previous} class="btn btn-primary"><<
 
-                    $maybe next <- next
-                        <a href=@{StoryListR next} class="btn btn-primary">>>
-                    <p class="pull-right">Number of articles : #{entriesCount}
+  $maybe next <- next
+    <a href=@{StoryListR next} class="btn btn-primary">>>
+  <p class="pull-right">Number of articles : #{entriesCount}
 
 |]

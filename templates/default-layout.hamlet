@@ -1,48 +1,56 @@
-<!-- Static navbar -->
-<nav .navbar.navbar-default.navbar-static-top>
-    <div .container>
-        <div .navbar-header>
-            <button type="button" .navbar-toggle.collapsed data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
+            <div id="wrapper">
+                    <header id="header" class="alt">
+                        <span class="logo"><img src="@{StaticR images_logo_svg}" alt="Investments Info" /></span>
+                        <h1>Investments Info - Finance portal</h1>
 
-        <div #navbar .collapse.navbar-collapse>
-            <ul .nav.navbar-nav>
-                    <li>
-                        <a href="@{HomeR}">Home
-                    <li>
-                        <a href="@{StoryListR 1}">Articles
+                        <p>We build websites, scrap data and develop statistical/machine learning models
 
-            <ul .nav.navbar-nav.navbar-right>
-                    <li>
-                        <a href="http://investments-info.com:3000" target=_blank >Financial Graphs
-<!-- Page Contents -->
+                <!-- Nav -->
+                    <nav id="nav">
+                       <ul>
+                            <li>
+                                <a href="@{HomeR}" class="active">Home
+                            <li>
+                                <a href="#intro" >Financial news
+                            <li>
+                                <a href="#first">Statistical data
+                            <li>
+                                <a href="#second">Machine learning
+                            <li>
+                                <a href="#cta">Graphs
+                            <li>
+                                <a href="@{StoryListR 1}">Articles
+                            <li>
+                                <a href="http://investments-info.com:3000" target=_blank >Financial Graphs
 
-<div .container>
-    $if not $ Just HomeR == mcurrentRoute
-        <ul .breadcrumb>
-            $forall bc <- parents
-                <li>
-                    <a href="@{fst bc}">#{snd bc}
+                    <div id="main">
+                        <div .pull-right .col-md-3>
+                            <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
+                           <div id="search-results" ></div>
+                         ^{widget}
 
-            <li .active>#{title}
+                    <div class="footer-wrapper">
+                        <footer id="footer">
+                            <section>
+                              <h2>Quote</h2>
+                              <p>You can let us know what kind of data model would suit you and get a free quote.</p>
+                              <ul class="actions">
+                                <li>
+                                <a href="#" class="button">Learn More
 
-    $maybe msg <- mmsg
-      <div .alert.alert-info #message>#{msg}
-
-
-$if (Just HomeR == mcurrentRoute)
-    ^{widget}
-$else
-    <div .container>
-        <div .row>
-            <div .col-md-12>
-                ^{widget}
-
-<!-- Footer -->
-<footer .footer>
-    <div .container>
-        <p .text-muted>
-            #{appCopyright $ appSettings master}
+                            <section>
+                              <h2>Contact</h2>
+                              <dl class="alt">
+                                <dt>Address</dt>
+                                <dd>Zurich Switzerland</dd>
+                                <dt>Phone</dt>
+                                <dd>(000) 000-0000 x 0000</dd>
+                                <dt>Email</dt>
+                                <dd><a href="#">t4nt0r@protonmail.com</a></dd>
+                              <ul class="icons">
+                                <li><a href="#" class="icon fa-twitter alt"><span class="label">Twitter</span></a></li>
+                                <li><a href="#" class="icon fa-facebook alt"><span class="label">Facebook</span></a></li>
+                                <li><a href="#" class="icon fa-instagram alt"><span class="label">Instagram</span></a></li>
+                                <li><a href="#" class="icon fa-github alt"><span class="label"><a href="https://github.com/v0d1ch/investments-info.git">GitHub</a></span></a></li>
+                                <li><a href="#" class="icon fa-dribbble alt"><span class="label">Dribbble</span></a></li>
+                            <p class="copyright">&copy; #{appCopyright $ appSettings master}.</p>

@@ -12,20 +12,18 @@ import Data.Text (Text)
 import Data.Hashable
 import Import
 import LibYahoo (getYahooData)
-import qualified Data.CSV.Conduit as CC hiding (CSV)
+-- import qualified Data.CSV.Conduit as CC hiding (CSV)
 import Data.CSV.Conduit.Conversion
 import Control.Monad (mzero)
-import qualified Data.Text.Encoding as T
-import           Data.Time.Clock (UTCTime)
+-- import qualified Data.Text.Encoding as T
+-- import           Data.Time.Clock (UTCTime)
 import           Data.Time.Format
-import qualified Data.Vector as V
+-- import qualified Data.Vector as V
 import qualified Data.ByteString               as B
-import qualified Data.ByteString.Internal      as BI
-import qualified Data.ByteString.Lazy          as BL
-import qualified Data.ByteString.Lazy.Internal as BLI
+-- import qualified Data.ByteString.Internal      as BI
+-- import qualified Data.ByteString.Lazy          as BL
+-- import qualified Data.ByteString.Lazy.Internal as BLI
 import qualified Data.ByteString.Lazy.Char8 as C
-import Control.Monad.Trans.Class
-import Control.Monad.Trans.Maybe
 import Data.List.Split
 
 
@@ -40,36 +38,17 @@ truncateTables = do
 makeHash :: Hashable a => a -> Int
 makeHash s = hash s
 
-fetchYahooHistoricalData :: String -> HandlerT App IO ()
-fetchYahooHistoricalData companyCode = do
-  graphData <- liftIO (getYahooData companyCode)
-  return ()
-
-
-
  ------------------------------------------------------------------------------------------------------
 
--- data YahooData = YahooData
---   { yahooDataDate :: UTCTime
---   , yahooDataOpen :: Float
---   , yahooDataHigh :: Float
---   , yahooDataLow :: Float
---   , yahooDataClose :: Float
---   , yahooDataAdjClose :: Float
---   , yahooDataVolume :: Int
---   } deriving (Show, Eq)
-
--- data YD a where
---     YahooD :: YD YahooData
-
 data YahooData = YahooData
-  { yahooDataDate :: Text
-  , yahooDataOpen :: Double
-  , yahooDataHigh :: Double
-  , yahooDataLow :: Double
-  , yahooDataClose :: Double
-  , yahooDataAdjClose :: Double
-  , yahooDataVolume :: Int
+  { yahooDataDate :: !B.ByteString
+    -- yahooDataDate :: UTCTime
+  , yahooDataOpen :: !Double
+  , yahooDataHigh :: !Double
+  , yahooDataLow :: !Double
+  , yahooDataClose :: !Double
+  , yahooDataAdjClose :: !Double
+  , yahooDataVolume :: !Int
   } deriving (Show, Eq)
 
 instance FromRecord YahooData where

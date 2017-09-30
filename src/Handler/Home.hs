@@ -41,33 +41,82 @@ getHomeR  = do
         else return ()
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
       defaultLayout $ do
+
+            -- <ul class="alt">
+            --       $forall Entity _ news <- allStories
+            --         <li>
+            --             <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
+            --             <p>
+            --                 $maybe img <- storyImage news
+            --                     <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
+            --                 $maybe content <- storyContent news
+            --                     <p>#{content}
         toWidget [whamlet|
-<div .masthead>
-    <div .container>
-        <div .row>
-            <h1 .header>
-               Investments Info - Finance portal
-            <h2>
-<div .container>
-    <div .bs-docs-section>
-        <div .row>
-            <div .col-lg-12>
-                <div .page-header>
-                    <div .pull-right .col-md-3>
-                        <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
-                        <div id="search-results" ></div>
-                    <h2 #start>Financial news
-                    <ul .list-group>
-                        $forall Entity _ news <- allStories
-                            <li .list-group-item>
-                                <div>
-                                    <h4><a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
-                                    <p>
-                                        $maybe img <- storyImage news
-                                            <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
-                                        $maybe content <- storyContent news
-                                            <p>#{content}
-                    <a href=@{StoryListR 1} class="btn btn-primary pull-right">All articles
+<section id="intro" class="main">
+    <div class="spotlight">
+        <div class="content">
+            <header class="major">
+                <h2>Financial News</h2>
+                <p>We scrape most visited financial portals and display the agregated news to our readers</p>
+
+            <ul class="actions">
+                  <li><a href="@{StoryListR 1}" class="button">All articles</a></li>
+
+<section id="first" class="main special">
+    <header class="major">
+        <h2>Statistical data</h2>
+    <ul class="features">
+        <li>
+            <span class="icon major style1 fa-code"></span>
+            <h3>Ipsum consequat</h3>
+            <p>Sed lorem amet ipsum dolor et amet nullam consequat a feugiat consequat tempus veroeros sed consequat.</p>
+            <span class="icon major style3 fa-copy"></span>
+            <h3>Amed sed feugiat</h3>
+            <p>Sed lorem amet ipsum dolor et amet nullam consequat a feugiat consequat tempus veroeros sed consequat.</p>
+        <li>
+            <span class="icon major style5 fa-diamond"></span>
+            <h3>Dolor nullam</h3>
+            <p>Sed lorem amet ipsum dolor et amet nullam consequat a feugiat consequat tempus veroeros sed consequat.</p>
+    <footer class="major">
+        <ul class="actions">
+            <li><a href="generic.html" class="button">Learn More</a></li>
+
+<section id="second" class="main special">
+    <header class="major">
+        <h2>Machine learning models</h2>
+        <p>Donec imperdiet consequat consequat. Suspendisse feugiat congue<br />
+        posuere. Nulla massa urna, fermentum eget quam aliquet.</p>
+    <ul class="statistics">
+        <li class="style1">
+            <span class="icon fa-code-fork"></span>
+            <strong>5,120</strong> Etiam
+        <li class="style2">
+            <span class="icon fa-folder-open-o"></span>
+            <strong>8,192</strong> Magna
+        <li class="style3">
+            <span class="icon fa-signal"></span>
+            <strong>2,048</strong> Tempus
+        <li class="style4">
+            <span class="icon fa-laptop"></span>
+            <strong>4,096</strong> Aliquam
+        <li class="style5">
+            <span class="icon fa-diamond"></span>
+            <strong>1,024</strong> Nullam
+    <p class="content">Nam elementum nisl et mi a commodo porttitor. Morbi sit amet nisl eu arcu faucibus hendrerit vel a risus. Nam a orci mi, elementum ac arcu sit amet, fermentum pellentesque et purus. Integer maximus varius lorem, sed convallis diam accumsan sed. Etiam porttitor placerat sapien, sed eleifend a enim pulvinar faucibus semper quis ut arcu. Ut non nisl a mollis est efficitur vestibulum. Integer eget purus nec nulla mattis et accumsan ut magna libero. Morbi auctor iaculis porttitor. Sed ut magna ac risus et hendrerit scelerisque. Praesent eleifend lacus in lectus aliquam porta. Cras eu ornare dui curabitur lacinia.</p>
+    <footer class="major">
+        <ul class="actions">
+            <li><a href="generic.html" class="button">Learn More</a></li>
+
+<!-- Get Started -->
+<section id="cta" class="main special">
+    <header class="major">
+        <h2>Congue imperdiet</h2>
+        <p>Donec imperdiet consequat consequat. Suspendisse feugiat congue<br />
+        posuere. Nulla massa urna, fermentum eget quam aliquet.</p>
+    <footer class="major">
+        <ul class="actions">
+            <li><a href="" class="button special">Get Started</a></li>
+            <li><a href="" class="button">Learn More</a></li>
 |]
         toWidget [julius|
  $(document).ready(function(){
