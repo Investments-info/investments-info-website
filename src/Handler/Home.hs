@@ -39,18 +39,9 @@ getHomeR  = do
           _ <- mapM checkStorySaved allS
           return ()
         else return ()
-      allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 5]
+      allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
       defaultLayout $ do
 
-            -- <ul class="alt">
-            --       $forall Entity _ news <- allStories
-            --         <li>
-            --             <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
-            --             <p>
-            --                 $maybe img <- storyImage news
-            --                     <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
-            --                 $maybe content <- storyContent news
-            --                     <p>#{content}
         toWidget [whamlet|
 <section id="intro" class="main">
     <div class="spotlight">
@@ -58,32 +49,42 @@ getHomeR  = do
             <header class="major">
                 <h2>Financial News</h2>
                 <p>We scrape most visited financial portals and display the agregated news to our readers</p>
+                <ul class="features">
+                  $forall Entity _ Story{..} <- allStories
+                    <li>
+                        <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
+                        <p>
+                            $maybe img <- storyImage
+                                   <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
+                            $nothing
+                                   <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
 
             <ul class="actions">
                   <li><a href="@{StoryListR 1}" class="button">All articles</a></li>
 
 <section id="first" class="main special">
     <header class="major">
-        <h2>Statistical data</h2>
-    <ul class="features">
-        <li>
-            <span class="icon major style1 fa-code"></span>
-            <h3>Ipsum consequat</h3>
-            <p>Sed lorem amet ipsum dolor et amet nullam consequat a feugiat consequat tempus veroeros sed consequat.</p>
-            <span class="icon major style3 fa-copy"></span>
-            <h3>Amed sed feugiat</h3>
-            <p>Sed lorem amet ipsum dolor et amet nullam consequat a feugiat consequat tempus veroeros sed consequat.</p>
-        <li>
-            <span class="icon major style5 fa-diamond"></span>
-            <h3>Dolor nullam</h3>
-            <p>Sed lorem amet ipsum dolor et amet nullam consequat a feugiat consequat tempus veroeros sed consequat.</p>
-    <footer class="major">
-        <ul class="actions">
-            <li><a href="generic.html" class="button">Learn More</a></li>
+        <h2>Machine learning and statistical models</h2>
+        <ul class="features">
+            <li>
+                <span class="icon major style1 fa-code"></span>
+                <h3>Strong types</h3>
+                <p>All code is written in highly expressive and strictly typed language called Haskell.</p>
+            <li>
+                <span class="icon major style3 fa-copy"></span>
+                <h3>Learning algorythms</h3>
+                <p>We provide ready set of algorythms usable in extracting just the data you need.</p>
+            <li>
+                <span class="icon major style5 fa-diamond"></span>
+                <h3>Financial graphs</h3>
+                <p>All market fluctuations can be visually tracked by the graphs with custom options</p>
+        <footer class="major">
+            <ul class="actions">
+                <li><a href="generic.html" class="button">Learn More</a></li>
 
 <section id="second" class="main special">
     <header class="major">
-        <h2>Machine learning models</h2>
+        <h2>Data in your hands</h2>
         <p>Donec imperdiet consequat consequat. Suspendisse feugiat congue<br />
         posuere. Nulla massa urna, fermentum eget quam aliquet.</p>
     <ul class="statistics">
@@ -118,6 +119,7 @@ getHomeR  = do
             <li><a href="" class="button special">Get Started</a></li>
             <li><a href="" class="button">Learn More</a></li>
 |]
+
         toWidget [julius|
  $(document).ready(function(){
    var searchString = "";

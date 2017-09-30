@@ -1,7 +1,8 @@
             <div id="wrapper">
                     <header id="header" class="alt">
-                        <span class="logo"><img src="@{StaticR images_logo_svg}" alt="Investments Info" /></span>
-                        <h1>Investments Info - Finance portal</h1>
+                        <span class="logo">
+                            <img src="@{StaticR images_logo_svg}" alt="Investments Info" />
+                        <h1>Investments Info - Finance portal
 
                         <p>We build websites, scrap data and develop statistical/machine learning models
 
@@ -26,19 +27,17 @@
                     <div id="main">
                         <div .pull-right .col-md-3>
                             <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
-                           <div id="search-results" ></div>
-                         ^{widget}
-
-                    <div class="footer-wrapper">
-                        <footer id="footer">
-                            <section>
+                           <div id="search-results">
+                       ^{widget}
+                    <footer id="footer">
+                          <section>
                               <h2>Quote</h2>
                               <p>You can let us know what kind of data model would suit you and get a free quote.</p>
                               <ul class="actions">
                                 <li>
-                                <a href="#" class="button">Learn More
+                                    <a href="#" class="button">Learn More
 
-                            <section>
+                          <section>
                               <h2>Contact</h2>
                               <dl class="alt">
                                 <dt>Address</dt>

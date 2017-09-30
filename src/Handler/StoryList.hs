@@ -58,14 +58,16 @@ getStoryListR currentPage = do
   <span class="image main"><img src="images/pic04.jpg" alt="" /></span>
   <h2>Financial news</h2>
     <ul .alt>
-    $forall Entity _ news <- allStories
+    $forall Entity _ Story{..} <- allStories
           <li .list-group-item>
             <div>
-              <h4><a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank> #{storyTitle news}
+              <h4><a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
               <p>
-                $maybe img <- storyImage news
-                  <a href=#{(pack F.reutersUrl) <> storyLink news} target=_blank><img src=#{img} width=100 />
-                $maybe content <- storyContent news
+                $maybe img <- storyImage
+                  <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
+                $nothing
+                  <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
+                $maybe content <- storyContent
                   <p>#{content}
   <hr />
   $maybe previous <- previous
