@@ -141,7 +141,7 @@ getHomeR  = do
                    }
                    $('#search-results img').each(function(index,element){
                      var $el = $(this)
-                     if($el.attr('src') == '' || $el.attr('src') == 'null') $el.remove()
+                     if($el.attr('src') == '' || $el.attr('src') == 'null') $el.attr('src','static/images/defaultimage.gif');
                    });
                 }else{
                      $("#search-results").css({'display':'none'});
