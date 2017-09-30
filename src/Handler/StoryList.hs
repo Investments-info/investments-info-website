@@ -78,3 +78,14 @@ getStoryListR currentPage = do
   <p class="pull-right">Number of articles : #{entriesCount}
 
 |]
+        toWidget [julius|
+$(document).ready(function(){
+   $('#nav .hidable').each(function(key, item){
+      var hr = $(item).attr('href').replace(/#/g,"");
+      if(hr){
+       var x = document.getElementById("#" + hr);
+       if(!x) $(item).hide();
+      }
+   });
+ });
+|]

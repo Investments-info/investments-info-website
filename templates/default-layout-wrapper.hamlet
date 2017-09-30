@@ -28,11 +28,11 @@ $newline never
 
 
           if (csrfToken) {
-           \  $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
-           \      if (!options.crossDomain) {
-           \          jqXHR.setRequestHeader(csrfHeaderName, csrfToken);
-           \      }
-           \  });
+          \  $.ajaxPrefilter(function( options, originalOptions, jqXHR ) {
+          \      if (!options.crossDomain) {
+          \          jqXHR.setRequestHeader(csrfHeaderName, csrfToken);
+          \      }
+          \  });
           }
 
         <script>

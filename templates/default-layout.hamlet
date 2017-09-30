@@ -10,15 +10,15 @@
                     <nav id="nav">
                        <ul>
                             <li>
-                                <a href="@{HomeR}" class="active">Home
+                                <a href="@{HomeR}" .active>Home
                             <li>
-                                <a href="#intro" >Financial news
+                                <a href="#intro" .hidable >Financial news
                             <li>
-                                <a href="#first">Statistical data
+                                <a href="#first" .hidable>Statistical data
                             <li>
-                                <a href="#second">Machine learning
+                                <a href="#second" .hidable>Machine learning
                             <li>
-                                <a href="#cta">Graphs
+                                <a href="#cta" .hidable>Graphs
                             <li>
                                 <a href="@{StoryListR 1}">Articles
                             <li>
@@ -50,6 +50,5 @@
                                 <li><a href="#" class="icon fa-twitter alt"><span class="label">Twitter</span></a></li>
                                 <li><a href="#" class="icon fa-facebook alt"><span class="label">Facebook</span></a></li>
                                 <li><a href="#" class="icon fa-instagram alt"><span class="label">Instagram</span></a></li>
-                                <li><a href="#" class="icon fa-github alt"><span class="label"><a href="https://github.com/v0d1ch/investments-info.git">GitHub</a></span></a></li>
-                                <li><a href="#" class="icon fa-dribbble alt"><span class="label">Dribbble</span></a></li>
-                            <p class="copyright">&copy; #{appCopyright $ appSettings master}.</p>
+                                <li><a href="https://github.com/v0d1ch/investments-info.git" class="icon fa-github alt"><span class="label"></span></a></li>
+                              <p class="copyright">&copy; #{appCopyright $ appSettings master}.</p>
