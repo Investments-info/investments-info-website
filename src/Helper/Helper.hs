@@ -12,20 +12,14 @@ import Data.Text (Text)
 import Data.Hashable
 import Import
 import LibYahoo (getYahooData)
--- import qualified Data.CSV.Conduit as CC hiding (CSV)
 import Data.CSV.Conduit.Conversion
 import Control.Monad (mzero)
--- import qualified Data.Text.Encoding as T
--- import           Data.Time.Clock (UTCTime)
-import           Data.Time.Format
--- import qualified Data.Vector as V
+import           Data.Time
 import qualified Data.ByteString               as B
--- import qualified Data.ByteString.Internal      as BI
--- import qualified Data.ByteString.Lazy          as BL
--- import qualified Data.ByteString.Lazy.Internal as BLI
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.List.Split
-import Control.Monad.Trans.Maybe
+import Prelude (read, show)
+
 
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
@@ -41,25 +35,21 @@ makeHash s = hash s
  ------------------------------------------------------------------------------------------------------
 
 data YahooData = YahooData
-  { yahooDataDate :: !B.ByteString
-  , yahooDataOpen :: !B.ByteString
-  , yahooDataHigh :: !B.ByteString
-  , yahooDataLow :: !B.ByteString
-  , yahooDataClose :: !B.ByteString
-  , yahooDataAdjClose :: !B.ByteString
-  , yahooDataVolume :: !B.ByteString
+  { yahooDataDate :: !Double
+  , yahooDataOpen :: !Double
+  , yahooDataHigh :: !Double
+  , yahooDataLow :: !Double
+  , yahooDataClose :: !Double
+  , yahooDataAdjClose :: !Double
+  , yahooDataVolume :: !Int
   } deriving (Show, Eq)
 
--- instance FromField YahooData where
---     parseField s
---         | B.null s  = pure ""
---         | otherwise = YahooData <$> parseField s
 
 
 instance FromRecord YahooData where
   parseRecord v
     | length v == 7 =
-      YahooData <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
+      YahooData <$>  v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
       v .! 5 <*>
       v .! 6
     | otherwise = mzero
@@ -67,7 +57,7 @@ instance FromRecord YahooData where
 instance ToRecord YahooData where
   toRecord (YahooData yahooDataDate yahooDataOpen yahooDataHigh yahooDataLow yahooDataClose yahooDataAdjClose yahooDataVolume) =
     record
-      [ toField yahooDataDate
+      [ toField (show yahooDataDate)
       , toField yahooDataOpen
       , toField yahooDataHigh
       , toField yahooDataLow
@@ -102,3 +92,9 @@ parseTimestamp ::
   -> String -- ^ Input string
   -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale
+
+-- fromParser :: Parser UTCTime -> Either String UTCTime
+-- fromParser p = do
+--     case runParser p of
+--         Left e -> return $ UTCTime ""
+--         Right utc -> return utc
