@@ -25,7 +25,7 @@ import qualified Data.ByteString               as B
 -- import qualified Data.ByteString.Lazy.Internal as BLI
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.List.Split
-
+import Control.Monad.Trans.Maybe
 
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
@@ -42,18 +42,23 @@ makeHash s = hash s
 
 data YahooData = YahooData
   { yahooDataDate :: !B.ByteString
-    -- yahooDataDate :: UTCTime
-  , yahooDataOpen :: !Double
-  , yahooDataHigh :: !Double
-  , yahooDataLow :: !Double
-  , yahooDataClose :: !Double
-  , yahooDataAdjClose :: !Double
-  , yahooDataVolume :: !Int
+  , yahooDataOpen :: !B.ByteString
+  , yahooDataHigh :: !B.ByteString
+  , yahooDataLow :: !B.ByteString
+  , yahooDataClose :: !B.ByteString
+  , yahooDataAdjClose :: !B.ByteString
+  , yahooDataVolume :: !B.ByteString
   } deriving (Show, Eq)
+
+-- instance FromField YahooData where
+--     parseField s
+--         | B.null s  = pure ""
+--         | otherwise = YahooData <$> parseField s
+
 
 instance FromRecord YahooData where
   parseRecord v
-    | length v == 6 =
+    | length v == 7 =
       YahooData <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
       v .! 5 <*>
       v .! 6
@@ -62,7 +67,7 @@ instance FromRecord YahooData where
 instance ToRecord YahooData where
   toRecord (YahooData yahooDataDate yahooDataOpen yahooDataHigh yahooDataLow yahooDataClose yahooDataAdjClose yahooDataVolume) =
     record
-      [ toField yahooDataDate -- toField $ parseTimestamp "%d.%m.%Y %H:%M" yahooDataDate
+      [ toField yahooDataDate
       , toField yahooDataOpen
       , toField yahooDataHigh
       , toField yahooDataLow

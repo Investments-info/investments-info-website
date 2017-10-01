@@ -1,7 +1,8 @@
             <div id="wrapper">
                     <header id="header" class="alt">
                         <span class="logo">
-                            <img src="@{StaticR images_logo_svg}" alt="Investments Info" />
+                            <span class="icon fa-bank" style="font-size:250%;color:#ffffff">
+                            <!-- <img src="@{StaticR images_logo_svg}" alt="Investments Info" /> -->
                         <h1>Investments Info - Finance portal
 
                         <p>We build websites, scrap data and develop statistical/machine learning models
