@@ -5,6 +5,7 @@
 
 /                              HomeR           GET
 /page/#Page                    StoryListR      GET
+/story/#Int                    StoryDetailsR   GET
 /login                         LoginR          GET POST
 /signup                        SignupR         GET POST
 /signout                       SignoutR        GET

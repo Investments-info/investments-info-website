@@ -93,6 +93,7 @@ library
       Handler.Home
       Handler.SearchArticles
       Handler.Sessions
+      Handler.StoryDetails
       Handler.StoryList
       Helper.Forms
       Helper.Helper
