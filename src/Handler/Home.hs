@@ -71,13 +71,13 @@ getHomeR  = do
                 <h3>Strong types</h3>
                 <p>All code is written in highly expressive and strictly typed language called Haskell.</p>
             <li>
-                <span class="icon major style3 fa-copy"></span>
+                <span class="icon major style3 fa-database"></span>
                 <h3>Learning algorythms</h3>
-                <p>We provide ready set of algorythms usable in extracting just the data you need.</p>
+                <p>We provide ready set of algorithms usable in extracting just the data you need.</p>
             <li>
-                <span class="icon major style5 fa-diamond"></span>
+                <span class="icon major style5 fa-cloud-download"></span>
                 <h3>Financial graphs</h3>
-                <p>All market fluctuations can be visually tracked by the graphs with custom options</p>
+                <p>All market fluctuations can be visually tracked in the graphs providing custom options</p>
         <footer class="major">
             <ul class="actions">
                 <li><a href="generic.html" class="button">Learn More</a></li>
@@ -85,24 +85,23 @@ getHomeR  = do
 <section id="second" class="main special">
     <header class="major">
         <h2>Data in your hands</h2>
-        <p>Donec imperdiet consequat consequat. Suspendisse feugiat congue<br />
-        posuere. Nulla massa urna, fermentum eget quam aliquet.</p>
+        <p>These are up to date numbers showing our system health. Feel free to join and explore our services.</p>
     <ul class="statistics">
         <li class="style1">
             <span class="icon fa-code-fork"></span>
-            <strong>5,120</strong> Etiam
+            <strong>5,120</strong> Article number
         <li class="style2">
             <span class="icon fa-folder-open-o"></span>
-            <strong>8,192</strong> Magna
+            <strong>8,192</strong> Companies listed
         <li class="style3">
             <span class="icon fa-signal"></span>
-            <strong>2,048</strong> Tempus
+            <strong>2,048</strong> Nodes
         <li class="style4">
             <span class="icon fa-laptop"></span>
-            <strong>4,096</strong> Aliquam
+            <strong>4,096</strong> Registered users
         <li class="style5">
-            <span class="icon fa-diamond"></span>
-            <strong>1,024</strong> Nullam
+            <span class="icon fa-database"></span>
+            <strong>1.889,024</strong> Database records containing financial data
     <p class="content">Nam elementum nisl et mi a commodo porttitor. Morbi sit amet nisl eu arcu faucibus hendrerit vel a risus. Nam a orci mi, elementum ac arcu sit amet, fermentum pellentesque et purus. Integer maximus varius lorem, sed convallis diam accumsan sed. Etiam porttitor placerat sapien, sed eleifend a enim pulvinar faucibus semper quis ut arcu. Ut non nisl a mollis est efficitur vestibulum. Integer eget purus nec nulla mattis et accumsan ut magna libero. Morbi auctor iaculis porttitor. Sed ut magna ac risus et hendrerit scelerisque. Praesent eleifend lacus in lectus aliquam porta. Cras eu ornare dui curabitur lacinia.</p>
     <footer class="major">
         <ul class="actions">
