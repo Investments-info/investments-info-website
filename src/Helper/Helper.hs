@@ -13,14 +13,14 @@ import Data.Text (Text)
 import Data.Hashable
 import Import
 import LibYahoo (getYahooData)
-import Data.CSV.Conduit.Conversion
+import Data.CSV.Conduit.Conversion as CSVC
 import Control.Monad (mzero)
 import           Data.Time
 import qualified Data.ByteString               as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.List.Split
 import Prelude (read, show)
-
+import Control.Monad.Trans.Maybe
 
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
@@ -46,12 +46,32 @@ data YahooData = YahooData
   } deriving (Show, Eq)
 
 data GYahooData a  where
-    YData ::  Double -> Double -> Double -> Double -> Double -> Double ->  Int -> GYahooData a deriving (Show, Eq)
+    YData ::  UTCTime -> Double -> Double -> Double -> Double -> Double ->  Int -> GYahooData a deriving (Show, Eq)
 
-instance FromRecord YahooData where
+instance FromRecord (GYahooData a) where
   parseRecord v
     | length v == 7 =
-      YahooData <$>  v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
+      YData <$>   v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
+      v .! 5 <*>
+      v .! 6
+    | otherwise = mzero
+
+instance ToRecord (GYahooData a) where
+  toRecord (YData yahooDataDate yahooDataOpen yahooDataHigh yahooDataLow yahooDataClose yahooDataAdjClose yahooDataVolume) =
+    record
+      [ toField (show yahooDataDate)
+      , toField yahooDataOpen
+      , toField yahooDataHigh
+      , toField yahooDataLow
+      , toField yahooDataClose
+      , toField yahooDataAdjClose
+      , toField yahooDataVolume
+      ]
+
+instance FromRecord YahooData  where
+  parseRecord v
+    | length v == 7 =
+      YahooData <$>   v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
       v .! 5 <*>
       v .! 6
     | otherwise = mzero
@@ -68,7 +88,20 @@ instance ToRecord YahooData where
       , toField yahooDataVolume
       ]
 
-readToType :: String -> IO [Parser YahooData]
+instance FromField UTCTime where
+    parseField u = do
+        x <- parseTimestamp "%Y-%m-%d" (C.unpack(C.fromStrict u))
+        pure x
+
+readToList ticker = do
+  yd <- liftIO $ getYahooData ticker
+  let charList = lines $ C.unpack yd
+  let charListofLists = fmap (splitOn ",") charList
+  let bslListofLists = (fmap . fmap) C.pack charListofLists
+  let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
+  print bsListofLists
+
+readToType :: String -> IO [Parser (GYahooData a)]
 readToType ticker = do
   yd <- liftIO $ getYahooData ticker
   let charList = lines $ C.unpack yd
@@ -95,8 +128,5 @@ parseTimestamp ::
   -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale
 
--- fromParser :: Parser UTCTime -> Either String UTCTime
--- fromParser p = do
---     case runParser p of
---         Left e -> return $ UTCTime ""
---         Right utc -> return utc
+-- fromParser :: (Monad m, ParseTime t) => B.ByteString -> MaybeT  a UTCTime
+-- fromParser p =  MaybeT (parseTimestamp "%d %m %Y" (C.unpack(C.fromStrict p)))
