@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE GADTs #-}
+{-# LANGUAGE DataKinds #-}
 module Helper.Helper where
 
 import Database.Persist.Sql  (SqlBackend, rawSql, unSingle)
@@ -44,7 +45,8 @@ data YahooData = YahooData
   , yahooDataVolume :: !Int
   } deriving (Show, Eq)
 
-
+data GYahooData a  where
+    YData ::  Double -> Double -> Double -> Double -> Double -> Double ->  Int -> GYahooData a deriving (Show, Eq)
 
 instance FromRecord YahooData where
   parseRecord v
