@@ -19,8 +19,7 @@ import           Data.Time
 import qualified Data.ByteString               as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.List.Split
-import Prelude (read, show)
-import Control.Monad.Trans.Maybe
+import Prelude (show)
 
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
@@ -34,21 +33,38 @@ makeHash :: Hashable a => a -> Int
 makeHash s = hash s
 
  ------------------------------------------------------------------------------------------------------
+type YDataDate = UTCTime
+type YDataOpen = Double
+type YDataHigh = Double
+type YDataLow = Double
+type YDataClose = Double
+type YDataAdjClose = Double
+type YDataVolume = Int
 
 data YahooData = YahooData
-  { yahooDataDate :: !Double
-  , yahooDataOpen :: !Double
-  , yahooDataHigh :: !Double
-  , yahooDataLow :: !Double
-  , yahooDataClose :: !Double
-  , yahooDataAdjClose :: !Double
-  , yahooDataVolume :: !Int
+  { yahooDataDate :: !YDataDate
+  , yahooDataOpen :: !YDataOpen
+  , yahooDataHigh :: !YDataHigh
+  , yahooDataLow :: !YDataLow
+  , yahooDataClose :: !YDataClose
+  , yahooDataAdjClose :: !YDataAdjClose
+  , yahooDataVolume :: !YDataVolume
   } deriving (Show, Eq)
 
-data GYahooData a  where
-    YData ::  UTCTime -> Double -> Double -> Double -> Double -> Double ->  Int -> GYahooData a deriving (Show, Eq)
 
-instance FromRecord (GYahooData a) where
+data GYData a where
+  YData
+    :: YDataDate
+    -> YDataOpen
+    -> YDataHigh
+    -> YDataLow
+    -> YDataClose
+    -> YDataAdjClose
+    -> YDataVolume
+    -> GYData a
+  deriving (Show, Eq)
+
+instance FromRecord (GYData a) where
   parseRecord v
     | length v == 7 =
       YData <$>   v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
@@ -56,16 +72,16 @@ instance FromRecord (GYahooData a) where
       v .! 6
     | otherwise = mzero
 
-instance ToRecord (GYahooData a) where
-  toRecord (YData yahooDataDate yahooDataOpen yahooDataHigh yahooDataLow yahooDataClose yahooDataAdjClose yahooDataVolume) =
+instance ToRecord (GYData a) where
+  toRecord (YData yDataDate yDataOpen yDataHigh yDataLow yDataClose yDataAdjClose yDataVolume) =
     record
-      [ toField (show yahooDataDate)
-      , toField yahooDataOpen
-      , toField yahooDataHigh
-      , toField yahooDataLow
-      , toField yahooDataClose
-      , toField yahooDataAdjClose
-      , toField yahooDataVolume
+      [ toField (show yDataDate)
+      , toField yDataOpen
+      , toField yDataHigh
+      , toField yDataLow
+      , toField yDataClose
+      , toField yDataAdjClose
+      , toField yDataVolume
       ]
 
 instance FromRecord YahooData  where
@@ -93,6 +109,7 @@ instance FromField UTCTime where
         x <- parseTimestamp "%Y-%m-%d" (C.unpack(C.fromStrict u))
         pure x
 
+readToList :: MonadIO m => String -> m ()
 readToList ticker = do
   yd <- liftIO $ getYahooData ticker
   let charList = lines $ C.unpack yd
@@ -101,7 +118,7 @@ readToList ticker = do
   let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
   print bsListofLists
 
-readToType :: String -> IO [Parser (GYahooData a)]
+readToType :: String -> IO [Parser (GYData a)]
 readToType ticker = do
   yd <- liftIO $ getYahooData ticker
   let charList = lines $ C.unpack yd
@@ -111,7 +128,7 @@ readToType ticker = do
   let recordsList = fmap record bsListofLists
   return $ fmap parseRecord recordsList
 
--- example
+printYlist :: IO ()
 printYlist = do
   pl <- readToType "AAPL"
   let yl = fmap runParser pl
@@ -127,6 +144,3 @@ parseTimestamp ::
   -> String -- ^ Input string
   -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale
-
--- fromParser :: (Monad m, ParseTime t) => B.ByteString -> MaybeT  a UTCTime
--- fromParser p =  MaybeT (parseTimestamp "%d %m %Y" (C.unpack(C.fromStrict p)))
