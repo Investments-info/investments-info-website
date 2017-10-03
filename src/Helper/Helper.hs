@@ -20,6 +20,8 @@ import qualified Data.ByteString               as B
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.List.Split
 import Prelude (show)
+import qualified Data.Map.Strict as Map
+
 
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
@@ -33,6 +35,14 @@ makeHash :: Hashable a => a -> Int
 makeHash s = hash s
 
  ------------------------------------------------------------------------------------------------------
+-- [
+-- ("A","Agilent Technologies"),
+-- ("AA","Alcoa Corporation"),
+-- ("AAC","Aac Holdings"),
+-- ("AAN","Aaron's Inc"),
+-- ("AAP","Advanced Auto Parts Inc")
+-- ]
+newtype TickerList = TickerList []
 type YDataDate = UTCTime
 type YDataOpen = Double
 type YDataHigh = Double
