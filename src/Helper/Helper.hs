@@ -6,13 +6,14 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 module Helper.Helper where
 
 import Database.Persist.Sql  (SqlBackend, rawSql, unSingle)
 import Data.Text (Text)
 import Data.Hashable
 import Import
-import LibYahoo (getYahooData)
+import LibYahoo as LY
 import Data.CSV.Conduit.Conversion as CSVC
 import Control.Monad (mzero)
 import           Data.Time
@@ -119,30 +120,41 @@ instance FromField UTCTime where
         x <- parseTimestamp "%Y-%m-%d" (C.unpack(C.fromStrict u))
         pure x
 
-readToList :: MonadIO m => String -> m ()
-readToList ticker = do
-  yd <- liftIO $ getYahooData ticker
-  let charList = lines $ C.unpack yd
-  let charListofLists = fmap (splitOn ",") charList
-  let bslListofLists = (fmap . fmap) C.pack charListofLists
-  let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
-  print bsListofLists
+-- readToList :: MonadIO m => String -> m ()
+-- readToList ticker = do
+--   res <- liftIO $ LY.getYahooData ticker
+--   case res of
+--     Left  e  -> return $ C.pack (show e)
+--     Right yd -> do
+--       let charList = lines $ C.unpack yd
+--       let charListofLists = fmap (splitOn ",") charList
+--       let bslListofLists = (fmap . fmap) C.pack charListofLists
+--       let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
+--       print bsListofLists
 
-readToType :: String -> IO [Parser (GYData a)]
+
+readToType :: String -> IO (Either String [Parser (GYData a)])
 readToType ticker = do
-  yd <- liftIO $ getYahooData ticker
-  let charList = lines $ C.unpack yd
-  let charListofLists = fmap (splitOn ",") charList
-  let bslListofLists = (fmap . fmap) C.pack charListofLists
-  let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
-  let recordsList = fmap record bsListofLists
-  return $ fmap parseRecord recordsList
+  res <- LY.getYahooDataSafe ticker
+  case res of
+    Left  err -> return $ Left $ show LY.YStatusCodeException
+    Right yd -> do
+      let charList = lines $ C.unpack yd
+      let charListofLists = fmap (splitOn ",") charList
+      let bslListofLists = (fmap . fmap) C.pack charListofLists
+      let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
+      let recordsList = fmap record bsListofLists
+      return $ Right $ fmap parseRecord recordsList
+
 
 printYlist :: IO ()
 printYlist = do
-  pl <- readToType "AAPL"
-  let yl = fmap runParser pl
-  print yl
+  pl <- readToType "A"
+  case pl of
+      Left e -> print e
+      Right res -> do
+        let yl = fmap runParser res
+        print yl
 
 toStrict1 :: C.ByteString -> B.ByteString
 toStrict1 = B.concat . C.toChunks
