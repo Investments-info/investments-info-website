@@ -13,7 +13,7 @@
                             <li>
                                 <a href="@{HomeR}" .active>Home
                             <li>
-                                <a href="#intro" .hidable >Financial news
+                                <a href="@{AboutR}" >About
                             <li>
                                 <a href="#first" .hidable>Statistical data
                             <li>

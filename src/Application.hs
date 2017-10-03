@@ -41,6 +41,7 @@ import Handler.Auth
 import Handler.Admin
 import Handler.Common
 import Handler.Home
+import Handler.About
 import Handler.StoryList
 import Handler.SearchArticles
 import Handler.StoryDetails

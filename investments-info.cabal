@@ -87,6 +87,7 @@ library
   exposed-modules:
       Application
       Foundation
+      Handler.About
       Handler.Admin
       Handler.Auth
       Handler.Common

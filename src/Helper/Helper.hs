@@ -42,7 +42,7 @@ makeHash s = hash s
 -- ("AAN","Aaron's Inc"),
 -- ("AAP","Advanced Auto Parts Inc")
 -- ]
-newtype TickerList = TickerList []
+newtype TickerList = TickerList [String]
 type YDataDate = UTCTime
 type YDataOpen = Double
 type YDataHigh = Double

@@ -4,6 +4,7 @@
 /robots.txt RobotsR GET
 
 /                              HomeR           GET
+/about                         AboutR          GET
 /page/#Page                    StoryListR      GET
 /story/#Int                    StoryDetailsR   GET
 /login                         LoginR          GET POST
