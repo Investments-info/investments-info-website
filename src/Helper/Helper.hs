@@ -149,9 +149,9 @@ readToType ticker = do
 
 printYlist :: IO ()
 printYlist = do
-  pl <- readToType "A"
+  pl <- readToType "cccy"
   case pl of
-      Left e -> print e
+      Left e -> print "Yadata exception!"
       Right res -> do
         let yl = fmap runParser res
         print yl
