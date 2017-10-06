@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Helper.YahooHelper
   ( getYahooData
@@ -11,7 +12,7 @@ import Control.Monad (mzero)
 import Control.Monad.Except
 import qualified Data.ByteString as BB
 import qualified Data.ByteString.Lazy as B
-       (ByteString, drop, pack, take, concat)
+       (ByteString, concat, drop, pack, take)
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.CSV.Conduit.Conversion as CSVC
 import Data.Hashable
@@ -19,7 +20,7 @@ import Data.Int
 import Data.List.Split
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
-import Data.Text (Text)
+import Data.Text as T hiding (splitOn , map, lines, length)
 import Data.Time
 import Data.Time.Clock
 import Data.Typeable
@@ -60,6 +61,20 @@ getCrumble crumbText = do
 -- ("AAN","Aaron's Inc"),
 -- ("AAP","Advanced Auto Parts Inc")
 -- ]
+
+-- comp1 :: IO (Key Company)
+-- comp1 = do
+--     now <- getCurrentTime
+--     runDB $ insert $
+--       Company {
+-- 	      companyTitle = "Agilent Technologies"
+--     	, companyWebsite = Just "http://agilent.com"
+-- 	    , companyDescription = Just "Agilent Technologies is an American public research, development and manufacturing company established in 1999 as a spin-off from Hewlett-Packard. The resulting IPO of Agilent stock was the largest in the history of Silicon Valley at the time."
+--     	, companyImage = Just "https://upload.wikimedia.org/wikipedia/en/thumb/1/14/Agilent.svg/440px-Agilent.svg.png"
+--         , companyTicker = "A"
+--         , companyCreated =  now
+--         }
+
 data YahooException
   = YStatusCodeException
   | YCookieCrumbleException
@@ -67,9 +82,9 @@ data YahooException
   deriving (Typeable)
 
 instance Show YahooException where
-  show YStatusCodeException = "Yadata :: data fetch exception!"
-  show YCookieCrumbleException = "Yadata :: cookie crumble exception!"
-  show YWrongTickerException = "Yadata :: wrong ticker passed in!"
+  show YStatusCodeException		= "Yadata :: data fetch exception!"
+  show YCookieCrumbleException	= "Yadata :: cookie crumble exception!"
+  show YWrongTickerException	= "Yadata :: wrong ticker passed in!"
 
 instance Exception YahooException
 
@@ -91,39 +106,6 @@ data YahooData = YahooData
   , yahooDataAdjClose :: !YDataAdjClose
   , yahooDataVolume :: !YDataVolume
   } deriving (Show, Eq)
-
-
-data GYData a where
-  YData
-    :: YDataDate
-    -> YDataOpen
-    -> YDataHigh
-    -> YDataLow
-    -> YDataClose
-    -> YDataAdjClose
-    -> YDataVolume
-    -> GYData a
-  deriving (Show, Eq)
-
-instance FromRecord (GYData a) where
-  parseRecord v
-    | length v == 7 =
-      YData <$>   v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
-      v .! 5 <*>
-      v .! 6
-    | otherwise = mzero
-
-instance ToRecord (GYData a) where
-  toRecord (YData yDataDate yDataOpen yDataHigh yDataLow yDataClose yDataAdjClose yDataVolume) =
-    record
-      [ toField (show yDataDate)
-      , toField yDataOpen
-      , toField yDataHigh
-      , toField yDataLow
-      , toField yDataClose
-      , toField yDataAdjClose
-      , toField yDataVolume
-      ]
 
 instance FromRecord YahooData  where
   parseRecord v
@@ -151,7 +133,7 @@ instance FromField UTCTime where
         pure x
 
 
-getYahooData :: String -> IO (Either YahooException C.ByteString)
+getYahooData :: Text -> IO (Either YahooException C.ByteString)
 getYahooData ticker = do
   manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
   setGlobalManager manager
@@ -165,7 +147,7 @@ getYahooData ticker = do
       let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
       let body = crb ^. W.responseBody
       dataRequest <-
-        parseRequest (yahooDataLink ticker (C.unpack $ getCrumble body))
+        parseRequest (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
       now2 <- getCurrentTime
       let (dataReq, jar2) = insertCookiesIntoRequest dataRequest jar1 now2
       result <-
@@ -182,7 +164,7 @@ getYahooData ticker = do
 companyCodes :: [String]
 companyCodes = ["KO", "AAPL"]
 
-readToType :: String -> IO (Either String [Parser (GYData a)])
+readToType :: Text -> IO (Either String [Parser YahooData])
 readToType ticker = do
   res <- getYahooData ticker
   case res of
@@ -193,16 +175,33 @@ readToType ticker = do
       let bslListofLists = (fmap . fmap) C.pack charListofLists
       let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
       let recordsList = fmap record bsListofLists
-      return $ Right $ fmap parseRecord recordsList
+      let result = fmap parseRecord recordsList
+      return $ Right result
 
-printYlist :: IO ()
-printYlist = do
-  pl <- readToType "cccy"
+saveCompanyData :: CompanyId -> Text -> IO ()
+saveCompanyData cid ticker = do
+  pl <- readToType ticker
   case pl of
-      Left e -> print "Yadata exception!"
+      Left e -> print e
       Right res -> do
-        let yl = fmap runParser res
-        print yl
+        let result = fmap runParser  res
+        let onlyRights = rights result
+        let historicalList = map (insertAction cid ticker) onlyRights
+        print historicalList
+
+insertAction :: CompanyId -> Text -> YahooData -> Historical
+insertAction cid ticker YahooData{..} =
+  Historical
+  { historicalCompanyId = cid
+  , historicalTicker = ticker
+  , historicalRecordDate = yahooDataDate
+  , historicalRecordOpen = yahooDataOpen
+  , historicalRecordHigh = yahooDataHigh
+  , historicalRecordLow = yahooDataLow
+  , historicalRecordClose = yahooDataClose
+  , historicalRecordAdjClose = yahooDataAdjClose
+  , historicalRecordVolume = yahooDataVolume
+  }
 
 toStrict1 :: C.ByteString -> BB.ByteString
 toStrict1 = BB.concat . C.toChunks

@@ -61,6 +61,27 @@ Admin sql=admins
   account UserId
   UniqueAdminUser account
   deriving Eq Show
+Company
+	title Text
+	website Text Maybe
+	description Text Maybe
+	image Text Maybe
+	ticker Text
+	created UTCTime default=current_timestamp
+    deriving Eq
+    deriving Show
+Historical
+    companyId CompanyId
+	ticker Text
+	recordDate UTCTime
+    recordOpen Double
+    recordHigh Double
+    recordLow Double
+    recordClose Double
+    recordAdjClose Double
+    recordVolume Int
+    deriving Eq
+    deriving Show
 |]
 
 instance ToJSON (Entity Story) where
