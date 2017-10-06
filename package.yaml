@@ -28,7 +28,6 @@ dependencies:
 - monad-control >=0.3 && <1.1
 - wai-extra >=3.0 && <3.1
 - yaml >=0.8 && <0.9
-- http-conduit >=2.1 && <2.3
 - directory >=1.1 && <1.4
 - warp >=3.0 && <3.3
 - warp-tls > 3.2.0 && <= 3.2.4
@@ -49,7 +48,6 @@ dependencies:
 - generic-deriving > 1.11.0 && <= 1.11.2
 - cookie
 - financial-news-scraper
-- yadata
 - esqueleto
 - hashable
 - transformers >= 0.4 && < 0.6
@@ -65,6 +63,14 @@ dependencies:
 - vector
 - utf8-string >= 1.0.0.0
 - split >= 0.2.3.1
+- wreq
+- regex-pcre-builtin
+- utf8-string
+- csv
+- mtl >= 2.2.1
+- http-conduit >=2.1 && <2.4
+- http-client >= 0.5.6.0
+- http-client-tls >= 0.3.4
 
 
 default-extensions:
