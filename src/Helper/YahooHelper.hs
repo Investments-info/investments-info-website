@@ -3,6 +3,7 @@
 
 module Helper.YahooHelper
   ( getYahooData
+  , comp1
   , YahooException(..)
   ) where
 
@@ -38,7 +39,8 @@ crumbleLink ticker =
 
 yahooDataLink :: String -> String -> String
 yahooDataLink ticker crumb =
-  "https://query1.finance.yahoo.com/v7/finance/download/" ++ ticker ++
+  "https://query1.finance.yahoo.com/v7/finance/download/" ++
+  ticker ++
   "?period1=1201686274&period2=1504364674&interval=1d&events=history&crumb=" ++
   crumb
 
@@ -64,17 +66,23 @@ getCrumble crumbText = do
 
 comp1 :: HandlerT App IO ()
 comp1 = do
-    now <- liftIO $ getCurrentTime
-    c <- runDB $ insert $
-      Company {
-	      companyTitle = "Agilent Technologies"
-    	, companyWebsite = Just "http://agilent.com"
-	    , companyDescription = Just "Agilent Technologies is an American public research, development and manufacturing company established in 1999 as a spin-off from Hewlett-Packard. The resulting IPO of Agilent stock was the largest in the history of Silicon Valley at the time."
-    	, companyImage = Just "https://upload.wikimedia.org/wikipedia/en/thumb/1/14/Agilent.svg/440px-Agilent.svg.png"
-        , companyTicker = "A"
-        , companyCreated =  now
-        }
-    print c
+  now <- liftIO $ getCurrentTime
+  c <-
+    runDB $
+    insert $
+    Company
+    { companyTitle = "Agilent Technologies"
+    , companyWebsite = Just "http://agilent.com"
+    , companyDescription =
+        Just
+          "Agilent Technologies is an American public research, development and manufacturing company established in 1999 as a spin-off from Hewlett-Packard. The resulting IPO of Agilent stock was the largest in the history of Silicon Valley at the time."
+    , companyImage =
+        Just
+          "https://upload.wikimedia.org/wikipedia/en/thumb/1/14/Agilent.svg/440px-Agilent.svg.png"
+    , companyTicker = "A"
+    , companyCreated = now
+    }
+  print c
 
 
 data YahooException
@@ -109,10 +117,10 @@ data YahooData = YahooData
   , yahooDataVolume :: !YDataVolume
   } deriving (Show, Eq)
 
-instance FromRecord YahooData  where
+instance FromRecord YahooData where
   parseRecord v
     | length v == 7 =
-      YahooData <$>   v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
+      YahooData <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*>
       v .! 5 <*>
       v .! 6
     | otherwise = mzero
@@ -170,7 +178,7 @@ readToType :: Text -> IO (Either String [Parser YahooData])
 readToType ticker = do
   res <- getYahooData ticker
   case res of
-    Left  err -> return $ Left $ show YStatusCodeException
+    Left err -> return $ Left $ show YStatusCodeException
     Right yd -> do
       let charList = lines $ C.unpack yd
       let charListofLists = fmap (splitOn ",") charList
@@ -184,15 +192,16 @@ saveCompanyData :: CompanyId -> Text -> IO ()
 saveCompanyData cid ticker = do
   pl <- readToType ticker
   case pl of
-      Left e -> print e
-      Right res -> do
-        let result = fmap runParser  res
-        let onlyRights = rights result
-        let historicalList = map (insertAction cid ticker) onlyRights
-        print historicalList
+    Left e -> print e
+    Right res -> do
+      let result = fmap runParser res
+      let onlyRights = rights result
+      let historicalList = map (convertToHistoricalAction cid ticker) onlyRights
+      -- _ <- liftM $ map (runDB $ insert) historicalList
+      print "__END__"
 
-insertAction :: CompanyId -> Text -> YahooData -> Historical
-insertAction cid ticker YahooData{..} =
+convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
+convertToHistoricalAction cid ticker YahooData{..} =
   Historical
   { historicalCompanyId = cid
   , historicalTicker = ticker
@@ -204,6 +213,7 @@ insertAction cid ticker YahooData{..} =
   , historicalRecordAdjClose = yahooDataAdjClose
   , historicalRecordVolume = yahooDataVolume
   }
+
 
 toStrict1 :: C.ByteString -> BB.ByteString
 toStrict1 = BB.concat . C.toChunks
