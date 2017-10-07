@@ -22,3 +22,12 @@ insertIfNotSaved hrec = do
         _ <- runDB $ insert hrec
         return True
     _ -> return False
+
+ff :: Historical -> HandlerT App IO (Maybe (Entity Historical))
+ff hrec = do
+  ins <- runDB $ selectFirst [HistoricalRecordDate ==. historicalRecordDate hrec] []
+  case ins of
+    Nothing -> do
+      _ <- runDB $ insert hrec
+      return Nothing
+    Just s -> return $ Just s

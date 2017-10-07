@@ -199,17 +199,9 @@ saveCompanyData cid ticker = do
       let result = fmap runParser res
       let onlyRights = rights result
       let historicalList = (map (convertToHistoricalAction cid ticker) onlyRights)
-      _ <- mapM ff historicalList
+      _ <- mapM insertIfNotSaved historicalList
       return $ Right "SUCCESS"
 
-ff :: Historical -> HandlerT App IO (Maybe (Entity Historical))
-ff hrec = do
-  ins <- runDB $ selectFirst [HistoricalRecordDate ==. historicalRecordDate hrec] []
-  case ins of
-    Nothing -> do
-      _ <- runDB $ insert hrec
-      return Nothing
-    Just s -> return $ Just s
 
 convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
 convertToHistoricalAction cid ticker YahooData {..} =
