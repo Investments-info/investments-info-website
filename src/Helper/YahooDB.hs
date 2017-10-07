@@ -7,17 +7,18 @@ import Import
 import qualified Database.Esqueleto as E
 
 
-insertIfNotSaved :: Historical -> HandlerT App IO String
-insertIfNotSaved Historical{..} = do
+insertIfNotSaved :: Historical -> Handler Bool
+insertIfNotSaved hrec = do
   (insertedRecords:_) :: [E.Value Int] <-
-      runDB $
-      E.select $
-      E.from $
-        \(h :: E.SqlExpr (Entity Historical)) -> do
-          E.where_ $ (h E.^. HistoricalRecordDate E.==. E.val historicalRecordDate)
-          E.where_ $ (h E.^. HistoricalTicker E.==. E.val historicalTicker)
-          return $ E.countRows
+    runDB $
+    E.select $
+    E.from $ \(h :: E.SqlExpr (Entity Historical)) -> do
+      E.where_ $ (h E.^. HistoricalRecordDate E.==. E.val (historicalRecordDate hrec))
+      E.where_ $ (h E.^. HistoricalTicker E.==. E.val (historicalTicker hrec))
+      return $ E.countRows
+  _ <- runDB $ insert hrec
   case insertedRecords of
-      E.Value 0 -> return "inserted"
-           -- runDB $ insert hrec
-      _ -> return "already there"
+    E.Value 0 -> do
+        _ <- runDB $ insert hrec
+        return True
+    _ -> return False

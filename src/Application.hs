@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE BangPatterns #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Application
@@ -45,6 +46,7 @@ import Handler.About
 import Handler.StoryList
 import Handler.SearchArticles
 import Handler.StoryDetails
+import Helper.YahooHelper as YH
 
 mkYesodDispatch "App" resourcesApp
 
@@ -133,6 +135,7 @@ appMain = do
   settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
   foundation <- makeFoundation settings
   app <- makeApplication foundation
+  -- let !x = fetchHistoricalData
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
@@ -159,3 +162,9 @@ handler h = getAppSettings >>= makeFoundation >>= flip unsafeHandler h
 -- | Run DB queries
 db :: ReaderT SqlBackend (HandlerT App IO) a -> IO a
 db = handler . runDB
+
+--------------------------------------------
+-- YAHOO
+-------------------------------------------
+-- fetchHistoricalData :: IO ()
+-- fetchHistoricalData = YH.saveCompanyData (toSqlKey 1) "A"

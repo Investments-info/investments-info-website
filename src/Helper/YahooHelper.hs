@@ -1,9 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE BangPatterns #-}
 
 module Helper.YahooHelper
   ( getYahooData
-  , comp1
+  , saveCompanyData
   , YahooException(..)
   ) where
 
@@ -21,10 +22,11 @@ import Data.Int
 import Data.List.Split
 import qualified Data.Map.Strict as Map
 import Data.Maybe (fromMaybe)
-import Data.Text as T hiding (splitOn , map, lines, length)
+import Data.Text as T hiding (length, lines, map, splitOn)
 import Data.Time
 import Data.Time.Clock
 import Data.Typeable
+import Helper.YahooDB
 import Import hiding (httpLbs, newManager)
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
@@ -188,20 +190,29 @@ readToType ticker = do
       let result = fmap parseRecord recordsList
       return $ Right result
 
-saveCompanyData :: CompanyId -> Text -> IO ()
+saveCompanyData :: CompanyId -> Text ->  HandlerT App IO (Either String String)
 saveCompanyData cid ticker = do
-  pl <- readToType ticker
+  pl <- lift $ readToType ticker
   case pl of
-    Left e -> print e
+    Left e -> return $ Left e
     Right res -> do
       let result = fmap runParser res
       let onlyRights = rights result
-      let historicalList = map (convertToHistoricalAction cid ticker) onlyRights
-      -- _ <- liftM $ map (runDB $ insert) historicalList
-      print "__END__"
+      let historicalList = (map (convertToHistoricalAction cid ticker) onlyRights)
+      _ <- mapM ff historicalList
+      return $ Right "SUCCESS"
+
+ff :: Historical -> HandlerT App IO (Maybe (Entity Historical))
+ff hrec = do
+  ins <- runDB $ selectFirst [HistoricalRecordDate ==. historicalRecordDate hrec] []
+  case ins of
+    Nothing -> do
+      _ <- runDB $ insert hrec
+      return Nothing
+    Just s -> return $ Just s
 
 convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
-convertToHistoricalAction cid ticker YahooData{..} =
+convertToHistoricalAction cid ticker YahooData {..} =
   Historical
   { historicalCompanyId = cid
   , historicalTicker = ticker
