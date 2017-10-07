@@ -46,7 +46,7 @@ import Handler.About
 import Handler.StoryList
 import Handler.SearchArticles
 import Handler.StoryDetails
-import Helper.YahooHelper as YH
+import Handler.Historical
 
 mkYesodDispatch "App" resourcesApp
 

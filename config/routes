@@ -12,3 +12,4 @@
 /signout                       SignoutR        GET
 /admin                         AdminR          GET
 /search                        SearchArticlesR POST
+/historical                    HistoricalR     GET

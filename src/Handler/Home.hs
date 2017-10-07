@@ -10,15 +10,12 @@ import Import
 import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
-import Helper.YahooHelper  as YH
 import Control.Exception as X hiding (Handler)
 import qualified Data.ByteString.Lazy as L
 
 
 getHomeR :: Handler Html
 getHomeR  = do
-  let key = toSqlKey 1
-  _ <- YH.saveCompanyData key "A"
   now <- liftIO getCurrentTime
   topnews <- getTopStory
   fnews <- getFeatureStories

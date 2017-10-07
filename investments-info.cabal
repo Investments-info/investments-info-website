@@ -97,6 +97,7 @@ library
       Handler.Admin
       Handler.Auth
       Handler.Common
+      Handler.Historical
       Handler.Home
       Handler.SearchArticles
       Handler.Sessions
