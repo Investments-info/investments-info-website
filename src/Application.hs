@@ -38,6 +38,7 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
+import Helper.YahooHelper as YH
 import Handler.Auth
 import Handler.Admin
 import Handler.Common
@@ -47,7 +48,7 @@ import Handler.StoryList
 import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.Historical
-
+import GHC.Conc.Sync (forkIO)
 mkYesodDispatch "App" resourcesApp
 
 makeFoundation :: AppSettings -> IO App
@@ -135,7 +136,7 @@ appMain = do
   settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
   foundation <- makeFoundation settings
   app <- makeApplication foundation
-  -- let !x = fetchHistoricalData
+  _ <- forkIO $ fetchHistoricalData
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
@@ -166,5 +167,5 @@ db = handler . runDB
 --------------------------------------------
 -- YAHOO
 -------------------------------------------
--- fetchHistoricalData :: IO ()
--- fetchHistoricalData = YH.saveCompanyData (toSqlKey 1) "A"
+fetchHistoricalData :: IO ()
+fetchHistoricalData =  YH.saveCompanyData (toSqlKey 1) "A"

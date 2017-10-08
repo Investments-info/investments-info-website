@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Helper.YahooHelper
   ( getYahooData
@@ -190,17 +191,17 @@ readToType ticker = do
       let result = fmap parseRecord recordsList
       return $ Right result
 
-saveCompanyData :: CompanyId -> Text ->  HandlerT App IO (Either String String)
+saveCompanyData :: CompanyId -> Text -> IO ()
 saveCompanyData cid ticker = do
-  pl <- lift $ readToType ticker
+  pl <- liftIO $ readToType ticker
   case pl of
-    Left e -> return $ Left e
+    Left e -> liftIO $ return ()
     Right res -> do
       let result = fmap runParser res
       let onlyRights = rights result
       let historicalList = (map (convertToHistoricalAction cid ticker) onlyRights)
-      _ <- mapM insertIfNotSaved historicalList
-      return $ Right "SUCCESS"
+      _ <- liftIO $ mapM insertIfNotSaved historicalList
+      return ()
 
 
 convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical

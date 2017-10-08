@@ -71,6 +71,8 @@ dependencies:
 - http-conduit >=2.1 && <2.4
 - http-client >= 0.5.6.0
 - http-client-tls >= 0.3.4
+- exceptions >= 0.8.3
+- pretty-show >= 1.6.12
 
 
 default-extensions:
