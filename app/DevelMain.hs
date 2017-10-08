@@ -40,6 +40,8 @@ import Data.IORef
 import Foreign.Store
 import Network.Wai.Handler.Warp
 import GHC.Word
+import Helper.YahooHelper as YH
+import GHC.Conc.Sync (forkIO)
 
 -- | Start or restart the server.
 -- newStore is from foreign-store.
@@ -47,6 +49,7 @@ import GHC.Word
 update :: IO ()
 update = do
     mtidStore <- lookupStore tidStoreNum
+    _ <- forkIO $ YH.fetchHistoricalData
     case mtidStore of
       -- no server running
       Nothing -> do

@@ -73,7 +73,7 @@ dependencies:
 - http-client-tls >= 0.3.4
 - exceptions >= 0.8.3
 - pretty-show >= 1.6.12
-
+- foreign-store >= 0.2
 
 default-extensions:
   - NoImplicitPrelude

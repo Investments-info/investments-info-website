@@ -136,8 +136,7 @@ appMain = do
   settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
   foundation <- makeFoundation settings
   app <- makeApplication foundation
-  -- _ <- forkIO $ fetchHistoricalData
-  fetchHistoricalData
+  _ <- forkIO $ YH.fetchHistoricalData
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
@@ -164,9 +163,3 @@ handler h = getAppSettings >>= makeFoundation >>= flip unsafeHandler h
 -- | Run DB queries
 db :: ReaderT SqlBackend (HandlerT App IO) a -> IO a
 db = handler . runDB
-
---------------------------------------------
--- YAHOO
--------------------------------------------
-fetchHistoricalData :: IO ()
-fetchHistoricalData =  YH.saveCompanyData (toSqlKey 1) "A"

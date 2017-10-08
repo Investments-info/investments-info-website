@@ -4,8 +4,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Helper.YahooHelper
-  ( getYahooData
-  , saveCompanyData
+  ( fetchHistoricalData
   , YahooException(..)
   ) where
 
@@ -228,3 +227,9 @@ parseTimestamp ::
   -> String -- ^ Input string
   -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale
+
+--------------------------------------------
+-- YAHOO
+-------------------------------------------
+fetchHistoricalData :: IO ()
+fetchHistoricalData =  saveCompanyData (toSqlKey 1) "A"
