@@ -20,7 +20,7 @@ import qualified Database.Esqueleto as E
 import Database.Persist.Sqlite
 
 runDBA :: DB a -> IO a
-runDBA = runSqlite "~/code/investments-info/investments-info.sqlite3"
+runDBA = runSqlite "investments-info.sqlite3"
 
 
 insertIfNotSaved :: Historical -> IO (Key Historical)
