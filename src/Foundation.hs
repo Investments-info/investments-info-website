@@ -16,6 +16,11 @@ import qualified Data.Text.Encoding as TE
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
+-- had to implement this due to non existing MonadLogger IO instance
+import Control.Monad.Logger (MonadLogger, monadLoggerLog)
+import Control.Applicative  (pure)
+instance MonadLogger IO where
+    monadLoggerLog _ _ _ = pure $ pure ()
 
 data App = App
   { appSettings :: AppSettings

@@ -66,8 +66,8 @@ getCrumble crumbText = do
 -- ("AAP","Advanced Auto Parts Inc")
 -- ]
 
-comp1 :: HandlerT App IO ()
-comp1 = do
+companyFixtures :: HandlerT App IO ()
+companyFixtures = do
   now <- liftIO $ getCurrentTime
   c <-
     runDB $
@@ -153,35 +153,45 @@ getYahooData ticker = do
   crumb <-
     E.try (httpLbs cookieRequest manager) :: IO (Either YahooException (Response C.ByteString))
   case crumb of
-    Left e -> return $ Left YCookieCrumbleException
+    Left e -> do
+      $(logError) $ T.pack "::cookieRequest received Left result "
+      return $ Left YCookieCrumbleException
     Right crb -> do
+      $(logDebug) $ T.pack "::cookieRequest received Right result "
       now <- getCurrentTime
       let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
       let body = crb ^. W.responseBody
       dataRequest <-
-        parseRequest (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
+        parseRequest
+          (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
       now2 <- getCurrentTime
       let (dataReq, jar2) = insertCookiesIntoRequest dataRequest jar1 now2
       result <-
-        E.try (httpLbs dataReq manager)  :: IO(Either YahooException (Response C.ByteString))
+        E.try (httpLbs dataReq manager) :: IO (Either YahooException (Response C.ByteString))
       case result of
-        Left e -> return $ Left YStatusCodeException
+        Left e -> do
+          $(logError) $ T.pack "::yahooDataRequest received Left result "
+          return $ Left YStatusCodeException
         Right d -> do
+          $(logDebug) $ T.pack "::yahooDataRequest received Right result "
           let body2 = d ^. W.responseBody
           let status = d ^. W.responseStatus . W.statusCode
           if status == 200
-            then  return $ Right $ body2
-            else  return $ Left YStatusCodeException
+            then return $ Right $ body2
+            else do
+              $(logError) $ T.pack "::yahooDataRequest status code was not 200"
+              return $ Left YStatusCodeException
 
-companyCodes :: [String]
-companyCodes = ["KO", "AAPL"]
 
 readToType :: Text -> IO (Either String [Parser YahooData])
 readToType ticker = do
   res <- getYahooData ticker
   case res of
-    Left err -> return $ Left $ show YStatusCodeException
+    Left err -> do
+        $(logError) $ T.pack "::readToType received Left result "
+        return $ Left $ show YStatusCodeException
     Right yd -> do
+      $(logDebug) $ T.pack "::readToType received Right result "
       let charList = lines $ C.unpack yd
       let charListofLists = fmap (splitOn ",") charList
       let bslListofLists = (fmap . fmap) C.pack charListofLists

@@ -38,17 +38,19 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
-import Helper.YahooHelper as YH
-import Handler.Auth
-import Handler.Admin
-import Handler.Common
-import Handler.Home
+import Control.Concurrent (forkIO)
 import Handler.About
-import Handler.StoryList
+import Handler.Admin
+import Handler.Auth
+import Handler.Common
+import Handler.Historical
+import Handler.Home
 import Handler.SearchArticles
 import Handler.StoryDetails
-import Handler.Historical
-import GHC.Conc.Sync (forkIO)
+import Handler.StoryList
+import Helper.YahooHelper as YH
+
+
 mkYesodDispatch "App" resourcesApp
 
 makeFoundation :: AppSettings -> IO App

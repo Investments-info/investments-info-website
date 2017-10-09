@@ -30,18 +30,18 @@
 
 module DevelMain where
 
-import Prelude
 import Application (getApplicationRepl, shutdownApp)
+import Prelude
 
+import Control.Concurrent
+import Control.Concurrent (forkIO)
 import Control.Exception (finally)
 import Control.Monad ((>=>))
-import Control.Concurrent
 import Data.IORef
 import Foreign.Store
-import Network.Wai.Handler.Warp
 import GHC.Word
 import Helper.YahooHelper as YH
-import GHC.Conc.Sync (forkIO)
+import Network.Wai.Handler.Warp
 
 -- | Start or restart the server.
 -- newStore is from foreign-store.
