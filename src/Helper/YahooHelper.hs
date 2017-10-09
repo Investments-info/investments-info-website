@@ -214,8 +214,14 @@ parseTimestamp = parseTimeM True defaultTimeLocale
 --------------------------------------------
 -- YAHOO
 -------------------------------------------
+getAllCompanies = runDBA $ allCompanies
+
 fetchHistoricalData :: IO ()
-fetchHistoricalData =  saveCompanyData (toSqlKey 1) "A"
+fetchHistoricalData = do
+    companies <- runDBA $ allCompanies
+    undefined
+    -- TODO find a function that does map and applyes two param function to list
+    -- map (saveCompanyData  companyId companyTicker) companies
 
 logForkedAction :: (Show a, Exception e) => Either e a -> IO ()
 logForkedAction (Left x) = print x

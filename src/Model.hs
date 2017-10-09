@@ -129,6 +129,14 @@ createCompany title website description image ticker = do
   companyId <- insert $ newCompany
   return (Entity companyId newCompany)
 
+allCompanies :: DB [Entity Company]
+allCompanies = do
+  companies <- select $
+    from $ \company -> do
+    return company
+  return companies
+
+
 dumpMigration :: DB ()
 dumpMigration = printMigration migrateAll
 
