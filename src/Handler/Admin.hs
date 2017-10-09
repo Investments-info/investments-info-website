@@ -10,8 +10,7 @@ getAdminR = do
   <div .medium-8 .columns>
     <h3>Welcome to the Admin page
     <ul>
-      <li><a href="">Create a new card
-      <li><a href="">Create a new deck
+      <li><a href="">Create new company
 |]
 
 

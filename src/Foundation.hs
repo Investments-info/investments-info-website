@@ -16,6 +16,7 @@ import qualified Data.Text.Encoding as TE
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
+import Handler.Sessions
 -- had to implement this due to non existing MonadLogger IO instance
 import Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import Control.Applicative  (pure)
@@ -35,6 +36,9 @@ type Page = Int
 type ArticleSearchString = Text
 
 mkYesodData "App" $(parseRoutesFile "config/routes")
+
+htmlOnly :: (MonadHandler m) => m Html -> m TypedContent
+htmlOnly = selectRep . provideRep
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
@@ -104,6 +108,31 @@ instance Yesod App where
         addStylesheet $ StaticR css_bootstrap_css
         $(widgetFile "default-layout")
     withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
+
+
+  errorHandler NotFound = do
+      user <- getUser
+      htmlOnly $ baseLayout "Not found!" user $ errorFragment' (Just "Sorry, but the page you were looking for could not be found") "404 - Page not found"
+
+  errorHandler (InternalError err) = do
+      user <- getUser
+      htmlOnly $ baseLayout "Our bad!" user $ errorFragment' (Just err) "500 - Internal Server Error"
+
+  errorHandler (InvalidArgs _) = do
+      user <- getUser
+      htmlOnly $ baseLayout "Invalid request" user $ errorFragment "400 - Bad Request"
+
+  errorHandler NotAuthenticated = do
+      user <- getUser
+      htmlOnly $ baseLayout "Not authenticated" user $ errorFragment' (Just "You are not logged in") "401 - Unauthorized"
+
+  errorHandler (PermissionDenied msg) = do
+      user <- getUser
+      htmlOnly $ baseLayout "Permission denied" user $ errorFragment' (Just msg) "403 - Forbidden"
+
+  errorHandler (BadMethod _) = do
+      user <- getUser
+      htmlOnly $ baseLayout "Bad method for request" user $ errorFragment "400 - Bad Request"
 
   addStaticContent ext mime content = do
     master <- getYesod

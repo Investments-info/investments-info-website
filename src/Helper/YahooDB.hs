@@ -19,10 +19,6 @@ import Import
 import qualified Database.Esqueleto as E
 import Database.Persist.Sqlite
 
-runDBA :: DB a -> IO a
-runDBA = runSqlite "investments-info.sqlite3"
-
-
 insertIfNotSaved :: Historical -> IO (Key Historical)
 insertIfNotSaved hrec = do
   (insertedRecords:_) :: [E.Value Int] <-

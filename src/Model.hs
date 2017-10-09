@@ -14,11 +14,12 @@ module Model
   ) where
 
 import ClassyPrelude.Yesod hiding ((==.), hash, on)
+import Control.Monad.Logger (runNoLoggingT)
 import Data.Maybe (listToMaybe)
 import Database.Esqueleto
+import Database.Persist.Sqlite (withSqlitePool, runSqlite)
 import Model.BCrypt as Import
 import Model.Instances as Import ()
-
 
 type ControlIO m = (MonadIO m, MonadBaseControl IO m)
 
@@ -41,7 +42,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User sql=users
     email Text
     UniqueUserEmail email
-    deriving Typeable
+    deriving Eq Show Typeable
 Password sql=passwords
   hash BCrypt
   user UserId
@@ -127,15 +128,8 @@ dumpMigration = printMigration migrateAll
 runMigrations :: DB ()
 runMigrations = runMigration migrateAll
 
--- devConn :: ConnectionString
--- devConn =
---   "dbname=cards-with-comrades-dev host=localhost user=postgres password=password port=5432"
-
--- runDevDB :: DB a -> IO a
--- runDevDB a =
---   runNoLoggingT $
---     withPostgresqlPool devConn 3
---       $ \pool -> liftIO $ runSqlPersistMPool a pool
+runDBA :: DB a -> IO a
+runDBA = runSqlite "investments-info.sqlite3"
 
 -- runDevDBV :: DB a -> IO a
 -- runDevDBV a =
