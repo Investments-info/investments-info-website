@@ -43,6 +43,8 @@ import Handler.About
 import Handler.Admin
 import Handler.Auth
 import Handler.Common
+import Handler.Company
+import Handler.CompanyList
 import Handler.Historical
 import Handler.Home
 import Handler.SearchArticles
