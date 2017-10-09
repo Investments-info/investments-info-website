@@ -5,6 +5,7 @@
 
 module Helper.YahooHelper
   ( fetchHistoricalData
+  , logForkedAction
   , YahooException(..)
   ) where
 
@@ -243,3 +244,7 @@ parseTimestamp = parseTimeM True defaultTimeLocale
 -------------------------------------------
 fetchHistoricalData :: IO ()
 fetchHistoricalData =  saveCompanyData (toSqlKey 1) "A"
+
+logForkedAction :: (Show a, Exception e) => Either e a -> IO ()
+logForkedAction (Left x) = print x
+logForkedAction (Right x) = print x
