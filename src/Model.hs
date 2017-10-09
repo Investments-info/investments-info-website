@@ -122,6 +122,13 @@ createAdmin userKey = do
   adminKey <- insert $ newAdmin
   return (Entity adminKey newAdmin)
 
+createCompany :: Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
+createCompany title website description image ticker = do
+  now <- liftIO $ getCurrentTime
+  let newCompany = Company title (Just website) (Just description) (Just image) ticker now
+  companyId <- insert $ newCompany
+  return (Entity companyId newCompany)
+
 dumpMigration :: DB ()
 dumpMigration = printMigration migrateAll
 
@@ -130,9 +137,3 @@ runMigrations = runMigration migrateAll
 
 runDBA :: DB a -> IO a
 runDBA = runSqlite "investments-info.sqlite3"
-
--- runDevDBV :: DB a -> IO a
--- runDevDBV a =
---   runStdoutLoggingT $
---     withPostgresqlPool devConn 3
---       $ \pool -> liftIO $ runSqlPersistMPool a pool

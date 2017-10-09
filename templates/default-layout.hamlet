@@ -15,6 +15,8 @@
                             <li>
                                 <a href="@{AboutR}" >About
                             <li>
+                                <a href="@{CompanyListR}" >Companies
+                            <li>
                                 <a href="#first" .hidable>Statistical data
                             <li>
                                 <a href="#second" .hidable>Machine learning

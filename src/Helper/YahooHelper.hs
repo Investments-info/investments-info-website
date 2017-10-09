@@ -59,34 +59,6 @@ getCrumble crumbText = do
 
 
 ------------------------------------------------------------------------------------------------------
--- [
--- ("A","Agilent Technologies"),
--- ("AA","Alcoa Corporation"),
--- ("AAC","Aac Holdings"),
--- ("AAN","Aaron's Inc"),
--- ("AAP","Advanced Auto Parts Inc")
--- ]
-
-companyFixtures :: HandlerT App IO ()
-companyFixtures = do
-  now <- liftIO $ getCurrentTime
-  c <-
-    runDB $
-    insert $
-    Company
-    { companyTitle = "Agilent Technologies"
-    , companyWebsite = Just "http://agilent.com"
-    , companyDescription =
-        Just
-          "Agilent Technologies is an American public research, development and manufacturing company established in 1999 as a spin-off from Hewlett-Packard. The resulting IPO of Agilent stock was the largest in the history of Silicon Valley at the time."
-    , companyImage =
-        Just
-          "https://upload.wikimedia.org/wikipedia/en/thumb/1/14/Agilent.svg/440px-Agilent.svg.png"
-    , companyTicker = "A"
-    , companyCreated = now
-    }
-  print c
-
 
 data YahooException
   = YStatusCodeException

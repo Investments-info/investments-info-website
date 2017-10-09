@@ -100,6 +100,8 @@ library
       Handler.Admin
       Handler.Auth
       Handler.Common
+      Handler.Company
+      Handler.CompanyList
       Handler.Historical
       Handler.Home
       Handler.SearchArticles

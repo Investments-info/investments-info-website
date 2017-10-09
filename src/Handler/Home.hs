@@ -41,7 +41,7 @@ getHomeR  = do
         else return ()
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
       defaultLayout $ do
-        setTitle "Finance portal"
+        setTitle "Investments info"
         toWidget [whamlet|
 <section id="intro" class="main">
     <div class="spotlight">
