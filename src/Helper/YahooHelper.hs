@@ -173,15 +173,17 @@ readToType ticker = do
       let result = fmap parseRecord recordsList
       return $ Right result
 
-saveCompanyData :: CompanyId -> Text -> IO ()
-saveCompanyData cid ticker = do
-  pl <- liftIO $ readToType ticker
+saveCompanyData :: Entity Company -> IO ()
+saveCompanyData companyE = do
+  let cid = entityKey companyE
+  let company = entityVal companyE
+  pl <- liftIO $ readToType (companyTicker company)
   case pl of
     Left e -> liftIO $ return ()
     Right res -> do
       let result = fmap runParser res
       let onlyRights = rights result
-      let historicalList = (map (convertToHistoricalAction cid ticker) onlyRights)
+      let historicalList = (map (convertToHistoricalAction cid (companyTicker company)) onlyRights)
       _ <- liftIO $ mapM insertIfNotSaved historicalList
       return ()
 
@@ -218,10 +220,9 @@ getAllCompanies = runDBA $ allCompanies
 
 fetchHistoricalData :: IO ()
 fetchHistoricalData = do
-    companies <- runDBA $ allCompanies
-    undefined
-    -- TODO find a function that does map and applyes two param function to list
-    -- map (saveCompanyData  companyId companyTicker) companies
+    companies <- liftIO $ runDBA $ allCompanies
+    _ <- traverse saveCompanyData companies
+    return ()
 
 logForkedAction :: (Show a, Exception e) => Either e a -> IO ()
 logForkedAction (Left x) = print x
