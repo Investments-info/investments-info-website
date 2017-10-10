@@ -119,8 +119,7 @@ getApplicationDev = do
   foundation <- makeFoundation settings
   wsettings <- getDevSettings $ warpSettings foundation
   app <- makeApplication foundation
-  -- _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
-  forever YH.fetchHistoricalData
+  _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -142,8 +141,7 @@ appMain = do
   settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
   foundation <- makeFoundation settings
   app <- makeApplication foundation
-  -- _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
-  forever YH.fetchHistoricalData
+  _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------

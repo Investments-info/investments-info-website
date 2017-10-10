@@ -8,6 +8,7 @@
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 module Model
   ( module Import
   , module Model
@@ -136,6 +137,32 @@ allCompanies = do
     return company
   return companies
 
+getCompanyCount :: IO (Database.Esqueleto.Value Int)
+getCompanyCount = do
+  (companies:_) :: [Database.Esqueleto.Value Int] <-
+    runDBA $
+    select $
+    from $ \(h :: SqlExpr (Entity Company)) -> do
+      return $ countRows
+  return companies
+
+getUserCount :: IO (Database.Esqueleto.Value Int)
+getUserCount = do
+  (users:_) :: [Database.Esqueleto.Value Int] <-
+    runDBA $
+    select $
+    from $ \(h :: SqlExpr (Entity User)) -> do
+      return $ countRows
+  return users
+
+getArticleCount :: IO (Database.Esqueleto.Value Int)
+getArticleCount = do
+  (articles:_) :: [Database.Esqueleto.Value Int] <-
+    runDBA $
+    select $
+    from $ \(h :: SqlExpr (Entity Story)) -> do
+      return $ countRows
+  return articles
 
 dumpMigration :: DB ()
 dumpMigration = printMigration migrateAll
