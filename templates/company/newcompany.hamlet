@@ -1,0 +1,9 @@
+<div .container>
+    <div .row>
+        <div .col-md-12>
+          <h1>New company
+          <br />
+          <br />
+          <form method=post enctype=#{enctype} action=@{CompanyR}>
+                ^{widget}
+                <button .btn .btn-success>Create!

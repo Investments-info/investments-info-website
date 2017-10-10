@@ -14,4 +14,4 @@
 /search                        SearchArticlesR POST
 /historical                    HistoricalR     GET
 /!company/list                 CompanyListR    GET
-/!company/#CompanyId           CompanyR        GET POST
+/!company                      CompanyR        GET POST

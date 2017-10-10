@@ -110,6 +110,7 @@ library
       Handler.StoryDetails
       Handler.StoryList
       Helper.Fixtures
+      Helper.FormHelper
       Helper.Forms
       Helper.Helper
       Helper.YahooDB

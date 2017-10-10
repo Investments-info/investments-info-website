@@ -4,6 +4,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Foundation where
 
@@ -52,9 +53,9 @@ navLayout user =
         <a href="@{HomeR}" .plain>Home
   <div class="top-bar-right">
     <ul class="menu">
-      $maybe _ <- user
+      $maybe _ u <- userId
         <li>
-          <a href="@{SignoutR}">Signout
+          <a href="@{SignoutR}">Signout #{userEmail u}
       $nothing
         <li>
           <a href="@{LoginR}">Login
