@@ -5,6 +5,7 @@ import Helper.FormHelper as FH
 
 getCompanyR :: Handler Html
 getCompanyR = do
+  _ <- requireAdmin
   now <- liftIO getCurrentTime
   (widget, enctype) <- generateFormPost $ FH.newCompanyForm now
   defaultLayout  $(widgetFile "company/newcompany")
