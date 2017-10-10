@@ -23,8 +23,11 @@ module Application
   ) where
 
 import Control.Monad.Logger (liftLoc, runLoggingT)
-import Database.Persist.Sqlite
-       (createSqlitePool, runSqlPool, sqlDatabase, sqlPoolSize)
+-- import Database.Persist.Sqlite
+--        (createSqlitePool, runSqlPool, sqlDatabase, sqlPoolSize)
+import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
+                                             pgPoolSize, runSqlPool)
+
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
 import Network.Wai (Middleware)
@@ -57,23 +60,23 @@ mkYesodDispatch "App" resourcesApp
 
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
-  appHttpManager <- newManager
-  appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
-  appStatic <-
-    (if appMutableStatic appSettings
-       then staticDevel
-       else static)
-      (appStaticDir appSettings)
-  let mkFoundation appConnPool = App {..}
-      tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
-      logFunc = messageLoggerSource tempFoundation appLogger
-  pool <-
-    flip runLoggingT logFunc $
-    createSqlitePool
-      (sqlDatabase $ appDatabaseConf appSettings)
-      (sqlPoolSize $ appDatabaseConf appSettings)
-  runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
-  return $ mkFoundation pool
+    appHttpManager <- newManager
+    appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
+    appStatic <-
+        (if appMutableStatic appSettings then staticDevel else static)
+        (appStaticDir appSettings)
+
+    let mkFoundation appConnPool = App {..}
+        tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
+        logFunc = messageLoggerSource tempFoundation appLogger
+
+    pool <- flip runLoggingT logFunc $ createPostgresqlPool
+        (pgConnStr  $ appDatabaseConf appSettings)
+        (pgPoolSize $ appDatabaseConf appSettings)
+
+    runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
+
+    return $ mkFoundation pool
 
 makeApplication :: App -> IO Application
 makeApplication foundation = do

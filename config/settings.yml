@@ -20,13 +20,16 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # skip-combining: false
 # auth-dummy-login : false
 
-# NB: If you need a numeric value (e.g. 123) to parse as a String, wrap it in single quotes (e.g. "_env:PGPASS:'123'")
-# See https://github.com/yesodweb/yesod/wiki/Configuration#parsing-numeric-values-as-strings
-
 database:
+  user:     "_env:PGUSER:************"
+  password: "_env:PGPASS:*******************"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
   # See config/test-settings.yml for an override during tests
-  database: "_env:SQLITE_DATABASE:investments-info.sqlite3"
-  poolsize: "_env:SQLITE_POOLSIZE:10"
+  database: "_env:PGDATABASE:******************"
+  poolsize: "_env:PGPOOLSIZE:10"
+# database: "_env:SQLITE_DATABASE:investments-info.sqlite3"
+# poolsize: "_env:SQLITE_POOLSIZE:10"
 
 copyright: Investments-info 2017
 #analytics: UA-YOURCODE

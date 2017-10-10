@@ -14,12 +14,14 @@ module Model
   , module Model
   ) where
 
+import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
 import ClassyPrelude.Yesod hiding ((==.), hash, on)
 import Data.Maybe (listToMaybe)
 import Database.Esqueleto
 import Database.Persist.Sqlite (runSqlite)
 import Model.BCrypt as Import
 import Model.Instances as Import ()
+import Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
 
 type ControlIO m = (MonadIO m, MonadBaseControl IO m)
 
@@ -35,7 +37,7 @@ type DBVal val =
 
 -- fetchThingByField
 --   :: (PersistField typ, DBVal val)
---   => EntityField val typ -> typ -> DB (Maybe (Entity val))
+--   => val typ -> typ -> DB (Maybe (Entity val))
 -- fetchThingByField field u = selectFirst [field ==. u] []
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
@@ -194,5 +196,21 @@ dumpMigration = printMigration migrateAll
 runMigrations :: DB ()
 runMigrations = runMigration migrateAll
 
+runDBSqlite :: DB a -> IO a
+runDBSqlite = runSqlite "investments-info.sqlite3"
+
+devConn :: ConnectionString
+devConn =
+  "dbname=investments_info host=localhost user=************** password=*********************** port=5432"
+
 runDBA :: DB a -> IO a
-runDBA = runSqlite "investments-info.sqlite3"
+runDBA a =
+  runNoLoggingT $
+    withPostgresqlPool devConn 10
+      $ \pool -> liftIO $ runSqlPersistMPool a pool
+
+runDevDBV :: DB a -> IO a
+runDevDBV a =
+  runStdoutLoggingT $
+    withPostgresqlPool devConn 10
+      $ \pool -> liftIO $ runSqlPersistMPool a pool
