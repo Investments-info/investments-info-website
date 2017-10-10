@@ -21,12 +21,12 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # auth-dummy-login : false
 
 database:
-  user:     "_env:PGUSER:************"
-  password: "_env:PGPASS:*******************"
+  user:     "_env:PGUSER:ii"
+  password: "_env:PGPASS:R3gc)^tAxiMqNosX@Aeve(xP"
   host:     "_env:PGHOST:localhost"
   port:     "_env:PGPORT:5432"
   # See config/test-settings.yml for an override during tests
-  database: "_env:PGDATABASE:******************"
+  database: "_env:PGDATABASE:investments_info"
   poolsize: "_env:PGPOOLSIZE:10"
 # database: "_env:SQLITE_DATABASE:investments-info.sqlite3"
 # poolsize: "_env:SQLITE_POOLSIZE:10"

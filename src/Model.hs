@@ -201,7 +201,7 @@ runDBSqlite = runSqlite "investments-info.sqlite3"
 
 devConn :: ConnectionString
 devConn =
-  "dbname=investments_info host=localhost user=************** password=*********************** port=5432"
+  "dbname=investments_info host=localhost user=ii password=R3gc)^tAxiMqNosX@Aeve(xP port=5432"
 
 runDBA :: DB a -> IO a
 runDBA a =
