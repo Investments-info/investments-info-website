@@ -164,6 +164,15 @@ getArticleCount = do
       return $ countRows
   return articles
 
+getHistoryCount :: IO (Database.Esqueleto.Value Int)
+getHistoryCount = do
+  (history:_) :: [Database.Esqueleto.Value Int] <-
+    runDBA $
+    select $
+    from $ \(h :: SqlExpr (Entity Historical)) -> do
+      return $ countRows
+  return history
+
 dumpMigration :: DB ()
 dumpMigration = printMigration migrateAll
 
