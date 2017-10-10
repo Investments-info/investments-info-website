@@ -18,14 +18,10 @@ import qualified Data.ByteString.Lazy as B
        (ByteString, concat, drop, pack, take)
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.CSV.Conduit.Conversion as CSVC
-import Data.Hashable
 import Data.Int
 import Data.List.Split
-import qualified Data.Map.Strict as Map
-import Data.Maybe (fromMaybe)
 import Data.Text as T hiding (length, lines, map, splitOn)
 import Data.Time
-import Data.Time.Clock
 import Data.Typeable
 import Helper.YahooDB
 import Import hiding (httpLbs, newManager)
@@ -126,7 +122,7 @@ getYahooData ticker = do
   crumb <-
     E.try (httpLbs cookieRequest manager) :: IO (Either YahooException (Response C.ByteString))
   case crumb of
-    Left e -> do
+    Left _ -> do
       $(logError) $ T.pack "::cookieRequest received Left result "
       return $ Left YCookieCrumbleException
     Right crb -> do
@@ -138,11 +134,11 @@ getYahooData ticker = do
         parseRequest
           (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
       now2 <- getCurrentTime
-      let (dataReq, jar2) = insertCookiesIntoRequest dataRequest jar1 now2
+      let (dataReq,_) = insertCookiesIntoRequest dataRequest jar1 now2
       result <-
         E.try (httpLbs dataReq manager) :: IO (Either YahooException (Response C.ByteString))
       case result of
-        Left e -> do
+        Left _ -> do
           $(logError) $ T.pack "::yahooDataRequest received Left result "
           return $ Left YStatusCodeException
         Right d -> do
@@ -160,7 +156,7 @@ readToType :: Text -> IO (Either String [Parser YahooData])
 readToType ticker = do
   res <- getYahooData ticker
   case res of
-    Left err -> do
+    Left _ -> do
         $(logError) $ T.pack "::readToType received Left result "
         return $ Left $ show YStatusCodeException
     Right yd -> do
@@ -179,7 +175,7 @@ saveCompanyData companyE = do
   let company = entityVal companyE
   pl <- liftIO $ readToType (companyTicker company)
   case pl of
-    Left e -> liftIO $ return ()
+    Left _ -> liftIO $ return ()
     Right res -> do
       let result = fmap runParser res
       let onlyRights = rights result
@@ -216,7 +212,6 @@ parseTimestamp = parseTimeM True defaultTimeLocale
 --------------------------------------------
 -- YAHOO
 -------------------------------------------
-getAllCompanies = runDBA $ allCompanies
 
 fetchHistoricalData :: IO ()
 fetchHistoricalData = do

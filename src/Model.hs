@@ -15,10 +15,9 @@ module Model
   ) where
 
 import ClassyPrelude.Yesod hiding ((==.), hash, on)
-import Control.Monad.Logger (runNoLoggingT)
 import Data.Maybe (listToMaybe)
 import Database.Esqueleto
-import Database.Persist.Sqlite (withSqlitePool, runSqlite)
+import Database.Persist.Sqlite (runSqlite)
 import Model.BCrypt as Import
 import Model.Instances as Import ()
 
@@ -51,11 +50,11 @@ Password sql=passwords
   deriving Eq Show
 Story
     hashId Int
-	title Text
-	link Text
-	content Text Maybe
-	image Text Maybe
-	created UTCTime default=current_timestamp
+    title Text
+    link Text
+    content Text Maybe
+    image Text Maybe
+    created UTCTime default=current_timestamp
     deriving Eq
     deriving Show
 
@@ -64,18 +63,18 @@ Admin sql=admins
   UniqueAdminUser account
   deriving Eq Show
 Company
-	title Text
-	website Text Maybe
-	description Text Maybe
-	image Text Maybe
-	ticker Text
-	created UTCTime default=current_timestamp
+    title Text
+    website Text Maybe
+    description Text Maybe
+    image Text Maybe
+    ticker Text
+    created UTCTime default=current_timestamp
     deriving Eq
     deriving Show
 Historical
     companyId CompanyId
-	ticker Text
-	recordDate UTCTime
+    ticker Text
+    recordDate UTCTime
     recordOpen Double
     recordHigh Double
     recordLow Double
@@ -87,7 +86,7 @@ Historical
 |]
 
 instance ToJSON (Entity Story) where
-    toJSON (Entity pid p) = object
+    toJSON (Entity _ p) = object
         [ "title"   .= storyTitle p
         , "link"    .= storyLink p
         , "content" .= storyContent p
@@ -142,7 +141,7 @@ getCompanyCount = do
   (companies:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
     select $
-    from $ \(h :: SqlExpr (Entity Company)) -> do
+    from $ \(_ :: SqlExpr (Entity Company)) -> do
       return $ countRows
   return companies
 
@@ -151,7 +150,7 @@ getUserCount = do
   (users:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
     select $
-    from $ \(h :: SqlExpr (Entity User)) -> do
+    from $ \(_ :: SqlExpr (Entity User)) -> do
       return $ countRows
   return users
 
@@ -160,7 +159,7 @@ getArticleCount = do
   (articles:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
     select $
-    from $ \(h :: SqlExpr (Entity Story)) -> do
+    from $ \(_ :: SqlExpr (Entity Story)) -> do
       return $ countRows
   return articles
 
@@ -169,9 +168,25 @@ getHistoryCount = do
   (history:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
     select $
-    from $ \(h :: SqlExpr (Entity Historical)) -> do
+    from $ \(_ :: SqlExpr (Entity Historical)) -> do
       return $ countRows
   return history
+
+deleteAllCompanies :: DB ()
+deleteAllCompanies =
+  Database.Esqueleto.delete $ from $ \(_ :: SqlExpr (Entity Company)) -> return ()
+
+deleteAdminUsers :: DB ()
+deleteAdminUsers =
+  Database.Esqueleto.delete $ from $ \(_ :: SqlExpr (Entity Admin)) -> return ()
+
+deleteUserAdmins :: DB ()
+deleteUserAdmins =
+  Database.Esqueleto.delete $
+  from $ \u -> do
+    where_ (u ^. UserEmail ==. val "brutallesale@gmail.com")
+    where_ (u ^. UserEmail ==. val "vpleta@gmx.ch")
+
 
 dumpMigration :: DB ()
 dumpMigration = printMigration migrateAll
