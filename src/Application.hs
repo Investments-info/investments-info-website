@@ -54,6 +54,7 @@ import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.StoryList
 import Helper.YahooHelper as YH
+import Helper.Fixtures as F
 
 
 mkYesodDispatch "App" resourcesApp
@@ -122,6 +123,8 @@ getApplicationDev = do
   foundation <- makeFoundation settings
   wsettings <- getDevSettings $ warpSettings foundation
   app <- makeApplication foundation
+  F.runDeleteAdminsAction
+  F.runInsertAdminsAction
   _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
   return (wsettings, app)
 
@@ -144,6 +147,8 @@ appMain = do
   settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
   foundation <- makeFoundation settings
   app <- makeApplication foundation
+  F.runDeleteAdminsAction
+  F.runInsertAdminsAction
   _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
   runTLS tlsS (warpSettings foundation) app
 

@@ -1,3 +1,4 @@
+{-# LANGUAGE RecordWildCards #-}
 module Handler.Company where
 
 import Import
@@ -15,8 +16,9 @@ postCompanyR = do
     now <- liftIO getCurrentTime
     ((res, _), _) <- runFormPost $ FH.newCompanyForm now
     case res of
-      FormSuccess c -> do
-            _ <- runDB $ insert $ Company (companyTitle c) (companyWebsite c)  (companyImage c) (companyDescription c) (companyTicker c) now
+      FormSuccess Company{..} -> do
+            _ <- runDB $ insert $ Company companyTitle companyWebsite companyImage companyDescription companyTicker now
+
             setMessage "Company created!"
             redirect CompanyListR
       _ -> do

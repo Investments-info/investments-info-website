@@ -9,6 +9,7 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE RecordWildCards            #-}
 module Model
   ( module Import
   , module Model
@@ -174,20 +175,37 @@ getHistoryCount = do
       return $ countRows
   return history
 
-deleteAllCompanies :: DB ()
+deleteAllCompanies :: DB Int64
 deleteAllCompanies =
-  Database.Esqueleto.delete $ from $ \(_ :: SqlExpr (Entity Company)) -> return ()
+  Database.Esqueleto.deleteCount $ from $ \(_ :: SqlExpr (Entity Company)) -> return ()
 
-deleteAdminUsers :: DB ()
-deleteAdminUsers =
-  Database.Esqueleto.delete $ from $ \(_ :: SqlExpr (Entity Admin)) -> return ()
+deleteAdminUsers :: Text -> DB ()
+deleteAdminUsers email = do
+    (u:_) <- select $
+        from $ \u -> do
+        where_ (u ^. UserEmail ==. val email)
+        return u
+    Database.Esqueleto.delete $
+         from $ \p  -> do
+         on (p ^. AdminAccount  ==. val (entityKey u))
+    return ()
 
-deleteUserAdmins :: DB ()
-deleteUserAdmins =
-  Database.Esqueleto.delete $
+deleteAdminPasswords :: Text -> DB ()
+deleteAdminPasswords email = do
+    (u:_) <- select $
+        from $ \u -> do
+        where_ (u ^. UserEmail ==. val email)
+        return u
+    Database.Esqueleto.delete $
+         from $ \p  -> do
+         on (p ^. PasswordUser  ==. val (entityKey u))
+    return ()
+
+deleteUserAdmins :: Text -> DB Int64
+deleteUserAdmins email =
+  Database.Esqueleto.deleteCount $
   from $ \u -> do
-    where_ (u ^. UserEmail ==. val "brutallesale@gmail.com")
-    where_ (u ^. UserEmail ==. val "vpleta@gmx.ch")
+    where_ (u ^. UserEmail ==. val email)
 
 
 dumpMigration :: DB ()

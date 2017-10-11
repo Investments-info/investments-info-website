@@ -34,7 +34,7 @@ newtype CompanyFixtures = CompanyFixtures
 data Fixtures = Fixtures
   { userF :: UserFixtures
   , adminF :: AdminFixtures
-  , companyF :: CompanyFixtures
+  -- , companyF :: CompanyFixtures
   } deriving (Eq, Show)
 
 sasaEmail, sasaPassword :: Text
@@ -71,15 +71,6 @@ unsafeIdx xs n
                                    0 -> x
                                    _ -> r (k-1)) (error ("index too large: " ++ show n)) xs n
 
-
--- [
--- ("A","Agilent Technologies"),
--- ("AA","Alcoa Corporation"),
--- ("AAC","Aac Holdings"),
--- ("AAN","Aaron's Inc"),
--- ("AAP","Advanced Auto Parts Inc")
--- ]
-
 makeCompany :: Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
 makeCompany title website description image ticker = do
   compEnt <- createCompany title website description image ticker
@@ -95,22 +86,30 @@ makeCompanies =
     ]
 
 
-runFixtures :: IO ()
-runFixtures = do
-  runDBA deleteAdminUsers
-  runDBA deleteUserAdmins
-  runDBA deleteAllCompanies
+runDeleteAdminsAction :: IO ()
+runDeleteAdminsAction = do
+  _ <- runDBA $ do
+    deleteAdminPasswords "brutallesale@gmail.com"
+    deleteAdminPasswords "vpleta@gmx.ch"
+    deleteAdminUsers "brutallesale@gmail.com"
+    deleteAdminUsers "vpleta@gmx.ch"
+    deleteUserAdmins "brutallesale@gmail.com"
+    deleteUserAdmins "vpleta@gmx.ch"
+  return ()
+
+runInsertAdminsAction :: IO ()
+runInsertAdminsAction = do
   _ <- runDBA insertFixtures
   return ()
 
 insertFixtures :: DB Fixtures
 insertFixtures = do
   allUsersF <- makeAccounts
-  allCompaniesF <- makeCompanies
+  -- allCompaniesF <- makeCompanies
   let sasa = unsafeIdx allUsersF 0
       vidas = unsafeIdx allUsersF 1
   allAdminsF <- makeAdmins [entityKey sasa, entityKey vidas]
   let userF = UserFixtures {..}
       adminF = AdminFixtures {..}
-      companyF = CompanyFixtures {..}
+      -- companyF = CompanyFixtures {..}
   return Fixtures {..}
