@@ -20,15 +20,21 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # skip-combining: false
 # auth-dummy-login : false
 database:
-  user:     "_env:PGUSER:ii"
-  password: "_env:PGPASS:R3gc)^tAxiMqNosX@Aeve(xP"
-  host:     "_env:PGHOST:localhost"
-  port:     "_env:PGPORT:5432"
+  user:     "_env:PGUSER:*********"
+  password: "_env:PGPASS:*********"
+  host:     "_env:PGHOST:*********"
+  port:     "_env:PGPORT:*********"
   # See config/test-settings.yml for an override during tests
-  database: "_env:PGDATABASE:investments_info"
+  database: "_env:PGDATABASE:***********"
   poolsize: "_env:PGPOOLSIZE:10"
 # database: "_env:SQLITE_DATABASE:investments-info.sqlite3"
 # poolsize: "_env:SQLITE_POOLSIZE:10"
+
+dbdbname: "**********"
+dbuser: "*********"
+dbpassword: "**********"
+dbhost: "*********"
+dbport: "*******"
 
 copyright: Investments-info 2017
 #analytics: UA-YOURCODE

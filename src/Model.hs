@@ -24,6 +24,8 @@ import Database.Persist.Sqlite (runSqlite)
 import Model.BCrypt as Import
 import Model.Instances as Import ()
 import Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
+import GHC.Generics hiding (from)
+import Data.Yaml
 
 type ControlIO m = (MonadIO m, MonadBaseControl IO m)
 
@@ -223,18 +225,38 @@ runMigrations = runMigration migrateAll
 runDBSqlite :: DB a -> IO a
 runDBSqlite = runSqlite "investments-info.sqlite3"
 
-devConn :: ConnectionString
-devConn =
- "dbname=investments_info host=localhost user=ii password=R3gc)^tAxiMqNosX@Aeve(xP port=5432"
+data DBConfig = DBConfig
+  { dbhost :: Text
+  , dbdbname :: Text
+  , dbuser :: Text
+  , dbpassword :: Text
+  , dbport :: Text
+  } deriving (Show, Generic)
+
+instance FromJSON DBConfig
+
+devConn :: IO ConnectionString
+devConn = do
+  cs <- readConfig
+  return $ encodeUtf8 cs
 
 runDBA :: DB a -> IO a
-runDBA a =
+runDBA a = do
+  conn <- devConn
   runNoLoggingT $
-    withPostgresqlPool devConn 10
+    withPostgresqlPool conn 10
       $ \pool -> liftIO $ runSqlPersistMPool a pool
 
 runDevDBV :: DB a -> IO a
-runDevDBV a =
+runDevDBV a = do
+  conn <- devConn
   runStdoutLoggingT $
-    withPostgresqlPool devConn 10
+    withPostgresqlPool conn 10
       $ \pool -> liftIO $ runSqlPersistMPool a pool
+
+readConfig :: IO Text
+readConfig = do
+    cnf <- decodeFile "config/settings.yml" :: IO (Maybe DBConfig)
+    case cnf of
+        Nothing -> return ""
+        Just DBConfig {..} -> return $ "dbname=" <> dbdbname  <> " host=localhost user=ii password=R3gc)^tAxiMqNosX@Aeve(xP port=5432"
