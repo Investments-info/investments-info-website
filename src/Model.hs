@@ -19,6 +19,7 @@ import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
 import ClassyPrelude.Yesod hiding ((==.), hash, on)
 import Data.Maybe (listToMaybe)
 import Database.Esqueleto
+import qualified Database.Persist as P
 import Database.Persist.Sqlite (runSqlite)
 import Model.BCrypt as Import
 import Model.Instances as Import ()
@@ -181,25 +182,34 @@ deleteAllCompanies =
 
 deleteAdminUsers :: Text -> DB ()
 deleteAdminUsers email = do
-    (u:_) <- select $
-        from $ \u -> do
-        where_ (u ^. UserEmail ==. val email)
-        return u
-    Database.Esqueleto.delete $
+  mUser <- selectFirst [UserEmail P.==. email] []
+  case mUser of
+    Nothing -> return ()
+    Just u -> do
+      Database.Esqueleto.delete $
          from $ \p  -> do
-         on (p ^. AdminAccount  ==. val (entityKey u))
-    return ()
+         where_ (p ^. AdminAccount  ==. val (entityKey u))
+         return ()
 
 deleteAdminPasswords :: Text -> DB ()
 deleteAdminPasswords email = do
-    (u:_) <- select $
-        from $ \u -> do
-        where_ (u ^. UserEmail ==. val email)
-        return u
-    Database.Esqueleto.delete $
-         from $ \p  -> do
-         on (p ^. PasswordUser  ==. val (entityKey u))
-    return ()
+  mUser <- selectFirst [UserEmail P.==. email] []
+  case mUser of
+    Nothing -> return ()
+    Just u -> do
+      Database.Esqueleto.delete $
+        from $ \p -> do
+        where_ (p ^. PasswordUser ==. val (entityKey u))
+        return ()
+
+countUsersByEmail :: Text -> DB Int
+countUsersByEmail email = do
+  (cnt:_) :: [Database.Esqueleto.Value Int] <-
+    select $
+     from $ \u -> do
+     where_ (u ^. UserEmail ==. val email)
+     return $ countRows
+  return $ unValue cnt
 
 deleteUserAdmins :: Text -> DB Int64
 deleteUserAdmins email =
