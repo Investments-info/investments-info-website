@@ -49,7 +49,6 @@ import Network.Wai.Handler.Warp
 update :: IO ()
 update = do
     mtidStore <- lookupStore tidStoreNum
-    _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
     case mtidStore of
       -- no server running
       Nothing -> do

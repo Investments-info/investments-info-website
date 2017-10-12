@@ -37,10 +37,6 @@ type DBVal val =
   , PersistEntityBackend val ~ SqlBackend
   , PersistStore (PersistEntityBackend val))
 
--- fetchThingByField
---   :: (PersistField typ, DBVal val)
---   => val typ -> typ -> DB (Maybe (Entity val))
--- fetchThingByField field u = selectFirst [field ==. u] []
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User sql=users
@@ -229,7 +225,7 @@ runDBSqlite = runSqlite "investments-info.sqlite3"
 
 devConn :: ConnectionString
 devConn =
-  "dbname=investments_info host=localhost user=ii password=R3gc)^tAxiMqNosX@Aeve(xP port=5432"
+ "dbname=investments_info host=localhost user=ii password=R3gc)^tAxiMqNosX@Aeve(xP port=5432"
 
 runDBA :: DB a -> IO a
 runDBA a =

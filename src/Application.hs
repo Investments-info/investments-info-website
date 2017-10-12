@@ -20,14 +20,12 @@ module Application
     -- * for GHCI
   , handler
   , db
+  , getDbConnectionString
   ) where
 
 import Control.Monad.Logger (liftLoc, runLoggingT)
--- import Database.Persist.Sqlite
---        (createSqlitePool, runSqlPool, sqlDatabase, sqlPoolSize)
-import Database.Persist.Postgresql          (createPostgresqlPool, pgConnStr,
-                                             pgPoolSize, runSqlPool)
-
+import Database.Persist.Postgresql
+       (createPostgresqlPool, pgConnStr, pgPoolSize, runSqlPool)
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
 import Network.Wai (Middleware)
@@ -41,7 +39,6 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
-import Control.Concurrent (forkIO)
 import Handler.About
 import Handler.Admin
 import Handler.Auth
@@ -53,8 +50,8 @@ import Handler.Home
 import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.StoryList
-import Helper.YahooHelper as YH
 import Helper.Fixtures as F
+import Helper.YahooHelper as YH
 
 
 mkYesodDispatch "App" resourcesApp
@@ -126,6 +123,8 @@ getApplicationDev = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
+  -- _ <- forkIO $ YH.fetchHistoricalData foundation
+  -- Listen for message from other servers in the mesh
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -150,6 +149,7 @@ appMain = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
+  -- _ <- forkIO $ YH.fetchHistoricalData foundation
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
@@ -176,3 +176,33 @@ handler h = getAppSettings >>= makeFoundation >>= flip unsafeHandler h
 -- | Run DB queries
 db :: ReaderT SqlBackend (HandlerT App IO) a -> IO a
 db = handler . runDB
+
+getDbConnectionString :: IO ByteString
+getDbConnectionString = do
+ settings <- getAppSettings
+ return $ pgConnStr $ appDatabaseConf settings
+
+{-
+ _ <- forkIO $ setupConnectionsToMesh addressText foundation
+
+setupConnectionsToMesh :: Text -> App -> IO ()
+setupConnectionsToMesh addressText app = do
+  let hints = defaultHints { addrFlags = [AI_NUMERICHOST, AI_NUMERICSERV], addrSocketType = Stream }
+      logger = appLogger app
+  addr:_ <- getAddrInfo (Just hints) (Just "0.0.0.0") (Just "8585")
+  sock   <- socket (addrFamily addr) (addrSocketType addr) (addrProtocol addr)
+
+  -- Bind it to the address we're listening to
+  attemptBind logger 15 sock (addrAddress addr)
+
+  -- Start listening for connection requests.  Maximum queue size
+  -- of 15 connection requests waiting to be accepted.
+  listen sock 15
+  logStrLn logger "Listening on 8585 for the mesh network"
+  -- connect to all known servers in the mesh
+  servers <- E.runSqlPool getServers (appConnPool app)
+
+getServers :: SqlPersistT IO [ Entity Servers ]
+getServers = do
+  selectList [ ServersCategory ==. Just "D3CommandCenter" ] []
+-}

@@ -14,8 +14,8 @@ import Control.Lens
 import Control.Monad (mzero)
 import Control.Monad.Except
 import qualified Data.ByteString as BB
-import qualified Data.ByteString.Lazy as B
-       (ByteString, concat, drop, pack, take)
+import Data.ByteString.Lazy as B
+       (ByteString, drop, take)
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.CSV.Conduit.Conversion as CSVC
 import Data.Int
@@ -27,7 +27,7 @@ import Helper.YahooDB
 import Import hiding (httpLbs, newManager)
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS
-import Network.HTTP.Simple hiding (httpLbs)
+-- import Network.HTTP.Simple hiding (httpLbs)
 import qualified Network.Wreq as W
        (responseBody, responseStatus, statusCode)
 import Text.Regex.PCRE
@@ -63,13 +63,12 @@ data YahooException
   deriving (Typeable)
 
 instance Show YahooException where
-  show YStatusCodeException		= "Yadata :: data fetch exception!"
-  show YCookieCrumbleException	= "Yadata :: cookie crumble exception!"
-  show YWrongTickerException	= "Yadata :: wrong ticker passed in!"
+  show YStatusCodeException     = "Yadata :: data fetch exception!"
+  show YCookieCrumbleException  = "Yadata :: cookie crumble exception!"
+  show YWrongTickerException    = "Yadata :: wrong ticker passed in!"
 
 instance Exception YahooException
 
-newtype TickerList = TickerList [String]
 type YDataDate = UTCTime
 type YDataOpen = Double
 type YDataHigh = Double

@@ -51,7 +51,7 @@ postLoginR = do
             False -> notAuthenticated
             True -> do
               setUserSession dbUserKey True
-              redirect HomeR
+              redirect AdminR
     _ -> renderLogin widget
 
 

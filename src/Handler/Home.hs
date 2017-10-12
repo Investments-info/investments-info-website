@@ -10,7 +10,6 @@ import Import
 import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
-import Control.Exception as X hiding (Handler)
 import qualified Data.ByteString.Lazy as L
 
 
