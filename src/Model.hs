@@ -227,7 +227,7 @@ runDBSqlite = runSqlite "investments-info.sqlite3"
 
 data DBConfig = DBConfig
   { dbhost :: Text
-  , dbdbname :: Text
+  , dbdatabase :: Text
   , dbuser :: Text
   , dbpassword :: Text
   , dbport :: Text
@@ -258,5 +258,5 @@ readConfig :: IO Text
 readConfig = do
     cnf <- decodeFile "config/settings.yml" :: IO (Maybe DBConfig)
     case cnf of
-        Nothing -> return ""
-        Just DBConfig {..} -> return $ "dbname=" <> dbdbname  <> " host=localhost user=ii password=R3gc)^tAxiMqNosX@Aeve(xP port=5432"
+        Nothing -> error "Could not read database credentials!"
+        Just DBConfig {..} -> return $ "dbname=" <> dbdatabase  <> " host=" <> dbhost <> " user=" <> dbuser <> " password=" <> dbpassword  <>  " port=" <> dbport
