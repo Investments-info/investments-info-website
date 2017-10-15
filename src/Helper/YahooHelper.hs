@@ -20,7 +20,7 @@ import Data.Text as T hiding (length, lines, map, splitOn)
 import Data.Time
 import Data.Typeable
 import Helper.YahooDB
-import Import hiding (httpLbs, newManager)
+import Import hiding (httpLbs, newManager, withManagerSettings)
 import Network.Connection (TLSSettings (..))
 import Network.HTTP.Conduit
 import Control.Monad.Trans.Resource (runResourceT)
@@ -117,44 +117,33 @@ parseTimestamp = parseTimeM True defaultTimeLocale
 toStrict1 :: C.ByteString -> BB.ByteString
 toStrict1 = BB.concat . C.toChunks
 
+simpleHTTPWithUserAgent :: String -> IO ()
+simpleHTTPWithUserAgent url = do
+    r  <- parseUrl url
+    let request = r {requestHeaders = [("User-Agent","HTTP-Conduit")]}
+    let settings = mkManagerSettings (TLSSettingsSimple True False False) Nothing
+    res <- withManagerSettings settings $ httpLbs request
+    print res
+
 -- getYahooData :: Text -> ReaderT Manager C.ByteString
 getYahooData ticker = do
   let settings = mkManagerSettings (TLSSettingsSimple True False False) Nothing
-  manager <- newManager settings
   cookieRequest <- parseRequest (crumbleLink "KO")
-  runResourceT $ do
-  -- m (Response (ResumableSource m ByteString))
-    crumb <- http cookieRequest manager
-    undefined
-    -- case crumb of
-    --  Left _ -> do
-    --    $(logError) $ T.pack "::cookieRequest received Left result "
-    --    return $ Left YCookieCrumbleException
-    --  Right crb -> do
-  --     $(logDebug) $ T.pack "::cookieRequest received Right result "
-  --     now <- getCurrentTime
-  --     let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
-  --     let body = crb ^. W.responseBody
-  --     dataRequest <-
-  --       parseRequest
-  --         (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
-  --     now2 <- getCurrentTime
-  --     let (dataReq,_) = insertCookiesIntoRequest dataRequest jar1 now2
-  --     result <-
-  --       E.try (httpLbs dataReq) :: IO (Either YahooException (Response C.ByteString))
-  --     case result of
-  --       Left _ -> do
-  --         $(logError) $ T.pack "::yahooDataRequest received Left result "
-  --         return $ Left YStatusCodeException
-  --       Right d -> do
-  --         $(logDebug) $ T.pack "::yahooDataRequest received Right result "
-  --         let body2 = d ^. W.responseBody
-  --         let status = d ^. W.responseStatus . W.statusCode
-  --         if status == 200
-  --           then return $ Right $ body2
-  --           else do
-  --             $(logError) $ T.pack "::yahooDataRequest status code was not 200"
-  --             return $ Left YStatusCodeException
+  res <- withManagerSettings settings $ httpLbs cookieRequest
+  now <- getCurrentTime
+  let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
+  let body = crb -- ^. W.responseBody
+  dataRequest <-
+        parseRequest
+          (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
+  now2 <- getCurrentTime
+  let (dataReq,_) = insertCookiesIntoRequest dataRequest jar1 now2
+  result <- withManagerSettings settings $ httpLbs  dataReq
+  let body2 = d -- ^. W.responseBody
+  let status = d -- ^. W.responseStatus . W.statusCode
+  if status == 200
+     then return $ Right $ body2
+     else return $ Left []
 
 {-
 
