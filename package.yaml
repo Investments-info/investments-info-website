@@ -64,7 +64,6 @@ dependencies:
 - vector
 - utf8-string >= 1.0.0.0
 - split >= 0.2.3.1
-- wreq
 - regex-pcre-builtin
 - utf8-string
 - csv
@@ -75,6 +74,8 @@ dependencies:
 - exceptions >= 0.8.3
 - pretty-show >= 1.6.12
 - foreign-store >= 0.2
+- resourcet >= 1.1.9
+- connection >= 0.2.7
 
 default-extensions:
   - NoImplicitPrelude

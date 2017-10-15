@@ -122,7 +122,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
+  -- _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
   -- _ <- forkIO $ YH.fetchHistoricalData foundation
   -- Listen for message from other servers in the mesh
   return (wsettings, app)
@@ -148,7 +148,7 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
+  -- _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
   -- _ <- forkIO $ YH.fetchHistoricalData foundation
   runTLS tlsS (warpSettings foundation) app
 

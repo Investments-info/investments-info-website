@@ -78,7 +78,6 @@ library
     , vector
     , utf8-string >= 1.0.0.0
     , split >= 0.2.3.1
-    , wreq
     , regex-pcre-builtin
     , utf8-string
     , csv
@@ -89,6 +88,8 @@ library
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
+    , resourcet >= 1.1.9
+    , connection >= 0.2.7
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -187,7 +188,6 @@ executable investments-info
     , vector
     , utf8-string >= 1.0.0.0
     , split >= 0.2.3.1
-    , wreq
     , regex-pcre-builtin
     , utf8-string
     , csv
@@ -198,6 +198,8 @@ executable investments-info
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
+    , resourcet >= 1.1.9
+    , connection >= 0.2.7
     , investments-info
   if flag(library-only)
     buildable: False
@@ -270,7 +272,6 @@ test-suite test
     , vector
     , utf8-string >= 1.0.0.0
     , split >= 0.2.3.1
-    , wreq
     , regex-pcre-builtin
     , utf8-string
     , csv
@@ -281,6 +282,8 @@ test-suite test
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
+    , resourcet >= 1.1.9
+    , connection >= 0.2.7
     , yesod-test
     , hspec
     , investments-info
