@@ -85,11 +85,13 @@ library
     , http-conduit >=2.1 && <2.4
     , http-client >= 0.5.6.0
     , http-client-tls >= 0.3.4
+    , http-types >= 0.9.1
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
     , resourcet >= 1.1.9
     , connection >= 0.2.7
+    , conduit-combinators >= 1.1.0
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -195,11 +197,13 @@ executable investments-info
     , http-conduit >=2.1 && <2.4
     , http-client >= 0.5.6.0
     , http-client-tls >= 0.3.4
+    , http-types >= 0.9.1
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
     , resourcet >= 1.1.9
     , connection >= 0.2.7
+    , conduit-combinators >= 1.1.0
     , investments-info
   if flag(library-only)
     buildable: False
@@ -279,11 +283,13 @@ test-suite test
     , http-conduit >=2.1 && <2.4
     , http-client >= 0.5.6.0
     , http-client-tls >= 0.3.4
+    , http-types >= 0.9.1
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
     , resourcet >= 1.1.9
     , connection >= 0.2.7
+    , conduit-combinators >= 1.1.0
     , yesod-test
     , hspec
     , investments-info

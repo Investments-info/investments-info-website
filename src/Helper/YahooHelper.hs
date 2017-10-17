@@ -2,29 +2,38 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Helper.YahooHelper where
 
-import Control.Exception as E
-import Control.Lens
-import Control.Monad (mzero)
-import Control.Monad.Except
+import Control.Monad.Trans.Resource (runResourceT)
 import qualified Data.ByteString as BB
-import Data.ByteString.Lazy as B
-       (ByteString, drop, take)
+import Data.ByteString.Lazy as B (ByteString, drop, take)
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.CSV.Conduit.Conversion as CSVC
+import Data.Conduit (($$))
+import qualified Data.Conduit.Binary as CB
+import qualified Data.Conduit.List as CL
 import Data.Int
 import Data.List.Split
 import Data.Text as T hiding (length, lines, map, splitOn)
 import Data.Time
 import Data.Typeable
 import Helper.YahooDB
-import Import hiding (httpLbs, newManager, withManagerSettings)
-import Network.Connection (TLSSettings (..))
-import Network.HTTP.Conduit
-import Control.Monad.Trans.Resource (runResourceT)
+import Import hiding (newManager, httpLbs)
+import Network.Connection (TLSSettings(..))
+import Network.HTTP.Client.TLS
+       (setGlobalManager, tlsManagerSettings)
+import Network.HTTP.Types.Status (statusCode)
 import Text.Regex.PCRE
+import Conduit
+import Control.Monad.Reader
+import Control.Monad.Trans.Class
+import Data.ByteString (ByteString)
+import Data.CSV.Conduit
+import Network.HTTP.Client.Conduit hiding (httpLbs)
+import Network.HTTP.Simple hiding (withResponse)
+
 
 crumbleLink :: String -> String
 crumbleLink ticker =
@@ -117,66 +126,58 @@ parseTimestamp = parseTimeM True defaultTimeLocale
 toStrict1 :: C.ByteString -> BB.ByteString
 toStrict1 = BB.concat . C.toChunks
 
-simpleHTTPWithUserAgent :: String -> IO ()
-simpleHTTPWithUserAgent url = do
-    r  <- parseUrl url
-    let request = r {requestHeaders = [("User-Agent","HTTP-Conduit")]}
-    let settings = mkManagerSettings (TLSSettingsSimple True False False) Nothing
-    res <- withManagerSettings settings $ httpLbs request
-    print res
+csvProcessor :: Conduit (MapRow Text) m (MapRow Text)
+csvProcessor = undefined
 
--- getYahooData :: Text -> ReaderT Manager C.ByteString
+streamYahooData :: Request -> IO ()
+streamYahooData req = do
+    withManagerSettings defaultManagerSettings $ do
+        (withResponse req $ \resp -> do
+            runConduit $
+                let httpConduit = responseBody resp
+                in httpConduit .| csvProcessor .| printC)
+          `catch` \(e :: HttpException) -> do
+            -- lift $ putStrLn "Sad :("
+            throw e
+
+getYahooData :: Text -> IO ()
 getYahooData ticker = do
-  let settings = mkManagerSettings (TLSSettingsSimple True False False) Nothing
-  cookieRequest <- parseRequest (crumbleLink "KO")
-  res <- withManagerSettings settings $ httpLbs cookieRequest
-  now <- getCurrentTime
-  let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
-  let body = crb -- ^. W.responseBody
-  dataRequest <-
-        parseRequest
-          (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
-  now2 <- getCurrentTime
-  let (dataReq,_) = insertCookiesIntoRequest dataRequest jar1 now2
-  result <- withManagerSettings settings $ httpLbs  dataReq
-  let body2 = d -- ^. W.responseBody
-  let status = d -- ^. W.responseStatus . W.statusCode
-  if status == 200
-     then return $ Right $ body2
-     else return $ Left []
+    cookieRequest <- parseRequest (crumbleLink "KO")
+    crumb <- httpLbs cookieRequest
+    now <- getCurrentTime
+    let (jar1, _) = updateCookieJar crumb cookieRequest now (createCookieJar [])
+    let body = responseBody crumb
+    dataRequest <- parseRequest (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
+    now2 <- getCurrentTime
+    let (dataReq,_) = insertCookiesIntoRequest dataRequest jar1 now2
+    streamYahooData dataReq
 
-{-
 
-readToType :: Text -> IO (Either String [Parser YahooData])
-readToType ticker = do
-  res <- getYahooData ticker
-  case res of
-    Left _ -> do
-        $(logError) $ T.pack "::readToType received Left result "
-        return $ Left $ show YStatusCodeException
-    Right yd -> do
-      $(logDebug) $ T.pack "::readToType received Right result "
-      let charList = lines $ C.unpack yd
-      let charListofLists = fmap (splitOn ",") charList
-      let bslListofLists = (fmap . fmap) C.pack charListofLists
-      let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
-      let recordsList = fmap record bsListofLists
-      let result = fmap parseRecord recordsList
-      return $ Right result
 
-saveCompanyData :: Entity Company -> IO ()
-saveCompanyData companyE = do
-  let cid = entityKey companyE
-  let company = entityVal companyE
-  pl <- liftIO $ readToType (companyTicker company)
-  case pl of
-    Left _ -> liftIO $ return ()
-    Right res -> do
-      let result = fmap runParser res
-      let onlyRights = rights result
-      let historicalList = (map (convertToHistoricalAction cid (companyTicker company)) onlyRights)
-      _ <- liftIO $ mapM insertIfNotSaved historicalList
-      return ()
+-- readToType :: Text -> IO (Either String [Parser YahooData])
+-- readToType ticker = do
+--   res <- getYahooData ticker
+--   let charList = lines $ C.unpack res
+--   let charListofLists = fmap (splitOn ",") charList
+--   let bslListofLists = (fmap . fmap) C.pack charListofLists
+--   let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
+--   let recordsList = fmap record bsListofLists
+--   let result = fmap parseRecord recordsList
+--   return $ Right result
+
+-- saveCompanyData :: Entity Company -> IO ()
+-- saveCompanyData companyE = do
+--   let cid = entityKey companyE
+--   let company = entityVal companyE
+--   pl <- liftIO $ readToType (companyTicker company)
+--   case pl of
+--     Left _ -> liftIO $ return ()
+--     Right res -> do
+--       let result = fmap runParser res
+--       let onlyRights = rights result
+--       let historicalList = (map (convertToHistoricalAction cid (companyTicker company)) onlyRights)
+--       _ <- liftIO $ mapM insertIfNotSaved historicalList
+--       return ()
 
 
 convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
@@ -193,13 +194,8 @@ convertToHistoricalAction cid ticker YahooData {..} =
   , historicalRecordVolume = yahooDataVolume
   }
 
-
-
-
 fetchHistoricalData :: IO ()
 fetchHistoricalData = do
     companies <- liftIO $ runDBA $ allCompanies
     _ <- traverse saveCompanyData companies
     return ()
-
--}
