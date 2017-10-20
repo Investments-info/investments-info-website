@@ -6,10 +6,17 @@
 
 module Helper.YahooHelper where
 
+import Conduit
+import Control.Lens
+import Control.Monad.Reader
+import Control.Monad.Trans.Class
 import Control.Monad.Trans.Resource (runResourceT)
+import Data.Aeson.Lens
 import qualified Data.ByteString as BB
+import Data.ByteString (ByteString)
 import Data.ByteString.Lazy as B (ByteString, drop, take)
 import qualified Data.ByteString.Lazy.Char8 as C
+import Data.CSV.Conduit
 import Data.CSV.Conduit.Conversion as CSVC
 import Data.Conduit (($$))
 import qualified Data.Conduit.Binary as CB
@@ -19,21 +26,16 @@ import Data.List.Split
 import Data.Text as T hiding (length, lines, map, splitOn)
 import Data.Time
 import Data.Typeable
+import Data.Void
 import Helper.YahooDB
-import Import hiding (newManager, httpLbs)
+import Import hiding (httpLbs, newManager)
 import Network.Connection (TLSSettings(..))
+import Network.HTTP.Client.Conduit hiding (httpLbs)
 import Network.HTTP.Client.TLS
        (setGlobalManager, tlsManagerSettings)
+import Network.HTTP.Simple hiding (withResponse)
 import Network.HTTP.Types.Status (statusCode)
 import Text.Regex.PCRE
-import Conduit
-import Control.Monad.Reader
-import Control.Monad.Trans.Class
-import Data.ByteString (ByteString)
-import Data.CSV.Conduit
-import Network.HTTP.Client.Conduit hiding (httpLbs)
-import Network.HTTP.Simple hiding (withResponse)
-
 
 crumbleLink :: String -> String
 crumbleLink ticker =
@@ -126,8 +128,8 @@ parseTimestamp = parseTimeM True defaultTimeLocale
 toStrict1 :: C.ByteString -> BB.ByteString
 toStrict1 = BB.concat . C.toChunks
 
-csvProcessor :: Conduit (MapRow Text) m (MapRow Text)
-csvProcessor = undefined
+csvProcessor :: ConduitM Import.ByteString Void (ReaderT Manager IO) () -> Record
+csvProcessor = undefined --toRecord
 
 streamYahooData :: Request -> IO ()
 streamYahooData req = do
@@ -135,7 +137,7 @@ streamYahooData req = do
         (withResponse req $ \resp -> do
             runConduit $
                 let httpConduit = responseBody resp
-                in httpConduit .| csvProcessor .| printC)
+                in httpConduit .| csvProcessor)
           `catch` \(e :: HttpException) -> do
             -- lift $ putStrLn "Sad :("
             throw e
@@ -152,7 +154,7 @@ getYahooData ticker = do
     let (dataReq,_) = insertCookiesIntoRequest dataRequest jar1 now2
     streamYahooData dataReq
 
-
+getErrorMessage json = json ^? key "chart" . key "error" . _String
 
 -- readToType :: Text -> IO (Either String [Parser YahooData])
 -- readToType ticker = do
@@ -194,8 +196,8 @@ convertToHistoricalAction cid ticker YahooData {..} =
   , historicalRecordVolume = yahooDataVolume
   }
 
-fetchHistoricalData :: IO ()
-fetchHistoricalData = do
-    companies <- liftIO $ runDBA $ allCompanies
-    _ <- traverse saveCompanyData companies
-    return ()
+-- fetchHistoricalData :: IO ()
+-- fetchHistoricalData = do
+--     companies <- liftIO $ runDBA $ allCompanies
+--     _ <- traverse saveCompanyData companies
+--     return ()

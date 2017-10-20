@@ -92,6 +92,7 @@ library
     , resourcet >= 1.1.9
     , connection >= 0.2.7
     , conduit-combinators >= 1.1.0
+    , lens-aeson >= 1.0.0.5
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -204,6 +205,7 @@ executable investments-info
     , resourcet >= 1.1.9
     , connection >= 0.2.7
     , conduit-combinators >= 1.1.0
+    , lens-aeson >= 1.0.0.5
     , investments-info
   if flag(library-only)
     buildable: False
@@ -290,6 +292,7 @@ test-suite test
     , resourcet >= 1.1.9
     , connection >= 0.2.7
     , conduit-combinators >= 1.1.0
+    , lens-aeson >= 1.0.0.5
     , yesod-test
     , hspec
     , investments-info

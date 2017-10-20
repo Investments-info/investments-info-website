@@ -78,6 +78,7 @@ dependencies:
 - resourcet >= 1.1.9
 - connection >= 0.2.7
 - conduit-combinators >= 1.1.0
+- lens-aeson >= 1.0.0.5
 
 default-extensions:
   - NoImplicitPrelude
