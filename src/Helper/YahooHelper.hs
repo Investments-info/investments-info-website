@@ -129,7 +129,7 @@ toStrict1 :: C.ByteString -> BB.ByteString
 toStrict1 = BB.concat . C.toChunks
 
 csvProcessor :: ConduitM Import.ByteString Void (ReaderT Manager IO) () -> Record
-csvProcessor = undefined --toRecord
+csvProcessor a = toRecord a
 
 streamYahooData :: Request -> IO ()
 streamYahooData req = do
@@ -137,7 +137,7 @@ streamYahooData req = do
         (withResponse req $ \resp -> do
             runConduit $
                 let httpConduit = responseBody resp
-                in httpConduit .| csvProcessor)
+                in httpConduit .| printC)
           `catch` \(e :: HttpException) -> do
             -- lift $ putStrLn "Sad :("
             throw e
