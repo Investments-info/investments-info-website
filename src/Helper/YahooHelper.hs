@@ -10,6 +10,7 @@ module Helper.YahooHelper
   ) where
 
 import Control.Exception as E
+import Control.Monad.Except
 import Control.Lens
 import Control.Monad (mzero)
 import Control.Monad.Except
@@ -113,8 +114,8 @@ instance FromField UTCTime where
         pure x
 
 
-getYahooData :: Text -> IO (Either YahooException C.ByteString)
-getYahooData ticker = do
+getYahooData :: Text -> ExceptT YahooException IO C.ByteString
+getYahooData ticker = ExceptT $ do
   manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
   setGlobalManager manager
   cookieRequest <- parseRequest (crumbleLink "KO")
@@ -151,13 +152,13 @@ getYahooData ticker = do
               return $ Left YStatusCodeException
 
 
-readToType :: Text -> IO (Either String [Parser YahooData])
-readToType ticker = do
-  res <- getYahooData ticker
+readToType :: Text -> ExceptT String IO [Parser YahooData]
+readToType ticker = ExceptT $ do
+  res <- runExceptT $ getYahooData ticker
   case res of
     Left _ -> do
-        $(logError) $ T.pack "::readToType received Left result "
-        return $ Left $ show YStatusCodeException
+         $(logError) $ T.pack "::readToType received Left result "
+         return $ Left $ show YStatusCodeException
     Right yd -> do
       $(logDebug) $ T.pack "::readToType received Right result "
       let charList = lines $ C.unpack yd
@@ -172,7 +173,7 @@ saveCompanyData :: Entity Company -> IO ()
 saveCompanyData companyE = do
   let cid = entityKey companyE
   let company = entityVal companyE
-  pl <- liftIO $ readToType (companyTicker company)
+  pl <- runExceptT $ readToType (companyTicker company)
   case pl of
     Left _ -> liftIO $ return ()
     Right res -> do
