@@ -17,6 +17,7 @@ getCompanyListR = do
           $forall Entity cid Company{..} <- companies
             <div>
               <h2>#{companyTitle}
+              <a .btn href=@{CompanyDetailsR cid}>view details
               <p>Ticker:
                 <b>#{companyTicker}
               $maybe img <- companyImage

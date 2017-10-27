@@ -50,6 +50,7 @@ import Handler.Home
 import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.StoryList
+import Handler.CompanyDetails
 import Helper.Fixtures as F
 import Helper.YahooHelper as YH
 

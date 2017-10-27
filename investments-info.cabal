@@ -102,6 +102,7 @@ library
       Handler.Auth
       Handler.Common
       Handler.Company
+      Handler.CompanyDetails
       Handler.CompanyList
       Handler.Historical
       Handler.Home

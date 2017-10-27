@@ -1,12 +1,12 @@
-module Handler.Historical where
+module Handler.CompanyDetails where
 
 import Import
 
-getHistoricalR :: Handler Html
-getHistoricalR = do
-      defaultLayout $ do
-        setTitle "Investments info"
-        toWidget [whamlet|
+getCompanyDetailsR :: CompanyId -> Handler Html
+getCompanyDetailsR cid = do
+    defaultLayout $ do
+     setTitle "Investments info"
+     toWidget [whamlet|
 <section id="intro" class="main">
   <div class="content">
   <header class="major">
