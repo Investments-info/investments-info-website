@@ -24,7 +24,6 @@ import Database.Persist.Sqlite (runSqlite)
 import Model.BCrypt as Import
 import Model.Instances as Import ()
 import Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
-import GHC.Generics hiding (from)
 import Data.Yaml
 
 type ControlIO m = (MonadIO m, MonadBaseControl IO m)
@@ -64,7 +63,7 @@ Admin sql=admins
   account UserId
   UniqueAdminUser account
   deriving Eq Show
-Company
+Company json
     title Text
     website Text Maybe
     description Text Maybe
@@ -73,7 +72,7 @@ Company
     created UTCTime default=current_timestamp
     deriving Eq
     deriving Show
-Historical
+Historical json
     companyId CompanyId
     ticker Text
     recordDate UTCTime
@@ -143,6 +142,14 @@ getCompanyById cid = fmap listToMaybe $
   select $
   from $ \c -> do
   where_ (c ^. CompanyId ==. val cid)
+  return c
+
+getAllCompanyHistoricalDataById :: CompanyId -> DB [Entity Historical]
+getAllCompanyHistoricalDataById cid =
+  select $
+  from $ \c -> do
+  where_ (c ^. HistoricalCompanyId ==. val cid)
+  orderBy [desc (c ^. HistoricalRecordDate)]
   return c
 
 getCompanyCount :: IO (Database.Esqueleto.Value Int)
