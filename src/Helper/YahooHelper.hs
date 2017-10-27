@@ -10,7 +10,7 @@ module Helper.YahooHelper
   ) where
 
 import Control.Exception as E
-import Control.Monad.Except
+import Control.Monad.Except()
 import Control.Lens
 import Control.Monad (mzero)
 import Control.Monad.Except
@@ -70,7 +70,7 @@ instance Show YahooException where
 
 instance Exception YahooException
 
-type YDataDate = UTCTime
+type YDataDate = YUTCTime
 type YDataOpen = Double
 type YDataHigh = Double
 type YDataLow = Double
@@ -87,6 +87,7 @@ data YahooData = YahooData
   , yahooDataAdjClose :: !YDataAdjClose
   , yahooDataVolume :: !YDataVolume
   } deriving (Show, Eq)
+
 
 instance FromRecord YahooData where
   parseRecord v
@@ -108,10 +109,14 @@ instance ToRecord YahooData where
       , toField yahooDataVolume
       ]
 
-instance FromField UTCTime where
+newtype YUTCTime = YUTCTime
+    { getYtime :: UTCTime
+    } deriving (Eq, Show)
+
+instance FromField YUTCTime where
     parseField u = do
         x <- parseTimestamp "%Y-%m-%d" (C.unpack(C.fromStrict u))
-        pure x
+        pure (YUTCTime x)
 
 
 getYahooData :: Text -> ExceptT YahooException IO C.ByteString
@@ -189,7 +194,7 @@ convertToHistoricalAction cid ticker YahooData {..} =
   Historical
   { historicalCompanyId = cid
   , historicalTicker = ticker
-  , historicalRecordDate = yahooDataDate
+  , historicalRecordDate = getYtime yahooDataDate
   , historicalRecordOpen = yahooDataOpen
   , historicalRecordHigh = yahooDataHigh
   , historicalRecordLow = yahooDataLow

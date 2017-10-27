@@ -1,11 +1,15 @@
 module Handler.Historical where
 
 import Import
-import Helper.YahooHelper as YH
 
-getHistoricalR :: Handler Value
-getHistoricalR = undefined
--- do
---   let key = toSqlKey 1
---   _ <- lift $ YH.saveCompanyData key "A"
---   return ":::"
+getHistoricalR :: Handler Html
+getHistoricalR = do
+      defaultLayout $ do
+        setTitle "Investments info"
+        toWidget [whamlet|
+<section id="intro" class="main">
+    <div class="spotlight">
+        <div class="content">
+            <header class="major">
+                <h2>Historical Graphs</h2>
+|]
