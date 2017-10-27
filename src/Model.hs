@@ -138,6 +138,13 @@ allCompanies = do
     return company
   return companies
 
+getCompanyById :: CompanyId -> DB (Maybe(Entity Company))
+getCompanyById cid = fmap listToMaybe $
+  select $
+  from $ \c -> do
+  where_ (c ^. CompanyId ==. val cid)
+  return c
+
 getCompanyCount :: IO (Database.Esqueleto.Value Int)
 getCompanyCount = do
   (companies:_) :: [Database.Esqueleto.Value Int] <-

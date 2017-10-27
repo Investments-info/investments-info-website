@@ -16,6 +16,7 @@ $newline never
         <!--[if lte IE 9]><link rel="stylesheet" href="static/css/ie9.css" /><![endif]-->
         <!--[if lte IE 8]><link rel="stylesheet" href="static/css/ie8.css" /><![endif]-->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js">
+        <script language="javascript" type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js" />
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.3/js.cookie.min.js">
         <script>
          /* The `defaultCsrfMiddleware` Middleware added in Foundation.hs adds a CSRF token to the request cookies. */

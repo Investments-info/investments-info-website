@@ -10,14 +10,13 @@ getCompanyListR = do
     toWidget [whamlet|
 <section class="main special">
   <div class="content">
-    <div class="spotlight">
       <header>
         <h2>Companies</h2>
         <div>
           $forall Entity cid Company{..} <- companies
             <div>
               <h2>#{companyTitle}
-              <a .btn href=@{CompanyDetailsR cid}>view details
+              <a .link href=@{CompanyDetailsR cid}>view details
               <p>Ticker:
                 <b>#{companyTicker}
               $maybe img <- companyImage
