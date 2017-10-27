@@ -149,7 +149,7 @@ getAllCompanyHistoricalDataById cid =
   select $
   from $ \c -> do
   where_ (c ^. HistoricalCompanyId ==. val cid)
-  orderBy [desc (c ^. HistoricalRecordDate)]
+  orderBy [asc (c ^. HistoricalRecordDate)]
   return c
 
 getCompanyCount :: IO (Database.Esqueleto.Value Int)
