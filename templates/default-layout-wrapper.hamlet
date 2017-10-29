@@ -18,8 +18,8 @@ $newline never
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js">
         <script language="javascript" type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js" />
         <script language="javascript" type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.min.js" />
-        <script language="javascript" type="text/javascript" src="https://d3js.org/d3.v2.js" />
-
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+        <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.3/js.cookie.min.js">
         <script>

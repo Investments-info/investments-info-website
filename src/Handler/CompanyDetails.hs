@@ -14,14 +14,15 @@ getCompanyDetailsR cid = do
     <div class="content">
     <header class="major">
       <h2>Company Details : #{companyTitle}</h2>
-      <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
-        <li class="active">
+      <div style="max-width:800px">
+        <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+          <li class="active">
            <a href="#company-info" data-toggle="tab">Company Info
-        <li>
+          <li>
            <a href="#company-historical" data-toggle="tab">Historical Data
 
-      <div id="my-tab-content" class="tab-content">
-         <div class="tab-pane active" id="company-info">
+        <div id="my-tab-content" class="tab-content">
+          <div class="tab-pane active" id="company-info">
             <h5>Company name: #{companyTitle}
             <h5>Company ticker: #{companyTicker}
             $maybe img <- companyImage
@@ -35,88 +36,60 @@ getCompanyDetailsR cid = do
                  <h5>Company Description:
                  <p>#{desc}
 
-         <div class="tab-pane" id="company-historical">
+          <div class="tab-pane" id="company-historical" >
             <h3>Historical Data
-            <div id="graph"></div>
+            <div style="max-width:800px;min-height:400px">
+               <div class="ct-chart">
+
 |]
      toWidget[lucius|
-.chart {
-    font-family: Arial, sans-serif;
-    font-size: 10px;
-  }
 
-  .axis path, .axis line {
-    fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-  }
 
-  .bar {
-    fill: steelblue;
-  }
+
+
 |]
+
      toWidget[julius|
     jQuery(document).ready(function ($) {
         $('#tabs').tab();
+        $('.nav-tabs').bind('click', function (e){
+          if(e.target.innerText == "Historical Data"){
+             fetchHistorical();
+          }
+        });
+      });
+        function fetchHistorical(){
          $.ajax({
             url: "@{HistoricalR cid}",
             type: "get",
             success: function(data) {
-               console.log(data);
                var data = data;
-var margin = {top: 40, right: 40, bottom: 40, left:40},
-    width = 800,
-    height = 500;
-
-var x = d3.time.scale()
-    .domain([new Date(data[0].recordDate), d3.time.day.offset(new Date(data[data.length - 1].recordDate), 1)])
-    .rangeRound([0, width - margin.left - margin.right]);
-
-var y = d3.scale.linear()
-    .domain([0, d3.max(data, function(d) { return d.recordOpen; })])
-    .range([height - margin.top - margin.bottom, 0]);
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient('bottom')
-    .ticks(d3.time.days, 1)
-    .tickFormat(d3.time.format('%Y %m %d'))
-    .tickSize(0)
-    .tickPadding(8);
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient('left')
-    .tickPadding(8);
-
-var svg = d3.select('#graph').append('svg')
-    .attr('class', 'chart')
-    .attr('width', width)
-    .attr('height', height)
-  .append('g')
-    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
-
-svg.selectAll('.chart')
-    .data(data)
-  .enter().append('rect')
-    .attr('class', 'bar')
-    .attr('x', function(d) { return x(new Date(d.recordDate)); })
-    .attr('y', function(d) { return height - margin.top - margin.bottom - (height - margin.top - margin.bottom - y(d.recordOpen)) })
-    .attr('width', 10)
-    .attr('height', function(d) { return height - margin.top - margin.bottom - y(d.recordOpen) });
-
-svg.append('g')
-    .attr('class', 'x axis')
-    .attr('transform', 'translate(0, ' + (height - margin.top - margin.bottom) + ')')
-    .call(xAxis);
-
-svg.append('g')
-  .attr('class', 'y axis')            },
-            error: function(err){
+               var labels = [];
+               var open = [];
+               var close = [];
+               var low = [];
+               var high = [];
+               var volume = [];
+               for(var i = 0; i < data.length;i++){
+                  labels.push(data[i].recordDate.substring(0,10));
+                  open.push(data[i].recordOpen);
+                  close.push(data[i].recordClose);
+                  low.push(data[i].recordLow);
+                  high.push(data[i].recordHigh);
+                  volume.push(data[i].recordVolume);
+               }
+               new Chartist.Line('.ct-chart', {
+                  labels: labels,
+                  series: [open, close, high, low,volume]
+                }, {
+                  low: 0
+                });
+          },
+          error: function(err){
               console.log(err);
             }
-        });
-    });
+          });
+      }
 |]
 
      toWidget [julius|
