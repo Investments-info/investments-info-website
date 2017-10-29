@@ -14,7 +14,7 @@ getCompanyDetailsR cid = do
     <div class="content">
     <header class="major">
       <h2>Company Details : #{companyTitle}</h2>
-      <div style="max-width:800px">
+      <div style="max-width:900px">
         <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
           <li class="active">
            <a href="#company-info" data-toggle="tab">Company Info
@@ -38,7 +38,6 @@ getCompanyDetailsR cid = do
 
           <div class="tab-pane" id="company-historical" >
             <h3>Historical Data
-            <div style="max-width:800px;min-height:400px">
                <div class="ct-chart">
 
 |]
@@ -70,6 +69,7 @@ getCompanyDetailsR cid = do
                var low = [];
                var high = [];
                var volume = [];
+
                for(var i = 0; i < data.length;i++){
                   labels.push(data[i].recordDate.substring(0,10));
                   open.push(data[i].recordOpen);
@@ -78,11 +78,15 @@ getCompanyDetailsR cid = do
                   high.push(data[i].recordHigh);
                   volume.push(data[i].recordVolume);
                }
+               var lowestValue = low.reduce(function(a,b){
+                   return Math.min(a, b);
+               },1000);
+               console.log(lowestValue);
                new Chartist.Line('.ct-chart', {
                   labels: labels,
-                  series: [open, close, high, low,volume]
+                  series: [open, close, high, low]
                 }, {
-                  low: 0
+                  low: lowestValue
                 });
           },
           error: function(err){
