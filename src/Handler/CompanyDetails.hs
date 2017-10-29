@@ -42,7 +42,7 @@ getCompanyDetailsR cid = do
      toWidget[lucius|
 .chart {
     font-family: Arial, sans-serif;
-    font-size: 5px;
+    font-size: 10px;
   }
 
   .axis path, .axis line {
@@ -65,7 +65,7 @@ getCompanyDetailsR cid = do
                console.log(data);
                var data = data;
 var margin = {top: 40, right: 40, bottom: 40, left:40},
-    width = 600,
+    width = 800,
     height = 500;
 
 var x = d3.time.scale()
