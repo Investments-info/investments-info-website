@@ -38,17 +38,13 @@ getCompanyDetailsR cid = do
 
           <div class="tab-pane" id="company-historical" >
             <h3>Historical Data
-               <div class="ct-chart">
-
-|]
-     toWidget[lucius|
-
-
-
+               <div id="chart_div">
+               <div id="chart_volume_div">
 
 |]
 
      toWidget[julius|
+
     jQuery(document).ready(function ($) {
         $('#tabs').tab();
         $('.nav-tabs').bind('click', function (e){
@@ -62,32 +58,96 @@ getCompanyDetailsR cid = do
             url: "@{HistoricalR cid}",
             type: "get",
             success: function(data) {
+            console.log(data);
                var data = data;
-               var labels = [];
-               var open = [];
-               var close = [];
-               var low = [];
-               var high = [];
-               var volume = [];
+               var chartData = [];
+               var volumeData = [];
 
                for(var i = 0; i < data.length;i++){
-                  labels.push(data[i].recordDate.substring(0,10));
-                  open.push(data[i].recordOpen);
-                  close.push(data[i].recordClose);
-                  low.push(data[i].recordLow);
-                  high.push(data[i].recordHigh);
-                  volume.push(data[i].recordVolume);
+                  var row = [];
+                  var rowVolume = [];
+                  row.push(new Date(data[i].recordDate.substring(0,10)));
+                  row.push(data[i].recordOpen);
+                  row.push(data[i].recordClose);
+                  row.push(data[i].recordHigh);
+                  row.push(data[i].recordLow);
+                  rowVolume.push(new Date(data[i].recordDate.substring(0,10)));
+                  rowVolume.push(data[i].recordVolume);
+                  chartData.push(row);
+                  volumeData.push(rowVolume);
                }
-               var lowestValue = low.reduce(function(a,b){
-                   return Math.min(a, b);
-               },1000);
-               console.log(lowestValue);
-               new Chartist.Line('.ct-chart', {
-                  labels: labels,
-                  series: [open, close, high, low]
-                }, {
-                  low: lowestValue
-                });
+
+google.charts.load('current', {'packages':['line', 'corechart']});
+google.charts.setOnLoadCallback(drawChart);
+google.charts.setOnLoadCallback(drawVolumeChart);
+
+    function drawChart() {
+
+      var chartDiv = document.getElementById('chart_div');
+
+      var data = new google.visualization.DataTable();
+      data.addColumn('date', 'Date');
+      data.addColumn('number', "Open");
+      data.addColumn('number', "Close");
+      data.addColumn('number', "High");
+      data.addColumn('number', "Low");
+      data.addRows(chartData);
+
+      var materialOptions = {
+        chart: {
+          title: 'Market Data'
+        },
+        width: 800,
+        height: 500,
+        series: {
+          0: {axis: 'Date'},
+          1: {axis: 'USD'}
+        }
+      };
+
+
+      function drawMaterialChart() {
+        var materialChart = new google.charts.Line(chartDiv);
+        materialChart.draw(data, materialOptions);
+      }
+
+      drawMaterialChart();
+
+    }
+
+
+
+    function drawVolumeChart() {
+
+      var volumeDiv = document.getElementById('chart_volume_div');
+
+      var data = new google.visualization.DataTable();
+      data.addColumn('date', 'Date');
+      data.addColumn('number', "Volume");
+      data.addRows(volumeData);
+
+      var materialOptions = {
+        chart: {
+          title: 'Market Data'
+        },
+        width: 800,
+        height: 500,
+        series: {
+          0: {axis: 'Date'},
+          1: {axis: 'USD'}
+        }
+      };
+
+
+      function drawMaterialVolumeChart() {
+        var materialChart = new google.charts.Line(volumeDiv);
+        materialChart.draw(data, materialOptions);
+      }
+
+      drawMaterialVolumeChart();
+
+    }
+
           },
           error: function(err){
               console.log(err);
