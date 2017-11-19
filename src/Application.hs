@@ -39,9 +39,6 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
-import Data.Conduit
-import Data.Conduit.Binary
-import Data.Conduit.List as CL
 import Data.CSV.Conduit
 import Data.Vector ((!))
 import Control.Concurrent.Async (concurrently_)
@@ -148,7 +145,7 @@ insertCompanyIfNotInDB vecLen v = do
         insertCompanyIfNotInDB (vecLen - 1) v
         return ()
     else
-        print "Company insert finished"
+        print ("Company insert finished" :: Text)
 
 readCompanyDataFromCSV :: IO ()
 readCompanyDataFromCSV = do
@@ -156,12 +153,11 @@ readCompanyDataFromCSV = do
     let v = decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
     case v of
         Left _ -> do
-            print "No file found"
+            print ("No file found" :: Text)
         Right a -> do
             let vectorLen = (length a) - 1
-            _ <- insertCompanyIfNotInDB vectorLen a
+            insertCompanyIfNotInDB vectorLen a
             return ()
-    return ()
 
 -- | For yesod devel, return the Warp settings and WAI Application.
 getApplicationDev :: IO (Settings, Application)
@@ -172,8 +168,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  -- concurrently_ (forkFinally YH.fetchHistoricalData YH.logForkedAction) (readCompanyDataFromCSV)
-  _ <- readCompanyDataFromCSV
+  concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
