@@ -192,7 +192,7 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
+  -- concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
