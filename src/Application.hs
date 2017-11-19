@@ -168,7 +168,8 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
+  -- concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
+  _ <- readCompanyDataFromCSV
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
