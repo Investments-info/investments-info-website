@@ -168,8 +168,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  -- concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
-  _ <- readCompanyDataFromCSV
+  concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -193,8 +192,7 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
-  -- _ <- forkIO $ YH.fetchHistoricalData foundation
+  concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
