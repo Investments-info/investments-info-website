@@ -132,9 +132,22 @@ mkCompany v now =
     }
 
 insertCompanyIfNotInDB :: Int -> Vector (Vector ByteString) -> IO ()
-insertCompanyIfNotInDB currentEl v = do
+insertCompanyIfNotInDB vecLen v = do
     now <- liftIO getCurrentTime
-    print $ mkCompany  ((!) v currentEl) now
+    if vecLen > 0 then
+        do
+        let c = mkCompany ((!) v (vecLen)) now
+        insertedCompany <- runDBA $ selectFirst [CompanyTicker ==. (companyTicker c)] []
+        case insertedCompany of
+            Nothing -> do
+                _ <- runDBA $ insert c
+                return ()
+            Just _ -> return ()
+
+        insertCompanyIfNotInDB (vecLen - 1) v
+        return ()
+    else
+        print "Company insert finished"
 
 readCompanyDataFromCSV :: IO ()
 readCompanyDataFromCSV = do
@@ -144,9 +157,8 @@ readCompanyDataFromCSV = do
         Left _ -> do
             print "No file found"
         Right a -> do
-            let vectorLen = length a
-            insertCompanyIfNotInDB 100 a
-            print "Company insert finished"
+            let vectorLen = (length a) - 1
+            _ <- insertCompanyIfNotInDB vectorLen a
             return ()
     return ()
 
@@ -160,7 +172,7 @@ getApplicationDev = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
-  readCompanyDataFromCSV
+  _ <- readCompanyDataFromCSV
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
