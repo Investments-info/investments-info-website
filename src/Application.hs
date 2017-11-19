@@ -39,6 +39,12 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
+import Data.Conduit
+import Data.Conduit.Binary
+import Data.Conduit.List as CL
+import Data.CSV.Conduit
+import Data.Vector ((!))
+
 import Handler.About
 import Handler.Admin
 import Handler.Auth
@@ -114,6 +120,36 @@ warpSettings foundation =
          (toLogStr $ "Exception from Warp: " ++ show e))
     defaultSettings
 
+mkCompany :: Vector ByteString -> UTCTime -> Company
+mkCompany v now =
+    Company
+    { companyTitle = decodeUtf8 $ (!) v 1
+    , companyWebsite = Just $ decodeUtf8 $ (!) v 7
+    , companyDescription = Just $ decodeUtf8 $ (!) v 7
+    , companyImage = Nothing
+    , companyTicker = decodeUtf8 $ (!) v 0
+    , companyCreated = now
+    }
+
+insertCompanyIfNotInDB :: Int -> Vector (Vector ByteString) -> IO ()
+insertCompanyIfNotInDB currentEl v = do
+    now <- liftIO getCurrentTime
+    print $ mkCompany  ((!) v currentEl) now
+
+readCompanyDataFromCSV :: IO ()
+readCompanyDataFromCSV = do
+    s <- readFile "csvCompanies.csv"
+    let v = decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
+    case v of
+        Left _ -> do
+            print "No file found"
+        Right a -> do
+            let vectorLen = length a
+            insertCompanyIfNotInDB 100 a
+            print "Company insert finished"
+            return ()
+    return ()
+
 -- | For yesod devel, return the Warp settings and WAI Application.
 getApplicationDev :: IO (Settings, Application)
 getApplicationDev = do
@@ -124,8 +160,7 @@ getApplicationDev = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
-  -- _ <- forkIO $ YH.fetchHistoricalData foundation
-  -- Listen for message from other servers in the mesh
+  readCompanyDataFromCSV
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
