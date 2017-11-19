@@ -44,6 +44,7 @@ import Data.Conduit.Binary
 import Data.Conduit.List as CL
 import Data.CSV.Conduit
 import Data.Vector ((!))
+import Control.Concurrent.Async (concurrently_)
 
 import Handler.About
 import Handler.Admin
@@ -171,8 +172,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkFinally YH.fetchHistoricalData YH.logForkedAction
-  _ <- readCompanyDataFromCSV
+  concurrently_ (forkFinally YH.fetchHistoricalData YH.logForkedAction) (readCompanyDataFromCSV)
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
