@@ -89,6 +89,7 @@ library
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
+    , async >= 2.1.1
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -O0
     cpp-options: -DDEVELOPMENT
@@ -199,6 +200,7 @@ executable investments-info
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
+    , async >= 2.1.1
     , investments-info
   if flag(library-only)
     buildable: False
@@ -282,6 +284,7 @@ test-suite test
     , exceptions >= 0.8.3
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
+    , async >= 2.1.1
     , yesod-test
     , hspec
     , investments-info

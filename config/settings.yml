@@ -35,4 +35,4 @@ dbport:     "5432"
 dbdatabase: "investments_info"
 
 copyright: Investments-info 2017
-#analytics: UA-YOURCODE
+analytics: UA-109838792-1
