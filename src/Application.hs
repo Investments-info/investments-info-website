@@ -41,7 +41,7 @@ import System.Log.FastLogger
 
 import Data.CSV.Conduit
 import Data.Vector ((!))
-import Control.Concurrent.Async (concurrently_)
+import Control.Concurrent (forkIO)
 
 import Handler.About
 import Handler.Admin
@@ -170,10 +170,13 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
-      return ()
-  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
-      return ()
+  _ <- forkIO $ YH.fetchHistoricalData
+  _ <- forkIO $ readCompanyDataFromCSV
+  -- _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+  --     return ()
+  -- _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+  --     return ()
+  YH.writeYahooLog $ "[SYSTEM] development start!"
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -197,7 +200,13 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  -- concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
+  -- _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+  --     return ()
+  -- _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+  --     return ()
+  _ <- forkIO $ YH.fetchHistoricalData
+  _ <- forkIO $ readCompanyDataFromCSV
+  YH.writeYahooLog $ "[SYSTEM] production start!"
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
