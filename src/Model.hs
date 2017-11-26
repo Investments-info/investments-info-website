@@ -69,6 +69,8 @@ Company json
     description Text Maybe
     image Text Maybe
     ticker Text
+    gicssector Text Maybe
+    gicssubindustry Text Maybe
     created UTCTime default=current_timestamp
     deriving Eq
     deriving Show
@@ -123,10 +125,10 @@ createAdmin userKey = do
   adminKey <- insert $ newAdmin
   return (Entity adminKey newAdmin)
 
-createCompany :: Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
-createCompany title website description image ticker = do
+createCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
+createCompany title website description image ticker gicssector gicssubindustry = do
   now <- liftIO $ getCurrentTime
-  let newCompany = Company title (Just website) (Just description) (Just image) ticker now
+  let newCompany = Company title (Just website) (Just description) (Just image) ticker (Just gicssector) (Just gicssubindustry) now
   companyId <- insert $ newCompany
   return (Entity companyId newCompany)
 

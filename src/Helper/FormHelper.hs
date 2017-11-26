@@ -46,4 +46,6 @@ newCompanyForm now = renderDivs $ Company
   <*> aopt textField (defaultFormSettings "Image") Nothing
   <*> aopt textField (defaultFormSettings "Description") Nothing
   <*> areq textField (defaultFormSettings "Ticker") Nothing
+  <*> aopt textField (defaultFormSettings "GICS Sector") Nothing
+  <*> aopt textField (defaultFormSettings "GICS Sub Industry") Nothing
   <*> pure now

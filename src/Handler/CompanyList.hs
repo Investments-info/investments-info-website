@@ -30,5 +30,4 @@ getCompanyListR = do
               $maybe description <- companyDescription
                   <p>Description:
                   <p>#{description}
-
 |]

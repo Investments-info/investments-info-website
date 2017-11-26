@@ -17,7 +17,7 @@ postCompanyR = do
     ((res, _), _) <- runFormPost $ FH.newCompanyForm now
     case res of
       FormSuccess Company{..} -> do
-            _ <- runDB $ insert $ Company companyTitle companyWebsite companyImage companyDescription companyTicker now
+            _ <- runDB $ insert $ Company companyTitle companyWebsite companyImage companyDescription companyTicker companyGicssector companyGicssubindustry now
 
             setMessage "Company created!"
             redirect CompanyListR

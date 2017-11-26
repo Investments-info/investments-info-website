@@ -6,6 +6,7 @@
 module Helper.YahooHelper
   ( fetchHistoricalData
   , logForkedAction
+  , writeYahooLog
   , YahooException(..)
   ) where
 
@@ -32,7 +33,7 @@ import Network.HTTP.Client.TLS
 import qualified Network.Wreq as W
        (responseBody, responseStatus, statusCode)
 import Text.Regex.PCRE
-
+import System.IO as SIO (appendFile)
 crumbleLink :: String -> String
 crumbleLink ticker =
   "https://finance.yahoo.com/quote/" ++ ticker ++ "/history?p=" ++ ticker
@@ -128,10 +129,10 @@ getYahooData ticker = ExceptT $ do
     E.try (httpLbs cookieRequest manager) :: IO (Either YahooException (Response C.ByteString))
   case crumb of
     Left _ -> do
-      $(logError) $ T.pack "::cookieRequest received Left result "
+      writeYahooLog $ "[YAHOO ERR] cookieRequest received Left result "
       return $ Left YCookieCrumbleException
     Right crb -> do
-      $(logDebug) $ T.pack "::cookieRequest received Right result "
+      writeYahooLog $ "[YAHOO] cookieRequest received Right result "
       now <- getCurrentTime
       let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
       let body = crb ^. W.responseBody
@@ -144,16 +145,16 @@ getYahooData ticker = ExceptT $ do
         E.try (httpLbs dataReq manager) :: IO (Either YahooException (Response C.ByteString))
       case result of
         Left _ -> do
-          $(logError) $ T.pack "::yahooDataRequest received Left result "
+          writeYahooLog $  "[YAHOO ERR] yahooDataRequest received Left result "
           return $ Left YStatusCodeException
         Right d -> do
-          $(logDebug) $ T.pack "::yahooDataRequest received Right result "
+          writeYahooLog $ "[YAHOO] yahooDataRequest received Right result "
           let body2 = d ^. W.responseBody
           let status = d ^. W.responseStatus . W.statusCode
           if status == 200
             then return $ Right $ body2
             else do
-              $(logError) $ T.pack "::yahooDataRequest status code was not 200"
+              writeYahooLog $ "[YAHOO ERR] yahooDataRequest status code was not 200"
               return $ Left YStatusCodeException
 
 
@@ -162,10 +163,10 @@ readToType ticker = ExceptT $ do
   res <- runExceptT $ getYahooData ticker
   case res of
     Left _ -> do
-         $(logError) $ T.pack "::readToType received Left result "
+         writeYahooLog $  "[YAHOO ERR] readToType received Left result "
          return $ Left $ show YStatusCodeException
     Right yd -> do
-      $(logDebug) $ T.pack "::readToType received Right result "
+      writeYahooLog $ "[YAHOO] readToType received Right result "
       let charList = lines $ C.unpack yd
       let charListofLists = fmap (splitOn ",") charList
       let bslListofLists = (fmap . fmap) C.pack charListofLists
@@ -188,6 +189,11 @@ saveCompanyData companyE = do
       _ <- liftIO $ mapM insertIfNotSaved historicalList
       return ()
 
+writeYahooLog :: String -> IO ()
+writeYahooLog s = do
+    now <- getCurrentTime
+    SIO.appendFile "yahoo_.txt" ((show now) ++ s ++ "\r\n")
+    return ()
 
 convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
 convertToHistoricalAction cid ticker YahooData {..} =

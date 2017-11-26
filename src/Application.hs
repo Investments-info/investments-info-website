@@ -122,10 +122,12 @@ mkCompany :: Vector ByteString -> UTCTime -> Company
 mkCompany v now =
     Company
     { companyTitle = decodeUtf8 $ (!) v 1
-    , companyWebsite = Just $ decodeUtf8 $ (!) v 7
+    , companyWebsite = Just $ decodeUtf8 $ (!) v 6
     , companyDescription = Just $ decodeUtf8 $ (!) v 7
     , companyImage = Nothing
     , companyTicker = decodeUtf8 $ (!) v 0
+    , companyGicssector = Just $ decodeUtf8 $ (!) v 2
+    , companyGicssubindustry = Just $ decodeUtf8 $ (!) v 3
     , companyCreated = now
     }
 
@@ -145,7 +147,7 @@ insertCompanyIfNotInDB vecLen v = do
         insertCompanyIfNotInDB (vecLen - 1) v
         return ()
     else
-        print ("Company insert finished" :: Text)
+        YH.writeYahooLog $ "[COMPANY INSERT] Company insert finished"
 
 readCompanyDataFromCSV :: IO ()
 readCompanyDataFromCSV = do
@@ -153,7 +155,7 @@ readCompanyDataFromCSV = do
     let v = decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
     case v of
         Left _ -> do
-            print ("No file found" :: Text)
+            YH.writeYahooLog $ "[COMPANY INSERT] No file found"
         Right a -> do
             let vectorLen = (length a) - 1
             insertCompanyIfNotInDB vectorLen a
@@ -168,7 +170,10 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  concurrently_ YH.fetchHistoricalData readCompanyDataFromCSV
+  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+      return ()
+  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+      return ()
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
