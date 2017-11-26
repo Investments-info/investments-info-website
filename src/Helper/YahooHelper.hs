@@ -130,6 +130,7 @@ getYahooData ticker = ExceptT $ do
   case crumb of
     Left _ -> do
       writeYahooLog $ "[YAHOO ERR] cookieRequest received Left result "
+      writeYahooLog $ "[YAHOO ERR]  " ++ (show YCookieCrumbleException)
       return $ Left YCookieCrumbleException
     Right crb -> do
       writeYahooLog $ "[YAHOO] cookieRequest received Right result "
@@ -146,6 +147,7 @@ getYahooData ticker = ExceptT $ do
       case result of
         Left _ -> do
           writeYahooLog $  "[YAHOO ERR] yahooDataRequest received Left result "
+          writeYahooLog $  ("[YAHOO ERR]  " ++ show YStatusCodeException)
           return $ Left YStatusCodeException
         Right d -> do
           writeYahooLog $ "[YAHOO] yahooDataRequest received Right result "
@@ -155,6 +157,8 @@ getYahooData ticker = ExceptT $ do
             then return $ Right $ body2
             else do
               writeYahooLog $ "[YAHOO ERR] yahooDataRequest status code was not 200"
+              writeYahooLog $  ("[YAHOO ERR]  " ++ show YStatusCodeException)
+              writeYahooLog $  ("[YAHOO ERR]  " ++ show body2)
               return $ Left YStatusCodeException
 
 
@@ -164,6 +168,7 @@ readToType ticker = ExceptT $ do
   case res of
     Left _ -> do
          writeYahooLog $  "[YAHOO ERR] readToType received Left result "
+         writeYahooLog $  ("[YAHOO ERR]  " ++ show YStatusCodeException)
          return $ Left $ show YStatusCodeException
     Right yd -> do
       writeYahooLog $ "[YAHOO] readToType received Right result "
@@ -192,7 +197,7 @@ saveCompanyData companyE = do
 writeYahooLog :: String -> IO ()
 writeYahooLog s = do
     now <- getCurrentTime
-    SIO.appendFile "yahoo_.txt" ((show now) ++ s ++ "\r\n")
+    SIO.appendFile "yahoo_.txt" ((show now) ++ " " ++ s ++ "\r\n")
     return ()
 
 convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
