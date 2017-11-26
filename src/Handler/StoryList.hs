@@ -55,7 +55,6 @@ getStoryListR currentPage = do
     defaultLayout $ do
         toWidget [whamlet|
 <section id="content" class="main">
-  <span class="image main"><img src=@{StaticR images_pic04_jpg} alt="" /></span>
   <h2>Financial news</h2>
     <ul .alt>
     $forall Entity _ Story{..} <- allStories

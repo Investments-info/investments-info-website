@@ -3802,3 +3802,10 @@
 .desc {
 	font-size:17px!important;
 }
+
+.company-card{
+	padding:20px;
+	border:1px solid #ebebeb;
+	margin-top:20px;
+
+}

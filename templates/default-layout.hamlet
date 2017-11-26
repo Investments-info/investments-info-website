@@ -25,7 +25,7 @@
                             <li>
                                 <a href="@{StoryListR 1}">Articles
                             <li>
-                                <a href="http://investments-info.com:3000" target=_blank >Financial Graphs
+                                <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
 
                     <div id="main">
                         <div .pull-right .col-md-3>
