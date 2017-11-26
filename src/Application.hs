@@ -39,9 +39,9 @@ import Network.Wai.Middleware.RequestLogger
 import System.Log.FastLogger
        (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
+import Control.Concurrent (forkIO)
 import Data.CSV.Conduit
 import Data.Vector ((!))
-import Control.Concurrent (forkIO)
 
 import Handler.About
 import Handler.Admin
@@ -142,7 +142,17 @@ insertCompanyIfNotInDB vecLen v = do
             Nothing -> do
                 _ <- runDBA $ insert c
                 return ()
-            Just _ -> return ()
+            Just (Entity cId dbCompany) -> do
+                case (companyWebsite dbCompany) of
+                    Nothing -> do
+                        YH.writeYahooLog $ "[COMPANY INSERT] Update company data"
+                        _ <- runDBA $ update cId [CompanyWebsite =. (companyWebsite c), CompanyGicssector =. (companyGicssector c), CompanyGicssubindustry =. (companyGicssubindustry c)]
+                        return ()
+                    Just "" -> do
+                        YH.writeYahooLog $ "[COMPANY INSERT] Update company data "
+                        _ <- runDBA $ update cId [CompanyWebsite =.  (companyWebsite c), CompanyGicssector =. (companyGicssector c), CompanyGicssubindustry =. (companyGicssubindustry c)]
+                        return ()
+                    Just _  -> return ()
 
         insertCompanyIfNotInDB (vecLen - 1) v
         return ()

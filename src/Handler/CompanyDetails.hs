@@ -13,6 +13,8 @@ getCompanyDetailsR cid = do
   <div class="container">
     <div class="content">
     <header class="major">
+      <br />
+      <br />
       <h2>Company Details : #{companyTitle}</h2>
       <div style="max-width:900px">
         <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
@@ -23,24 +25,32 @@ getCompanyDetailsR cid = do
 
         <div id="my-tab-content" class="tab-content">
           <div class="tab-pane active" id="company-info">
-            <h5>Company name: #{companyTitle}
-            <h5>Company ticker: #{companyTicker}
+            <br />
+            <br />
+            <h5>Company name:<b> #{companyTitle} </b>
+            <h5>Company ticker:<b> #{companyTicker} </b>
+            $maybe gicss <- companyGicssector
+              <h5>GICS Sector:<b> #{gicss} </b>
+            $maybe gicssub <- companyGicssubindustry
+              <h5>GICS Sub Industry:<b> #{gicssub} </b>
             $maybe img <- companyImage
-                 <p>
-                   <img src="#{img}" />
+              <p>
+                 <img src="#{img}" />
             $maybe web <- companyWebsite
-                 <p>website :
-                    <a href=#{web}>#{web}
-
+              <p>website :
+                 <a href=#{web} .desc> #{web}
             $maybe desc <- companyDescription
-                 <h5>Company Description:
-                 <p>#{desc}
+              <h5><b>Company Description:</b>
+              <p .desc>#{desc}
 
           <div class="tab-pane" id="company-historical" >
             <h3>Historical Data
+               <div id="message">
                <div id="chart_div">
                <div id="chart_volume_div">
 
+      <p>
+        <a .btn .btn-sm .btn-default  href=@{CompanyListR} >Back to company list
 |]
 
      toWidget[julius|
@@ -60,6 +70,10 @@ getCompanyDetailsR cid = do
             success: function(data) {
             console.log(data);
                var data = data;
+               if(data.length == 0){
+                 $("#message").text("We currently don't have any historical data for this company. Please check again in few hours.")
+                 return;
+               }
                var chartData = [];
                var volumeData = [];
 

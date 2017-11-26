@@ -3793,3 +3793,12 @@
 			}
 
 		}
+
+.clearfix {
+	clear:both;
+	display:block;
+}
+
+.desc {
+	font-size:17px!important;
+}
