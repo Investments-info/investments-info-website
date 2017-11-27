@@ -90,11 +90,12 @@ library
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
     , async >= 2.1.1
+    , process >= 1.4.3.0
   if (flag(dev)) || (flag(library-only))
-    ghc-options: -Wall -fwarn-tabs -O0
+    ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O0
     cpp-options: -DDEVELOPMENT
   else
-    ghc-options: -Wall -fwarn-tabs -O2
+    ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O2
   exposed-modules:
       Application
       Foundation
@@ -107,6 +108,7 @@ library
       Handler.CompanyList
       Handler.Historical
       Handler.Home
+      Handler.LogViewer
       Handler.SearchArticles
       Handler.Sessions
       Handler.StoryDetails
@@ -201,6 +203,7 @@ executable investments-info
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
     , async >= 2.1.1
+    , process >= 1.4.3.0
     , investments-info
   if flag(library-only)
     buildable: False
@@ -285,6 +288,7 @@ test-suite test
     , pretty-show >= 1.6.12
     , foreign-store >= 0.2
     , async >= 2.1.1
+    , process >= 1.4.3.0
     , yesod-test
     , hspec
     , investments-info

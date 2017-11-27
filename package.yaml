@@ -76,6 +76,7 @@ dependencies:
 - pretty-show >= 1.6.12
 - foreign-store >= 0.2
 - async >= 2.1.1
+- process >= 1.4.3.0
 
 default-extensions:
   - NoImplicitPrelude
@@ -98,12 +99,14 @@ library:
       ghc-options:
       - -Wall
       - -fwarn-tabs
+      - -fwarn-unused-imports
       - -O0
       cpp-options: -DDEVELOPMENT
     else:
       ghc-options:
       - -Wall
       - -fwarn-tabs
+      - -fwarn-unused-imports
       - -O2
 
 # Runnable executable for our application

@@ -16,3 +16,4 @@
 /!company/list                 CompanyListR    GET
 /!company                      CompanyR        GET POST
 /!company/#CompanyId           CompanyDetailsR GET
+/logview                       LogViewerR      GET
