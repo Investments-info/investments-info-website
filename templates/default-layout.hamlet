@@ -46,7 +46,7 @@
                                 <dt>Address</dt>
                                 <dd>Zurich Switzerland</dd>
                                 <dt>Email</dt>
-                                <dd><a href="#">contact@investments-info.com</a></dd>
+                                <dd><a href="mailto:contact@investments-info.com">contact@investments-info.com</a></dd>
                               <ul class="icons">
                                 <li><a href="#" class="icon fa-twitter alt"><span class="label">Twitter</span></a></li>
                                 <li><a href="#" class="icon fa-facebook alt"><span class="label">Facebook</span></a></li>
