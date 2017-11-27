@@ -102,7 +102,7 @@ $(document).ready(function(){
       var hr = $(item).attr('href').replace(/#/g,"");
       if(hr){
        var x = document.getElementById("#" + hr);
-       if(!x) $(item).hide();
+       if(!x) $(item).parent().remove();
       }
    });
  });
