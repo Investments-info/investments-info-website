@@ -10,6 +10,7 @@ $newline never
         <title>#{pageTitle pc}
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="google-site-verification" content="PQ0R5j-9wfdtxqgyNYB6jsDQCIpKvB_qA9j5N3V1jtU" />
         ^{pageHead pc}
         <!--[if lte IE 8]><script src="static/js/ie/html5shiv.js"></script><![endif]-->
         <link rel="stylesheet" href="@{StaticR  css_main_css}" />
