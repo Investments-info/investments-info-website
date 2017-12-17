@@ -88,6 +88,7 @@ default-extensions:
   - RankNTypes
   - OverloadedStrings
   - GeneralizedNewtypeDeriving
+  - ViewPatterns
 
 # The library contains all of our application code. The executable
 # defined below is just a thin wrapper.

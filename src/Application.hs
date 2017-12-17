@@ -1,11 +1,9 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE BangPatterns #-}
+{-# LANGUAGE NoImplicitPrelude     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RecordWildCards       #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Application
@@ -24,20 +22,17 @@ module Application
   ) where
 
 import Control.Monad.Logger (liftLoc, runLoggingT)
-import Database.Persist.Postgresql
-       (createPostgresqlPool, pgConnStr, pgPoolSize, runSqlPool)
+import Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize, runSqlPool)
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
 import Network.Wai (Middleware)
-import Network.Wai.Handler.Warp
-       (Settings, defaultSettings, defaultShouldDisplayException, getPort,
-        setHost, setOnException, setPort)
+import Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException, getPort,
+                                 setHost, setOnException, setPort)
 import Network.Wai.Handler.WarpTLS
-import Network.Wai.Middleware.RequestLogger
-       (Destination(Logger), IPAddrSource(..), OutputFormat(..),
-        destination, mkRequestLogger, outputFormat)
-import System.Log.FastLogger
-       (defaultBufSize, newStdoutLoggerSet, toLogStr)
+import Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
+                                             OutputFormat (..), destination, mkRequestLogger,
+                                             outputFormat)
+import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
 import Control.Concurrent (forkIO)
 import Data.CSV.Conduit
@@ -48,14 +43,15 @@ import Handler.Admin
 import Handler.Auth
 import Handler.Common
 import Handler.Company
+import Handler.CompanyDetails
 import Handler.CompanyList
 import Handler.Historical
 import Handler.Home
+import Handler.LogViewer
+import Handler.NewsletterManager
 import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.StoryList
-import Handler.CompanyDetails
-import Handler.LogViewer
 import Helper.Fixtures as F
 import Helper.YahooHelper as YH
 

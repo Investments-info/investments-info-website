@@ -2,9 +2,9 @@
 
 module Handler.Sessions where
 
-import Import.NoFoundation
 import Control.Monad.Trans.Maybe
 import Data.Time.Clock (addUTCTime)
+import Import.NoFoundation
 
 type YesodLog site = (Yesod site)
 
@@ -122,5 +122,5 @@ requireAdmin = do
     (Just user) -> do
       maybeAdmin <- runDB $ selectFirst [AdminAccount ==. (entityKey user)] []
       case maybeAdmin of
-        Nothing -> permissionDenied "You are not an administrator"
+        Nothing      -> permissionDenied "You are not an administrator"
         (Just admin) -> return (user, admin)

@@ -3,17 +3,18 @@
 /favicon.ico FaviconR GET
 /robots.txt RobotsR GET
 
-/                              HomeR           GET
-/about                         AboutR          GET
-/page/#Page                    StoryListR      GET
-/story/#Int                    StoryDetailsR   GET
-/login                         LoginR          GET POST
-/signup                        SignupR         GET POST
-/signout                       SignoutR        GET
-/admin                         AdminR          GET
-/search                        SearchArticlesR POST
-/historical/#CompanyId         HistoricalR     GET
-/!company/list                 CompanyListR    GET
-/!company                      CompanyR        GET POST
-/!company/#CompanyId           CompanyDetailsR GET
-/logview                       LogViewerR      GET
+/                              HomeR                   GET
+/about                         AboutR                  GET
+/page/#Page                    StoryListR              GET
+/story/#Int                    StoryDetailsR           GET
+/login                         LoginR                  GET POST
+/signup                        SignupR                 GET POST
+/signout                       SignoutR                GET
+/admin                         AdminR                  GET
+/search                        SearchArticlesR         POST
+/historical/#CompanyId         HistoricalR             GET
+/!company/list                 CompanyListR            GET
+/!company                      CompanyR                GET POST
+/!company/#CompanyId           CompanyDetailsR         GET
+/logview                       LogViewerR              GET
+/newsletter                    NewsletterManagerR      GET
