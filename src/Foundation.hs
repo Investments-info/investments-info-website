@@ -5,6 +5,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 
 module Foundation where
 
@@ -21,6 +22,7 @@ import Handler.Sessions
 -- had to implement this due to non existing MonadLogger IO instance
 import Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import Control.Applicative  (pure)
+
 instance MonadLogger IO where
     monadLoggerLog _ _ _ = pure $ pure ()
 
@@ -43,32 +45,32 @@ htmlOnly = selectRep . provideRep
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
-navLayout :: Maybe (Entity User) -> Widget
-navLayout user =
-  [whamlet|
-<!-- <div class="top-bar">
-  <div class="top-bar-left">
-    <ul class="menu">
-      <li .menu-logo>
-        <a href="@{HomeR}" .plain>Home
-  <div class="top-bar-right">
-    <ul class="menu">
-      $maybe _ u <- userId
-        <li>
-          <a href="@{SignoutR}">Signout #{userEmail u}
-      $nothing
-        <li>
-          <a href="@{LoginR}">Login
-        <li>
-          <a href="@{SignupR}">Signup -->
-|]
+-- navLayout :: Maybe (Entity User) -> Widget
+-- navLayout user =
+--   [whamlet|
+-- <!-- <div class="top-bar">
+--   <div class="top-bar-left">
+--     <ul class="menu">
+--       <li .menu-logo>
+--         <a href="@{HomeR}" .plain>Home
+--   <div class="top-bar-right">
+--     <ul class="menu">
+--       $maybe _ u <- userId
+--         <li>
+--           <a href="@{SignoutR}">Signout #{userEmail u}
+--       $nothing
+--         <li>
+--           <a href="@{LoginR}">Login
+--         <li>
+--           <a href="@{SignupR}">Signup -->
+-- |]
 
 baseLayout :: Html -> Maybe (Entity User) -> WidgetT App IO () -> Handler Html
-baseLayout title user content = do
+baseLayout title _ content = do
   defaultLayout $ do
     setTitle title
+    -- ^{navLayout user}
     [whamlet|
-^{navLayout user}
 ^{content}
 |]
 
@@ -102,8 +104,8 @@ instance Yesod App where
   defaultLayout widget = do
     master <- getYesod
     mmsg <- getMessage
-    mcurrentRoute <- getCurrentRoute
-    (title, parents) <- breadcrumbs
+    -- mcurrentRoute <- getCurrentRoute
+    -- (title, parents) <- breadcrumbs
     pc <-
       widgetToPageContent $ do
         addStylesheet $ StaticR css_bootstrap_css

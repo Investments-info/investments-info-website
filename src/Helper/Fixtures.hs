@@ -1,20 +1,19 @@
-{-# LANGUAGE BangPatterns #-}
-{-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE EmptyDataDecls #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE ConstraintKinds            #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveDataTypeable         #-}
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE EmptyDataDecls             #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
+{-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE NoMonomorphismRestriction #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE NoImplicitPrelude          #-}
+{-# LANGUAGE NoMonomorphismRestriction  #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE RecordWildCards            #-}
 module Helper.Fixtures where
 
 import Import
@@ -32,7 +31,7 @@ newtype CompanyFixtures = CompanyFixtures
   } deriving (Eq, Show)
 
 data Fixtures = Fixtures
-  { userF :: UserFixtures
+  { userF  :: UserFixtures
   , adminF :: AdminFixtures
   -- , companyF :: CompanyFixtures
   } deriving (Eq, Show)
@@ -87,20 +86,19 @@ makeCompanies =
 
 
 runDeleteAdminsAction :: IO ()
-runDeleteAdminsAction = do
-  _ <- runDBA $ do
+runDeleteAdminsAction = runDBA $ do
     deleteAdminPasswords "brutallesale@gmail.com"
     deleteAdminPasswords "vpleta@gmx.ch"
     deleteAdminUsers "brutallesale@gmail.com"
     deleteAdminUsers "vpleta@gmx.ch"
-    deleteUserAdmins "brutallesale@gmail.com"
-    deleteUserAdmins "vpleta@gmx.ch"
-  return ()
+    _ <- deleteUserAdmins "brutallesale@gmail.com"
+    _ <- deleteUserAdmins "vpleta@gmx.ch"
+    return ()
 
 runInsertAdminsAction :: IO ()
 runInsertAdminsAction = do
-  _ <- runDBA insertFixtures
-  return ()
+    _ <- runDBA insertFixtures
+    return ()
 
 insertFixtures :: DB Fixtures
 insertFixtures = do

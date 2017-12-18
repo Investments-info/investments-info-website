@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 module Handler.CompanyList where
 
 import Import

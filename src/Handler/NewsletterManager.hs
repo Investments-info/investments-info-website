@@ -4,31 +4,32 @@ import Import
 
 getNewsletterManagerR :: Handler Html
 getNewsletterManagerR = do
-  redirectIfLoggedIn HomeR
+  -- redirectIfLoggedIn HomeR
   (signupFormWidget, _) <- generateFormPost signupForm
   renderSignup signupFormWidget
 
 postNewsletterManagerR :: Handler Html
 postNewsletterManagerR = do
-  redirectIfLoggedIn HomeR
+  -- redirectIfLoggedIn HomeR
   ((result, widget), _) <- runFormPost signupForm
   case result of
     FormSuccess email -> do
       maybeUser <- runDB (getUserForNewsletter email)
       case maybeUser of
         Nothing -> do
-            (Entity dbUserKey _) <- runDB $ createUserForNewsletter email "dummy-pass" (Just True)
+            (Entity dbUserKey _) <- runDB $ createUserForNewsletter email "dummy-pass" (Just 1)
             setUserSession dbUserKey True
-            setMessage "You have signed-up for our newsletter! Expect it in your inbox (or spam :) ) !"
+            setMessage "You have signed-up for our newsletter! Expect it in your inbox once a week !"
             redirect HomeR
-        Just (Entity dbUserKey dbUser) -> do
+        Just (Entity dbUKey dbUser) -> do
             case userNewsletter dbUser of
-                Just True -> do
+                Just 1 -> do
                     setMessage "You are already signed-up for our newsletter!"
                     redirect HomeR
-                Nothing -> do
-                    dbUserKey <- runDB $ setUserForNewsletter (Just True) dbUserKey
-                    setUserSession dbUserKey True
+                _ -> do
+                    dbUserKeyU <- runDB $ setUserForNewsletter (Just 1) dbUKey
+                    setMessage "You have signed-up for our newsletter! Expect it in your inbox once a week !"
+                    setUserSession dbUserKeyU True
                     redirect HomeR
 
     _ -> renderSignup widget

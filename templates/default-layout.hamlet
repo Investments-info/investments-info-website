@@ -28,6 +28,8 @@
                                 <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
 
                     <div id="main">
+                        $maybe msg <- mmsg
+                            <div .alert.alert-info #message>#{msg}
                         <div .pull-right .col-md-3>
                             <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
                            <div id="search-results">

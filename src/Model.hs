@@ -34,7 +34,7 @@ User sql=users
     image Text Maybe
     country Text Maybe
     town Text Maybe
-    newsletter Bool Maybe
+    newsletter Int Maybe
     created_at UTCTime default=current_timestamp
     UniqueUserEmail email
     deriving Eq Show Typeable
@@ -125,7 +125,7 @@ createUser email pass = do
   _ <- insert $ Password hash userId
   return (Entity userId newUser)
 
-createUserForNewsletter :: Text -> Text -> Maybe Bool -> DB (Entity User)
+createUserForNewsletter :: Text -> Text -> Maybe Int -> DB (Entity User)
 createUserForNewsletter email pass newsletter = do
   now <- liftIO $ getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing newsletter now
@@ -134,9 +134,8 @@ createUserForNewsletter email pass newsletter = do
   _ <- insert $ Password hash userId
   return (Entity userId newUser)
 
-setUserForNewsletter :: Maybe Bool -> UserId -> DB (Key User)
+setUserForNewsletter :: Maybe Int -> UserId -> DB (Key User)
 setUserForNewsletter newsletter userId = do
-  now <- liftIO $ getCurrentTime
   P.update (userId) [UserNewsletter P.=. newsletter]
   return userId
 
