@@ -1,15 +1,15 @@
 {-# LANGUAGE RecordWildCards #-}
 module Handler.Company where
 
-import Import
 import Helper.FormHelper as FH
+import Import
 
 getCompanyR :: Handler Html
 getCompanyR = do
   _ <- requireAdmin
   now <- liftIO getCurrentTime
   (widget, enctype) <- generateFormPost $ FH.newCompanyForm now
-  defaultLayout  $(widgetFile "company/newcompany")
+  defaultLayout $(widgetFile "company/newcompany")
 
 postCompanyR :: Handler Html
 postCompanyR = do

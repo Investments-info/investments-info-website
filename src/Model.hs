@@ -26,22 +26,16 @@ import Model.Instances as Import ()
 import Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
 import Data.Yaml
 
-type ControlIO m = (MonadIO m, MonadBaseControl IO m)
-
-type DBM m a =
-  (ControlIO m, MonadThrow m, Monad m) => SqlPersistT m a
-
-type DB a = forall m. DBM m a
-
-type DBVal val =
-  ( PersistEntity val
-  , PersistEntityBackend val ~ SqlBackend
-  , PersistStore (PersistEntityBackend val))
-
-
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User sql=users
     email Text
+    name Text Maybe
+    lastname Text Maybe
+    image Text Maybe
+    country Text Maybe
+    town Text Maybe
+    newsletter Bool Maybe
+    created_at UTCTime default=current_timestamp
     UniqueUserEmail email
     deriving Eq Show Typeable
 Password sql=passwords
@@ -88,6 +82,18 @@ Historical json
     deriving Show
 |]
 
+type ControlIO m = (MonadIO m, MonadBaseControl IO m)
+
+type DBM m a =
+  (ControlIO m, MonadThrow m, Monad m) => SqlPersistT m a
+
+type DB a = forall m. DBM m a
+
+type DBVal val =
+  ( PersistEntity val
+  , PersistEntityBackend val ~ SqlBackend
+  , PersistStore (PersistEntityBackend val))
+
 instance ToJSON (Entity Story) where
     toJSON (Entity _ p) = object
         [ "title"   .= storyTitle p
@@ -95,6 +101,62 @@ instance ToJSON (Entity Story) where
         , "content" .= storyContent p
         , "image"   .= storyImage p
         ]
+
+data DBConfig = DBConfig
+  { dbhost :: Text
+  , dbdatabase :: Text
+  , dbuser :: Text
+  , dbpassword :: Text
+  , dbport :: Text
+  } deriving (Show, Generic)
+
+instance FromJSON DBConfig
+
+-------------------------------------------------------
+-- create
+-------------------------------------------------------
+
+createUser :: Text -> Text -> DB (Entity User)
+createUser email pass = do
+  now <- liftIO $ getCurrentTime
+  let newUser = User email Nothing Nothing Nothing Nothing Nothing Nothing now
+  userId <- insert $ newUser
+  hash <- liftIO $ hashPassword pass
+  _ <- insert $ Password hash userId
+  return (Entity userId newUser)
+
+createUserForNewsletter :: Text -> Text -> Maybe Bool -> DB (Entity User)
+createUserForNewsletter email pass newsletter = do
+  now <- liftIO $ getCurrentTime
+  let newUser = User email Nothing Nothing Nothing Nothing Nothing newsletter now
+  userId <- insert $ newUser
+  hash <- liftIO $ hashPassword pass
+  _ <- insert $ Password hash userId
+  return (Entity userId newUser)
+
+setUserForNewsletter :: Maybe Bool -> UserId -> DB (Key User)
+setUserForNewsletter newsletter userId = do
+  now <- liftIO $ getCurrentTime
+  P.update (userId) [UserNewsletter P.=. newsletter]
+  return userId
+
+
+createAdmin :: Key User -> DB (Entity Admin)
+createAdmin userKey = do
+  let newAdmin = Admin userKey
+  adminKey <- insert $ newAdmin
+  return (Entity adminKey newAdmin)
+
+createCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
+createCompany title website description image ticker gicssector gicssubindustry = do
+  now <- liftIO $ getCurrentTime
+  let newCompany = Company title (Just website) (Just description) (Just image) ticker (Just gicssector) (Just gicssubindustry) now
+  companyId <- insert $ newCompany
+  return (Entity companyId newCompany)
+
+---------------------------------------------------------
+-- get
+---------------------------------------------------------
 
 getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
 getUserPassword email = fmap listToMaybe $
@@ -111,26 +173,13 @@ getUserEntity email = fmap listToMaybe $
   where_ (user ^. UserEmail ==. val email)
   return user
 
-createUser :: Text -> Text -> DB (Entity User)
-createUser email pass = do
-  let newUser = User email
-  userId <- insert $ newUser
-  hash <- liftIO $ hashPassword pass
-  _ <- insert $ Password hash userId
-  return (Entity userId newUser)
-
-createAdmin :: Key User -> DB (Entity Admin)
-createAdmin userKey = do
-  let newAdmin = Admin userKey
-  adminKey <- insert $ newAdmin
-  return (Entity adminKey newAdmin)
-
-createCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
-createCompany title website description image ticker gicssector gicssubindustry = do
-  now <- liftIO $ getCurrentTime
-  let newCompany = Company title (Just website) (Just description) (Just image) ticker (Just gicssector) (Just gicssubindustry) now
-  companyId <- insert $ newCompany
-  return (Entity companyId newCompany)
+getUserForNewsletter :: Text -> DB (Maybe (Entity User))
+getUserForNewsletter email = fmap listToMaybe $
+  select $
+  from $ \user -> do
+  where_ (user ^. UserEmail ==. val email)
+  -- where_ (user ^. UserNewsletter ==. val (Just True))
+  return user
 
 allCompanies :: DB [Entity Company]
 allCompanies = do
@@ -155,6 +204,56 @@ getAllCompanyHistoricalDataById cid =
   orderBy [desc (c ^. HistoricalRecordDate)]
   limit 1000
   return c
+
+
+--------------------------------------------------------
+-- delete
+--------------------------------------------------------
+
+deleteAllCompanies :: DB Int64
+deleteAllCompanies =
+  Database.Esqueleto.deleteCount $ from $ \(_ :: SqlExpr (Entity Company)) -> return ()
+
+deleteAdminUsers :: Text -> DB ()
+deleteAdminUsers email = do
+  mUser <- selectFirst [UserEmail P.==. email] []
+  case mUser of
+    Nothing -> return ()
+    Just u -> do
+      Database.Esqueleto.delete $
+         from $ \p  -> do
+         where_ (p ^. AdminAccount  ==. val (entityKey u))
+         return ()
+
+deleteAdminPasswords :: Text -> DB ()
+deleteAdminPasswords email = do
+  mUser <- selectFirst [UserEmail P.==. email] []
+  case mUser of
+    Nothing -> return ()
+    Just u -> do
+      Database.Esqueleto.delete $
+        from $ \p -> do
+        where_ (p ^. PasswordUser ==. val (entityKey u))
+        return ()
+
+deleteUserAdmins :: Text -> DB Int64
+deleteUserAdmins email =
+  Database.Esqueleto.deleteCount $
+  from $ \u -> do
+    where_ (u ^. UserEmail ==. val email)
+
+--------------------------------------------------------
+-- count
+--------------------------------------------------------
+
+countUsersByEmail :: Text -> DB Int
+countUsersByEmail email = do
+  (cnt:_) :: [Database.Esqueleto.Value Int] <-
+    select $
+     from $ \u -> do
+     where_ (u ^. UserEmail ==. val email)
+     return $ countRows
+  return $ unValue cnt
 
 getCompanyCount :: IO (Database.Esqueleto.Value Int)
 getCompanyCount = do
@@ -192,47 +291,9 @@ getHistoryCount = do
       return $ countRows
   return history
 
-deleteAllCompanies :: DB Int64
-deleteAllCompanies =
-  Database.Esqueleto.deleteCount $ from $ \(_ :: SqlExpr (Entity Company)) -> return ()
-
-deleteAdminUsers :: Text -> DB ()
-deleteAdminUsers email = do
-  mUser <- selectFirst [UserEmail P.==. email] []
-  case mUser of
-    Nothing -> return ()
-    Just u -> do
-      Database.Esqueleto.delete $
-         from $ \p  -> do
-         where_ (p ^. AdminAccount  ==. val (entityKey u))
-         return ()
-
-deleteAdminPasswords :: Text -> DB ()
-deleteAdminPasswords email = do
-  mUser <- selectFirst [UserEmail P.==. email] []
-  case mUser of
-    Nothing -> return ()
-    Just u -> do
-      Database.Esqueleto.delete $
-        from $ \p -> do
-        where_ (p ^. PasswordUser ==. val (entityKey u))
-        return ()
-
-countUsersByEmail :: Text -> DB Int
-countUsersByEmail email = do
-  (cnt:_) :: [Database.Esqueleto.Value Int] <-
-    select $
-     from $ \u -> do
-     where_ (u ^. UserEmail ==. val email)
-     return $ countRows
-  return $ unValue cnt
-
-deleteUserAdmins :: Text -> DB Int64
-deleteUserAdmins email =
-  Database.Esqueleto.deleteCount $
-  from $ \u -> do
-    where_ (u ^. UserEmail ==. val email)
-
+--------------------------------------------------------
+-- run actions
+--------------------------------------------------------
 
 dumpMigration :: DB ()
 dumpMigration = printMigration migrateAll
@@ -242,16 +303,6 @@ runMigrations = runMigration migrateAll
 
 runDBSqlite :: DB a -> IO a
 runDBSqlite = runSqlite "investments-info.sqlite3"
-
-data DBConfig = DBConfig
-  { dbhost :: Text
-  , dbdatabase :: Text
-  , dbuser :: Text
-  , dbpassword :: Text
-  , dbport :: Text
-  } deriving (Show, Generic)
-
-instance FromJSON DBConfig
 
 devConn :: IO ConnectionString
 devConn = do

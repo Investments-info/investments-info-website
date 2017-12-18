@@ -14,15 +14,23 @@ postNewsletterManagerR = do
   ((result, widget), _) <- runFormPost signupForm
   case result of
     FormSuccess email -> do
-      maybeUP <- runDB (getUserPassword email)
-      case maybeUP of
-        Nothing ->
-          -- setUserSession dbUserKey True
-          notFound
-        Just _ -> do
-            setMessage "You are already signed-up for out newsletter!"
+      maybeUser <- runDB (getUserForNewsletter email)
+      case maybeUser of
+        Nothing -> do
+            (Entity dbUserKey _) <- runDB $ createUserForNewsletter email "dummy-pass" (Just True)
+            setUserSession dbUserKey True
+            setMessage "You have signed-up for our newsletter! Expect it in your inbox (or spam :) ) !"
             redirect HomeR
-            
+        Just (Entity dbUserKey dbUser) -> do
+            case userNewsletter dbUser of
+                Just True -> do
+                    setMessage "You are already signed-up for our newsletter!"
+                    redirect HomeR
+                Nothing -> do
+                    dbUserKey <- runDB $ setUserForNewsletter (Just True) dbUserKey
+                    setUserSession dbUserKey True
+                    redirect HomeR
+
     _ -> renderSignup widget
 
 signupForm :: Form Text
