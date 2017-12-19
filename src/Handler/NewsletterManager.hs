@@ -1,6 +1,7 @@
 module Handler.NewsletterManager where
 
 import Import
+import MailchimpSimple
 
 getNewsletterManagerR :: Handler Html
 getNewsletterManagerR = do
