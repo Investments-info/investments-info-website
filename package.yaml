@@ -1,5 +1,5 @@
 name:    investments-info
-version: "0.0.0"
+version: "0.1.0"
 
 dependencies:
 
@@ -36,7 +36,6 @@ dependencies:
 - aeson >=0.6 && <1.3
 - conduit >=1.0 && <2.0
 - monad-logger >=0.3 && <0.4
-- MailchimpSimple >=0.2
 - fast-logger >=2.2 && <2.5
 - wai-logger >=2.2 && <2.4
 - file-embed
@@ -50,6 +49,7 @@ dependencies:
 - generic-deriving > 1.11.0 && <= 1.11.2
 - cookie
 - financial-news-scraper
+- MailchimpSimple
 - esqueleto
 - hashable
 - transformers >= 0.4 && < 0.6

@@ -9,13 +9,17 @@ packages:
 
   extra-dep: false
 
+- location:
+    git: https://github.com/v0d1ch/MailchimpSimple.git
+    commit: ca789a8c2997178ca98f3728bc4b4ffb4fb702cd
+
+  extra-dep: false
 
 extra-deps:
   - wreq-0.5.1.0
   - scalpel-core-0.5.1
   - scalpel-0.5.1
   - webdriver-0.8.5
-  - MailchimpSimple-0.2.0.0
   - aeson-lens-0.5.0.0
 
 flags: {}

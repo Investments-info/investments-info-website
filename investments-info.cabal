@@ -2,10 +2,10 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 1151718b6c14f88b5fb82b4d1e0c5fc4d68a8db7ccd272fc51d07f24e6f10c95
+-- hash: ac56a53f2f185c41893852ee4f4a7a988a26f54505d3b6ef26b1b4d1e3536047
 
 name:           investments-info
-version:        0.0.0
+version:        0.1.0
 build-type:     Simple
 cabal-version:  >= 1.10
 
@@ -24,7 +24,7 @@ library
       src
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
   build-depends:
-      MailchimpSimple >=0.2
+      MailchimpSimple
     , aeson >=0.6 && <1.3
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
@@ -137,7 +137,7 @@ executable investments-info
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      MailchimpSimple >=0.2
+      MailchimpSimple
     , aeson >=0.6 && <1.3
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
@@ -220,7 +220,7 @@ test-suite test
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
   ghc-options: -Wall
   build-depends:
-      MailchimpSimple >=0.2
+      MailchimpSimple
     , aeson >=0.6 && <1.3
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
