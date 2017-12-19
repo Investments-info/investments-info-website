@@ -1,7 +1,13 @@
 module Handler.NewsletterManager where
 
 import Import
-import MailchimpSimple
+import MailchimpSimple as MC
+
+listName :: String
+listName = "investments-info"
+
+apiKey :: String
+apiKey = "ab4685034f82cdd3c97286e4839b7cee-us17"
 
 getNewsletterManagerR :: Handler Html
 getNewsletterManagerR = do
@@ -19,6 +25,7 @@ postNewsletterManagerR = do
       case maybeUser of
         Nothing -> do
             (Entity dbUserKey _) <- runDB $ createUserForNewsletter email "dummy-pass" (Just 1)
+            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack email) "newsletter-user" "subscribed"
             setUserSession dbUserKey True
             setMessage "You have signed-up for our newsletter! Expect it in your inbox once a week !"
             redirect HomeR
@@ -29,6 +36,7 @@ postNewsletterManagerR = do
                     redirect HomeR
                 _ -> do
                     dbUserKeyU <- runDB $ setUserForNewsletter (Just 1) dbUKey
+                    _ <- liftIO $ MC.addSubscriber apiKey listName (unpack email) "newsletter-user" "subscribed"
                     setMessage "You have signed-up for our newsletter! Expect it in your inbox once a week !"
                     setUserSession dbUserKeyU True
                     redirect HomeR
