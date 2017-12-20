@@ -9,6 +9,7 @@ listName = "investments-info"
 apiKey :: String
 apiKey = "ab4685034f82cdd3c97286e4839b7cee-us17"
 
+
 getNewsletterManagerR :: Handler Html
 getNewsletterManagerR = do
   -- redirectIfLoggedIn HomeR

@@ -49,6 +49,7 @@ import Handler.Historical
 import Handler.Home
 import Handler.LogViewer
 import Handler.NewsletterManager
+import Handler.NewsletterView
 import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.StoryList

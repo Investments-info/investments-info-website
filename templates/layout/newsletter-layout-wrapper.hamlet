@@ -1,0 +1,14 @@
+<html>
+    <head>
+        <title>#{pageTitle pc}
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        ^{pageHead pc}
+        <link rel="stylesheet" href="@{StaticR  css_main_css}" />
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js">
+        <script language="javascript" type="text/javascript" src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js" />
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.0.3/js.cookie.min.js">
+    <body>
+       ^{pageBody pc}
