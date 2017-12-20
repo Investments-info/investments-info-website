@@ -20,4 +20,4 @@ newsletterLayout widget = do
     master <- getYesod
     pc <- widgetToPageContent $ do
       $(widgetFile "newsletter-layout")
-    withUrlRenderer $(hamletFile "templates/layout/newsletter-layout-wrapper.hamlet")
+    withUrlRenderer $(hamletFile "templates/layout/newsletter-layout-newuser-wrapper.hamlet")

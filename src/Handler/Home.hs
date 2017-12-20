@@ -47,7 +47,6 @@ getHomeR  = do
     <div class="spotlight">
         <div class="content">
             <header class="major">
-                <a .pull-right href=@{NewsletterManagerR}>Newsletter Signup
                 <h2>Financial News</h2>
                 <p>We scrape most visited financial portals and display the agregated news to our readers</p>
                 <ul class="features">
