@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 module Handler.NewsletterView where
 
 import Import
@@ -16,7 +17,6 @@ getNewsletterViewR = do
         <div class="content">
             <header class="major">
                 <h2>Newsletter Issue 0</h2>
-                <p .pull-right>#{show now}
                 <ul class="features">
                   $forall Entity _ Story{..} <- allStories
                     <li>
@@ -27,7 +27,6 @@ getNewsletterViewR = do
                         <p>
                             $maybe content <- storyContent
                                    <div>
-                                      <p>#{show storyCreated}
                                       <p>#{content}
 |]
 

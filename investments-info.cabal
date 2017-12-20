@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 275c0c81ae7b20a02d0d00343c3ab4cdd0826cc56ca947a4b7fcb419d65ea04e
+-- hash: e75719441b65e462ea49c69fc68371af0c9b06c3875444124660207ae49c5c5e
 
 name:           investments-info
 version:        0.1.0
@@ -109,6 +109,7 @@ library
       Handler.Home
       Handler.LogViewer
       Handler.NewsletterManager
+      Handler.NewsletterNewUser
       Handler.NewsletterView
       Handler.SearchArticles
       Handler.Sessions

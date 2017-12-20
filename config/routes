@@ -19,3 +19,4 @@
 /logview                       LogViewerR              GET
 /newsletter                    NewsletterManagerR      GET POST
 /newsletter/view               NewsletterViewR         GET
+/newsletter/newuser            NewsletterNewUserR      GET
