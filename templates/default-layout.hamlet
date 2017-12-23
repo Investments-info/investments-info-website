@@ -3,9 +3,9 @@
                         <span class="logo">
                             <span class="icon fa-bank" style="font-size:250%;color:#ffffff">
                             <!-- <img src="@{StaticR images_logo_svg}" alt="Investments Info" /> -->
-                        <h1>Investments Info - Finance portal
+                        <h1>Investments Info
 
-                        <p>We build websites, scrap data and develop statistical/machine learning models
+                        <p>Instant Investment Intelligence
 
                 <!-- Nav -->
                     <nav id="nav">
@@ -36,11 +36,11 @@
                        ^{widget}
                     <footer id="footer">
                           <section>
-                              <h2>Quote</h2>
-                              <p>You can let us know what kind of data model would suit you and get a free quote.</p>
+                              <h2>Investments Info</h2>
+                              <p>We provide the relevant information and develop investment models</p>
                               <ul class="actions">
                                 <li>
-                                    <a href="#" class="button">Learn More
+                                    <a href="@{AboutR}" class="button">Learn More
 
                           <section>
                               <h2>Contact</h2>
@@ -49,9 +49,4 @@
                                 <dd>Zurich Switzerland</dd>
                                 <dt>Email</dt>
                                 <dd><a href="mailto:contact@investments-info.com">contact@investments-info.com</a></dd>
-                              <ul class="icons">
-                                <li><a href="#" class="icon fa-twitter alt"><span class="label">Twitter</span></a></li>
-                                <li><a href="#" class="icon fa-facebook alt"><span class="label">Facebook</span></a></li>
-                                <li><a href="#" class="icon fa-instagram alt"><span class="label">Instagram</span></a></li>
-                                <li><a href="https://github.com/v0d1ch/investments-info.git" class="icon fa-github alt"><span class="label"></span></a></li>
                               <p class="copyright">&copy; #{appCopyright $ appSettings master}.</p>

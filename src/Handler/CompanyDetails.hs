@@ -68,7 +68,6 @@ getCompanyDetailsR cid = do
             url: "@{HistoricalR cid}",
             type: "get",
             success: function(data) {
-            console.log(data);
                var data = data;
                if(data.length == 0){
                  $("#message").text("We currently don't have any historical data for this company. Please check again in few hours.")
