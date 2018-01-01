@@ -17,12 +17,6 @@
                             <li>
                                 <a href="@{CompanyListR}" >Companies
                             <li>
-                                <a href="#first" .hidable>Statistical data
-                            <li>
-                                <a href="#second" .hidable>Machine learning
-                            <li>
-                                <a href="#cta" .hidable>Graphs
-                            <li>
                                 <a href="@{StoryListR 1}">Articles
                             <li>
                                 <a href="https://investments-info.com:3000" target=_blank >Financial Graphs

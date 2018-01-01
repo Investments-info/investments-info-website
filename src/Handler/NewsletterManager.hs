@@ -41,7 +41,7 @@ postNewsletterManagerR = do
                     _ <- liftIO $ MC.addSubscriber apiKey listName (unpack email) "newsletter-user" "subscribed"
                     setMessage "You have signed-up for our newsletter! Expect it in your inbox once a week !"
                     setUserSession dbUserKeyU True
-                    redirect HomeR
+                    redirect ProfileR
 
     _ -> renderSignup widget
 

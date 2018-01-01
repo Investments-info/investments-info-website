@@ -51,6 +51,7 @@ import Handler.LogViewer
 import Handler.NewsletterManager
 import Handler.NewsletterNewUser
 import Handler.NewsletterView
+import Handler.Profile
 import Handler.SearchArticles
 import Handler.StoryDetails
 import Handler.StoryList
