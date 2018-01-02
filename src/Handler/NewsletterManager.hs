@@ -30,7 +30,7 @@ postNewsletterManagerR = do
             _ <- liftIO $ MC.addSubscriber apiKey listName (unpack email) "newsletter-user" "subscribed"
             setUserSession dbUserKey True
             setMessage "You have signed-up for our newsletter! Expect it in your inbox once a week !"
-            redirect HomeR
+            redirect ProfileR
         Just (Entity dbUKey dbUser) -> do
             case userNewsletter dbUser of
                 Just 1 -> do

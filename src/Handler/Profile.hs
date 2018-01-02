@@ -3,9 +3,8 @@ module Handler.Profile where
 
 import Import
 import MailchimpSimple as MC
-import Data.Maybe (fromJust)
 
--- move this to some helper
+-- move this to helper
 listName :: String
 listName = "investments-info"
 
@@ -28,19 +27,18 @@ postProfileR :: Handler Html
 postProfileR = do
   redirectIfNotLoggedIn HomeR
   newsletter <- lookupPostParam "newsletter"
-  email <- lookupPostParam "email"
-  Just (Entity dbUKey _) <- getUser
+  Just (Entity dbUKey user) <- getUser
   case newsletter of
       Just "yes" -> do
-            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ fromJust email) "newsletter-user" "subscribed"
+            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
             _ <- runDB $ setUserForNewsletter (Just 1) dbUKey
             getProfileR
       Just _ -> do
-            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ fromJust email) "newsletter-user" "subscribed"
+            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
             _ <- runDB $ setUserForNewsletter Nothing dbUKey
             getProfileR
       Nothing -> do
-            _ <- liftIO $ MC.removeSubscriber apiKey (unpack $ fromJust email) listName
+            _ <- liftIO $ MC.removeSubscriber apiKey (unpack $ userEmail user) listName
             _ <- runDB $ setUserForNewsletter Nothing dbUKey
             getProfileR
 
@@ -56,6 +54,9 @@ renderProfile u widget = do
 <section id="content" class="main">
     <div>
       <div .col-md-6>
+        <p .pull-right>
+          <i>
+            <b>#{userEmail u}
         <h3> User profile
         <form method="POST" action="@{ProfileR}" name="profile_post">
           ^{widget}
@@ -77,5 +78,5 @@ checkboxSettings = FieldSettings {
     fsTooltip = Just "Newsletter",
     fsId = Nothing,
     fsName = Just "newsletter",
-    fsAttrs = []
+    fsAttrs = [("class", "form-control")]
 }
