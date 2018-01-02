@@ -20,4 +20,4 @@
 /newsletter                    NewsletterManagerR      GET POST
 /newsletter/view               NewsletterViewR         GET
 /newsletter/newuser            NewsletterNewUserR      GET
-/profile                       ProfileR                GET
+/profile                       ProfileR                GET POST
