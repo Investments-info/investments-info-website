@@ -50,7 +50,7 @@ getCompanyDetailsR cid = do
                <div id="chart_volume_div">
 
       <p>
-        <a .btn .btn-sm .btn-primary  href=@{CompanyListR} >Back to company list
+        <a .btn .btn-sm .btn-primary  href=@{CompanyListR 1} >Back to company list
 |]
 
      toWidget[julius|

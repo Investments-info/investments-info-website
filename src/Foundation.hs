@@ -158,6 +158,7 @@ instance Yesod App where
 instance YesodBreadcrumbs App where
   breadcrumb HomeR = return ("Home", Nothing)
   breadcrumb (StoryListR _) = return ("Articles", Nothing)
+  breadcrumb (CompanyListR _) = return ("Companies", Nothing)
   breadcrumb _ = return ("home", Nothing)
 
 instance YesodPersist App where

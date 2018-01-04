@@ -15,7 +15,7 @@
                             <li>
                                 <a href="@{AboutR}" >About
                             <li>
-                                <a href="@{CompanyListR}" >Companies
+                                <a href="@{CompanyListR 1}" >Companies
                             <li>
                                 <a href="@{StoryListR 1}">Articles
                             <li>
