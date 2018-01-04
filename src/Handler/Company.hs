@@ -20,7 +20,7 @@ postCompanyR = do
             _ <- runDB $ insert $ Company companyTitle companyWebsite companyImage companyDescription companyTicker companyGicssector companyGicssubindustry now
 
             setMessage "Company created!"
-            redirect CompanyListR
+            redirect (CompanyListR 1)
       _ -> do
         setMessage "Company not created"
         redirect CompanyR

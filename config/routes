@@ -13,7 +13,7 @@
 /admin                         AdminR                  GET
 /search                        SearchArticlesR         POST
 /historical/#CompanyId         HistoricalR             GET
-/!company/list                 CompanyListR            GET
+/!company/list/#Page           CompanyListR            GET
 /!company                      CompanyR                GET POST
 /!company/#CompanyId           CompanyDetailsR         GET
 /logview                       LogViewerR              GET
