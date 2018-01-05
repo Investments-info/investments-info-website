@@ -12,6 +12,7 @@
 /signout                       SignoutR                GET
 /admin                         AdminR                  GET
 /search                        SearchArticlesR         POST
+/companies                     SearchCompaniesR        POST
 /historical/#CompanyId         HistoricalR             GET
 /!company/list/#Page           CompanyListR            GET
 /!company                      CompanyR                GET POST
