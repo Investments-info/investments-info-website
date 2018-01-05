@@ -5,20 +5,19 @@
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 
-module Handler.SearchArticles where
+module Handler.SearchCompanies where
 
 import Database.Esqueleto as E
 import Import
 
-postSearchArticlesR :: Handler Import.Value
-postSearchArticlesR = do
-  postData <- lookupPostParam "sstr" -- :: Handler ArticleSearchString
+postSearchCompaniesR:: Handler Import.Value
+postSearchCompaniesR = do
+  postData <- lookupPostParam "sstr"
   let searchStr = "%" <> (fromMaybe "###############" postData) <> "%"
-  articles <-
+  companies <-
     runDB $
     select $
-    E.from $ \a -> do E.where_ (a ^. StoryTitle `E.like` (E.val searchStr))
+    E.from $ \a -> do E.where_ (a ^. CompanyTitle `E.like` (E.val searchStr))
                       E.limit 10
-                      E.orderBy [desc (a ^. StoryCreated)]
                       return a
-  return $ object ["result" .= articles]
+  return $ object ["result" .= companies]

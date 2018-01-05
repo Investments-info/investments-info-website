@@ -53,6 +53,7 @@ import Handler.NewsletterNewUser
 import Handler.NewsletterView
 import Handler.Profile
 import Handler.SearchArticles
+import Handler.SearchCompanies
 import Handler.StoryDetails
 import Handler.StoryList
 import Helper.Fixtures as F

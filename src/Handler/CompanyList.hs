@@ -45,3 +45,37 @@ getCompanyListR currentPage = do
             <a href=@{CompanyListR next} class="btn btn-primary">>>
          <p class="pull-right">Number of companies : #{entriesCount}
 |]
+
+    toWidget [julius|
+ $(document).ready(function(){
+   var searchString = "";
+   $("#article-finder").on('keyup', function(e){
+       searchString = $(this).val();
+        $("#search-results").css({'display':'none'});
+        $("#search-results").empty();
+       if(searchString.length > 1){
+        $("#search-results").css({'display':'block'});
+         $.ajax({
+            url: "@{SearchCompaniesR}",
+            type: "post",
+            data: {"sstr": searchString},
+            success: function(data) {
+            console.log(data);
+                if(data.result.length > 0){
+                   for(var i = 0;i < data.result.length;i++){
+                       var item = $('<div class="search-item"><a href="https://investment-info.com/company/'+ data.result[i].id +'" target="_blank" class="search-item" ><img src="'+ data.result[i].image +'" class="search-image" width="90px" />'+ data.result[i].title + '</a><div style="clear:both"></div></div>');
+                       item.appendTo("#search-results");
+                   }
+                   $('#search-results img').each(function(index,element){
+                     var $el = $(this)
+                     if($el.attr('src') == '' || $el.attr('src') == 'null') $el.attr('src','static/images/defaultimage.gif');
+                   });
+                }else{
+                     $("#search-results").css({'display':'none'});
+                }
+            }
+         });
+       }
+  });
+ });
+|]
