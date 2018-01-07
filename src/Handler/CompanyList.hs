@@ -51,6 +51,7 @@ getCompanyListR currentPage = do
    var searchString = "";
    $("#article-finder").on('keyup', function(e){
        searchString = $(this).val();
+       if (searchString && searchString.length < 3) return;
         $("#search-results").css({'display':'none'});
         $("#search-results").empty();
        if(searchString.length > 1){
