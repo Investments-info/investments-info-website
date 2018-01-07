@@ -32,9 +32,6 @@ getNewsletterViewR = do
             <div .footer>
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td .content-block>
-                    <span .apple-link>Don't like these emails? <a href="http://localhost:3000/profile">Unsubscribe.
-                <tr>
                   <td .content-block .powered-by>
                     <a href="https://investments-info.com">investments-info.com
 
