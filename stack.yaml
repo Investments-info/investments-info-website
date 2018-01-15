@@ -1,5 +1,4 @@
 resolver: lts-9.4
-#resolver: lts-9.9
 
 packages:
 - '.'
@@ -15,6 +14,12 @@ packages:
 
   extra-dep: false
 
+- location:
+    git: https://github.com/qtests/yadata.git
+    commit: 14563390a659db795f1e33c41122ede0cdc64694
+
+  extra-dep: false
+
 extra-deps:
   - wreq-0.5.1.0
   - scalpel-core-0.5.1
@@ -26,5 +31,5 @@ flags: {}
 
 extra-package-dbs: []
 
-# docker:
-#  enable: true
+docker:
+ enable: true
