@@ -78,6 +78,7 @@ dependencies:
 - foreign-store >= 0.2
 - async >= 2.1.1
 - process >= 1.4.3.0
+- yadata
 
 default-extensions:
   - NoImplicitPrelude

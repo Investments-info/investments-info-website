@@ -4,11 +4,13 @@ module Handler.NewsletterView where
 import Import
 import qualified Text.HTML.Fscraper as F
 import Text.Hamlet (hamletFile)
+import Yadata.LibAPI as YL
 
 getNewsletterViewR :: Handler Html
 getNewsletterViewR = do
   now <- liftIO getCurrentTime
   allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 10]
+  liftIO $ YL.createGraphForNewsletter ["IBM", "MSFT", "AAPL", "KO"] "static/newsletter-graph.svg"
   newsletterLayout $ do
       setTitle "Investments info"
       toWidget [whamlet|
@@ -28,6 +30,10 @@ getNewsletterViewR = do
                     <tr>
                       <td>
                         <p><a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
+              <tr>
+                <td .wrapper>
+                   <img src="/static/newsletter-graph.svg" />
+
 
             <div .footer>
               <table border="0" cellpadding="0" cellspacing="0">

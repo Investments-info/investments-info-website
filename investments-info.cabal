@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6d2395bedd3a5651ebf933c640eb44e1173262c7c854d7b1e0ed6991b8772888
+-- hash: a7518b93a099cc4e962d456e6aa757a80da7dbe415f7775a19d61c24e5a8dfe9
 
 name:           investments-info
 version:        0.1.0
@@ -84,6 +84,7 @@ library
     , warp >=3.0 && <3.3
     , warp-tls >3.2.0 && <=3.2.4
     , wreq
+    , yadata
     , yaml >=0.8 && <0.9
     , yesod >=1.4.3 && <1.5
     , yesod-auth >=1.4.0 && <1.5
@@ -202,6 +203,7 @@ executable investments-info
     , warp >=3.0 && <3.3
     , warp-tls >3.2.0 && <=3.2.4
     , wreq
+    , yadata
     , yaml >=0.8 && <0.9
     , yesod >=1.4.3 && <1.5
     , yesod-auth >=1.4.0 && <1.5
@@ -287,6 +289,7 @@ test-suite test
     , warp >=3.0 && <3.3
     , warp-tls >3.2.0 && <=3.2.4
     , wreq
+    , yadata
     , yaml >=0.8 && <0.9
     , yesod >=1.4.3 && <1.5
     , yesod-auth >=1.4.0 && <1.5

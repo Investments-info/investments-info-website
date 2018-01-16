@@ -59,7 +59,6 @@ import Handler.StoryList
 import Helper.Fixtures as F
 import Helper.YahooHelper as YH
 
-
 mkYesodDispatch "App" resourcesApp
 
 makeFoundation :: AppSettings -> IO App

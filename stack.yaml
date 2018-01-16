@@ -16,11 +16,10 @@ packages:
 
 - location:
     git: https://github.com/qtests/yadata.git
-    commit: 698a8f68d207ff8e964f1d23936a70f9e4d20ba0
-
-
+    commit: 6dbb5a1135c8715f4cb8c95cd00cd18555a2dec9
 
   extra-dep: false
+
 
 extra-deps:
   - wreq-0.5.1.0
