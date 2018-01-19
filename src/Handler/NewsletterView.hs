@@ -34,7 +34,7 @@ getNewsletterViewR = do
                         <p><a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
               <tr>
                 <td .wrapper>
-                  <img src="/static/newsletter-graph.jpg" width="500px" />
+                   <img style="width:500px;" src="https://investments-info.com/static/newsletter-graph.jpg">
               <tr>
                 <td .wrapper>
                    <a href="https://investments-info.com/newsletter/view">view on website
