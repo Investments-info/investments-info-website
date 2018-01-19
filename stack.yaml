@@ -16,7 +16,7 @@ packages:
 
 - location:
     git: https://github.com/qtests/yadata.git
-    commit: 359fbf81144d83df6152392783032bfa441d4420
+    commit:  ade1c1d1d443615d29af39eb0a9fc23f01f101a5
 
   extra-dep: false
 

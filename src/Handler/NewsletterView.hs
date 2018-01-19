@@ -10,7 +10,7 @@ getNewsletterViewR :: Handler Html
 getNewsletterViewR = do
   now <- liftIO getCurrentTime
   allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 10]
-  liftIO $ YL.createGraphForNewsletter ["IBM", "MSFT", "AAPL", "KO"] "static/newsletter-graph.svg"
+  liftIO $ YL.createGraphForNewsletter ["IBM", "MSFT", "AAPL", "KO"] "static/newsletter-graph.jpg"
   let issue = "1" :: Text
   newsletterLayout $ do
       setTitle "Investments info"
@@ -34,7 +34,7 @@ getNewsletterViewR = do
                         <p><a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
               <tr>
                 <td .wrapper>
-                   <object style="width:500px;" type="image/svg+xml" data="/static/newsletter-graph.svg">
+                  <img src="/static/newsletter-graph.jpg" width="500px" />
               <tr>
                 <td .wrapper>
                    <a href="https://investments-info.com/newsletter/view">view on website
