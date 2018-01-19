@@ -11,6 +11,7 @@ getNewsletterViewR = do
   now <- liftIO getCurrentTime
   allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 10]
   liftIO $ YL.createGraphForNewsletter ["IBM", "MSFT", "AAPL", "KO"] "static/newsletter-graph.svg"
+  let issue = "1" :: Text
   newsletterLayout $ do
       setTitle "Investments info"
       toWidget [whamlet|
@@ -22,6 +23,7 @@ getNewsletterViewR = do
             <table .main>
               <tr>
                 <td .wrapper>
+                  <span style="float:right">Issue ##{issue}
                   <h2>Investments Info newsletter
               <tr>
                 <td .wrapper>
@@ -32,9 +34,10 @@ getNewsletterViewR = do
                         <p><a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
               <tr>
                 <td .wrapper>
-                   <img src="/static/newsletter-graph.svg" />
-
-
+                   <object style="width:500px;" type="image/svg+xml" data="/static/newsletter-graph.svg">
+              <tr>
+                <td .wrapper>
+                   <a href="https://investments-info.com/newsletter/view">view on website
             <div .footer>
               <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
