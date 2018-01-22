@@ -23,6 +23,13 @@ import Handler.Sessions
 import Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import Control.Applicative  (pure)
 
+
+awsAccessKey :: ByteString
+awsAccessKey = "AKIAIULHBINBL7QQ5F7Q"
+
+awsSecretKey :: ByteString
+awsSecretKey = "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"
+
 instance MonadLogger IO where
     monadLoggerLog _ _ _ = pure $ pure ()
 

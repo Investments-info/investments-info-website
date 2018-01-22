@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: c1d37e4ae240c19e51241ea484b78a151fcd25c916469c5f5f137eb0fbfe1a4d
+-- hash: dc16c52bf7352a0d74e9933b2d9abf02a1497f96b29cf36c5ccabbd197923a4b
 
 name:           investments-info
 version:        0.1.0
@@ -27,6 +27,9 @@ library
       Chart-diagrams
     , MailchimpSimple
     , aeson >=0.6 && <1.3
+    , amazonka >=1.5.0
+    , amazonka-core >=1.5.0
+    , amazonka-ses >=1.5.0
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
     , bcrypt >=0.0.8 && <0.0.11
@@ -120,6 +123,7 @@ library
       Handler.Sessions
       Handler.StoryDetails
       Handler.StoryList
+      Helper.Aws
       Helper.Fixtures
       Helper.FormHelper
       Helper.Forms
@@ -147,6 +151,9 @@ executable investments-info
       Chart-diagrams
     , MailchimpSimple
     , aeson >=0.6 && <1.3
+    , amazonka >=1.5.0
+    , amazonka-core >=1.5.0
+    , amazonka-ses >=1.5.0
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
     , bcrypt >=0.0.8 && <0.0.11
@@ -233,6 +240,9 @@ test-suite test
       Chart-diagrams
     , MailchimpSimple
     , aeson >=0.6 && <1.3
+    , amazonka >=1.5.0
+    , amazonka-core >=1.5.0
+    , amazonka-ses >=1.5.0
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
     , bcrypt >=0.0.8 && <0.0.11

@@ -34,5 +34,8 @@ dbhost:     "localhost"
 dbport:     "5432"
 dbdatabase: "investments_info"
 
+aws-access-key:  AKIAIULHBINBL7QQ5F7Q
+aws-secret-key:  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
+
 copyright: Investments-info 2017
 analytics: UA-109838792-1
