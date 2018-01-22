@@ -53,15 +53,18 @@ renderProfile u widget = do
 
 <section id="content" class="main">
     <div>
-      <div .col-md-6>
-        <p .pull-right>
-          <i>
-            <b>#{userEmail u}
+      <div class="col-md-8">
         <h3> User profile
         <form method="POST" action="@{ProfileR}" name="profile_post">
           ^{widget}
           <input type="hidden" value="#{userEmail u}" name="email" />
-          <input .button type="submit" value="Submit">
+          <input class="button" type="submit" value="Submit">
+      <div class="col-md-4">
+        <p>
+          <i>
+            <b>#{userEmail u}
+        <p>
+           <a class="btn btn-danger btn-sm" href="@{SignoutR}">logout
      <div .clearfix>
 |]
 

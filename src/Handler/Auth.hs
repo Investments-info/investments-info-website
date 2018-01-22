@@ -18,10 +18,11 @@ redirectIfLoggedIn r = do
 renderLogin :: Widget -> Handler Html
 renderLogin widget = do
   baseLayout "Login" Nothing [whamlet|
-<div .row #content>
+<section id="content" class="main">
+ <div .row #content>
   <div .medium-8 .columns>
     <hr>
-<div .row #content>
+ <div .row #content>
   <div .medium-8 .columns>
     <h3>Login to your account!
     <form method="POST" action="@{LoginR}">
@@ -64,10 +65,11 @@ signupForm = loginForm
 renderSignup :: Widget -> Handler Html
 renderSignup widget = do
   baseLayout "Login" Nothing [whamlet|
-<div .row #content>
+<section id="content" class="main">
+ <div .row #content>
   <div .medium-8 .columns>
     <hr>
-<div .row #content>
+ <div .row #content>
   <div .medium-8 .columns>
     <h3>Signup for an account!
     <form method="POST" action="@{SignupR}">
@@ -98,7 +100,7 @@ postSignupR = do
         Nothing -> do
           (Entity dbUserKey _) <- runDB $ createUser email password
           setUserSession dbUserKey True
-          redirect HomeR
+          redirect ProfileR
     _ -> renderSignup widget
 
 getSignoutR :: Handler Html
