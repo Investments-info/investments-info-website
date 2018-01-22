@@ -56,8 +56,11 @@ renderProfile u widget = do
       <div class="col-md-8">
         <h3> User profile
         <form method="POST" action="@{ProfileR}" name="profile_post">
+          <hr />
           ^{widget}
+          <hr />
           <input type="hidden" value="#{userEmail u}" name="email" />
+          <br />
           <input class="button" type="submit" value="Submit">
       <div class="col-md-4">
         <p>
@@ -81,5 +84,5 @@ checkboxSettings = FieldSettings {
     fsTooltip = Just "Newsletter",
     fsId = Nothing,
     fsName = Just "newsletter",
-    fsAttrs = [("class", "form-control")]
+    fsAttrs = []
 }
