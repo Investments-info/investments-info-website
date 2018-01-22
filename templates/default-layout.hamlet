@@ -20,6 +20,8 @@
                                 <a href="@{StoryListR 1}">Articles
                             <li>
                                 <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
+                            <li class="pull-right">
+                                <a href="@{LoginR}" class="btn btn-success">Login
 
                     <div id="main">
                         $maybe msg <- mmsg
