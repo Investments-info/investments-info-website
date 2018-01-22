@@ -104,6 +104,7 @@ instance Yesod App where
   defaultLayout widget = do
     master <- getYesod
     mmsg <- getMessage
+    maybeUser <- getUser
     -- mcurrentRoute <- getCurrentRoute
     -- (title, parents) <- breadcrumbs
     pc <-

@@ -20,6 +20,10 @@
                                 <a href="@{StoryListR 1}">Articles
                             <li>
                                 <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
+                        $maybe Entity _ u <- maybeUser
+                            <li class="pull-right">
+                                <a href="@{SignoutR}" class="btn btn-warning">Logout: #{userEmail u}
+                        $nothing
                             <li class="pull-right">
                                 <a href="@{LoginR}" class="btn btn-success">Login
 
