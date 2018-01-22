@@ -80,6 +80,7 @@ dependencies:
 - process >= 1.4.3.0
 - yadata
 - Chart-diagrams
+- email-validate >= 2.3.1
 
 default-extensions:
   - NoImplicitPrelude

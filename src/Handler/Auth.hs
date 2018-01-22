@@ -1,6 +1,7 @@
 module Handler.Auth where
 
 import Import
+import Text.Email.Validate (isValid)
 
 loginForm :: Form (Text, Text)
 loginForm =
@@ -19,15 +20,18 @@ renderLogin :: Widget -> Handler Html
 renderLogin widget = do
   baseLayout "Login" Nothing [whamlet|
 <section id="content" class="main">
- <div .row #content>
-  <div .medium-8 .columns>
+ <div class="row">
+  <div class="col-md-12 columns">
     <hr>
- <div .row #content>
-  <div .medium-8 .columns>
+ <div class="row" id="content">
+  <div class="col-md-8 columns">
     <h3>Login to your account!
     <form method="POST" action="@{LoginR}">
       ^{widget}
-      <input .button type="submit" value="Submit">
+      <input class="btn btn-success" type="submit" value="Submit">
+  <div class="col-md-4">
+     <p>
+       <a href="@{SignupR}" class="btn btn-default btn-sm pull-right">Signup
 |]
 
 getLoginR :: Handler Html
@@ -66,15 +70,15 @@ renderSignup :: Widget -> Handler Html
 renderSignup widget = do
   baseLayout "Login" Nothing [whamlet|
 <section id="content" class="main">
- <div .row #content>
-  <div .medium-8 .columns>
+ <div class="row">
+  <div class="col-md-8 columns">
     <hr>
- <div .row #content>
-  <div .medium-8 .columns>
+ <div class="row">
+  <div class="col-md-8 columns">
     <h3>Signup for an account!
     <form method="POST" action="@{SignupR}">
       ^{widget}
-      <input .button type="submit" value="Submit">
+      <input class="btn btn-success" type="submit" value="Submit">
 |]
 
 getSignupR :: Handler Html
@@ -89,18 +93,23 @@ postSignupR = do
   ((result, widget), _) <- runFormPost signupForm
   case result of
     FormSuccess (email, password) -> do
-      -- Check to see if a user with this email already exists
       maybeUP <- runDB (getUserEntity email)
-      case maybeUP of
-        -- If it does, render the form again (?)
-        (Just _) -> do
-          setMessage "User already exists"
+      if (not (isValid (encodeUtf8 email))) then
+          do
+          setMessage "That is not a valid email"
           renderSignup widget
-        -- If not, create a user
-        Nothing -> do
-          (Entity dbUserKey _) <- runDB $ createUser email password
-          setUserSession dbUserKey True
-          redirect ProfileR
+      else
+         -- Check to see if a user with this email already exists
+         case maybeUP of
+           -- If it does, render the form again (?)
+           (Just _) -> do
+               setMessage "User already exists"
+               renderSignup widget
+           -- If not, create a user
+           Nothing -> do
+               (Entity dbUserKey _) <- runDB $ createUser email password
+               setUserSession dbUserKey True
+               redirect ProfileR
     _ -> renderSignup widget
 
 getSignoutR :: Handler Html

@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 0d3ca80bf3bacb29ca842c340d0a250d2cd4c053309b88909cbafa8fb4816267
+-- hash: c1d37e4ae240c19e51241ea484b78a151fcd25c916469c5f5f137eb0fbfe1a4d
 
 name:           investments-info
 version:        0.1.0
@@ -43,6 +43,7 @@ library
     , csv-conduit >=0.6.7
     , data-default
     , directory >=1.1 && <1.4
+    , email-validate >=2.3.1
     , errors
     , esqueleto
     , exceptions >=0.8.3
@@ -162,6 +163,7 @@ executable investments-info
     , csv-conduit >=0.6.7
     , data-default
     , directory >=1.1 && <1.4
+    , email-validate >=2.3.1
     , errors
     , esqueleto
     , exceptions >=0.8.3
@@ -247,6 +249,7 @@ test-suite test
     , csv-conduit >=0.6.7
     , data-default
     , directory >=1.1 && <1.4
+    , email-validate >=2.3.1
     , errors
     , esqueleto
     , exceptions >=0.8.3
