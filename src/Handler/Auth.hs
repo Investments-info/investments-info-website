@@ -47,16 +47,21 @@ postLoginR = do
   case result of
     FormSuccess (email, password) -> do
       maybeUP <- runDB (getUserPassword email)
-      case maybeUP of
-        Nothing ->
-          notFound
-        (Just ((Entity dbUserKey _), (Entity _ dbPass))) -> do
-          let success = passwordMatches (passwordHash dbPass) password
-          case success of
-            False -> notAuthenticated
-            True -> do
-              setUserSession dbUserKey True
-              redirect ProfileR
+      if (not (isValid (encodeUtf8 email))) then
+          do
+          setMessage "That is not a valid email!"
+          redirect LoginR
+      else
+          case maybeUP of
+            Nothing ->
+              notFound
+            (Just ((Entity dbUserKey _), (Entity _ dbPass))) -> do
+              let success = passwordMatches (passwordHash dbPass) password
+              case success of
+                False -> notAuthenticated
+                True -> do
+                  setUserSession dbUserKey True
+                  redirect ProfileR
     _ -> renderLogin widget
 
 
