@@ -1,52 +1,59 @@
-            <div id="wrapper">
-                    <header id="header" class="alt">
-                        <span class="logo">
-                            <span class="icon fa-bank" style="font-size:250%;color:#ffffff">
-                            <!-- <img src="@{StaticR images_logo_svg}" alt="Investments Info" /> -->
-                        <h1>Investments Info
+<div id="wrapper">
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-2">
+            <span class="sr-only">Toggle navigation
+            <span class="icon-bar">
+            <span class="icon-bar">
+            <span class="icon-bar">
+        <a class="navbar-brand" href="@{HomeR}">Investments Info
+           <br />
+           <span class="subheader">Instant Investments Intelligence
+    <div class="collapse navbar-collapse " id="bs-example-navbar-collapse-2">
+        <ul class="nav navbar-nav" >
+            <li>
+                <a href="@{HomeR}" .active>Home
+            <li>
+                <a href="@{AboutR}" >About
+            <li>
+                <a href="@{CompanyListR 1}" >Companies
+            <li>
+                <a href="@{StoryListR 1}">Articles
+            <li>
+                <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
+        $maybe Entity _ u <- maybeUser
+            <li class="pull-right" style="list-style-type:none!important">
+                <a href="@{SignoutR}">Logout: #{userEmail u}
+        $nothing
+            <li class="dropdown pull-right" style="list-style-type:none!important">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login/Signup
+                    <b class="caret">
+                <ul class="dropdown dropdown-menu">
+                    <li>
+                        <a href="@{SignupR}">Signup
+                    <li class="divider">
+                    <li>
+                        <a href="@{LoginR}">Login
 
-                        <p>Instant Investment Intelligence
+ <div id="main">
+    $maybe msg <- mmsg
+        <div .alert.alert-info #message>#{msg}
+    <div .pull-right .col-md-3>
+        <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
+        <div id="search-results">
+    ^{widget}
+   <footer id="footer">
+        <section>
+            <h2>Investments Info</h2>
+            <p>We provide the relevant information and develop investment models</p>
+            <br />
+            <a href="@{AboutR}">Learn More
 
-                <!-- Nav -->
-                    <nav id="nav">
-                       <ul>
-                            <li>
-                                <a href="@{HomeR}" .active>Home
-                            <li>
-                                <a href="@{AboutR}" >About
-                            <li>
-                                <a href="@{CompanyListR 1}" >Companies
-                            <li>
-                                <a href="@{StoryListR 1}">Articles
-                            <li>
-                                <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
-                        $maybe Entity _ u <- maybeUser
-                            <li class="pull-right">
-                                <a href="@{SignoutR}" class="btn btn-warning">Logout: #{userEmail u}
-                        $nothing
-                            <li class="pull-right">
-                                <a href="@{LoginR}" class="btn btn-success">Login
-
-                    <div id="main">
-                        $maybe msg <- mmsg
-                            <div .alert.alert-info #message>#{msg}
-                        <div .pull-right .col-md-3>
-                            <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
-                           <div id="search-results">
-                       ^{widget}
-                    <footer id="footer">
-                          <section>
-                              <h2>Investments Info</h2>
-                              <p>We provide the relevant information and develop investment models</p>
-                              <ul class="actions">
-                                <li>
-                                    <a href="@{AboutR}" class="button">Learn More
-
-                          <section>
-                              <h2>Contact</h2>
-                              <dl class="alt">
-                                <dt>Address</dt>
-                                <dd>Zurich Switzerland</dd>
-                                <dt>Email</dt>
-                                <dd><a href="mailto:contact@investments-info.com">contact@investments-info.com</a></dd>
-                              <p class="copyright">&copy; #{appCopyright $ appSettings master}.</p>
+        <section>
+            <h2>Contact</h2>
+            <dl class="alt">
+            <dt>Address</dt>
+            <dd>Zurich Switzerland</dd>
+            <dt>Email</dt>
+            <dd><a href="mailto:contact@investments-info.com">contact@investments-info.com</a></dd>
+            <p class="copyright">&copy; #{appCopyright $ appSettings master}.</p>

@@ -20,16 +20,17 @@ renderLogin :: Widget -> Handler Html
 renderLogin widget = do
   baseLayout "Login" Nothing [whamlet|
 <section id="content" class="main">
- <div class="row">
-  <div class="col-md-12 columns">
+ <header class="major">
+  <div class="row">
+   <div class="col-md-12 columns">
     <hr>
- <div class="row" id="content">
-  <div class="col-md-8 columns">
+  <div class="row" id="content">
+   <div class="col-md-8 columns">
     <h3>Login to your account!
     <form method="POST" action="@{LoginR}">
       ^{widget}
       <input class="btn btn-success" type="submit" value="Submit">
-  <div class="col-md-4">
+   <div class="col-md-4">
      <p>
        <a href="@{SignupR}" class="btn btn-default btn-sm pull-right">Signup
 |]
@@ -75,11 +76,12 @@ renderSignup :: Widget -> Handler Html
 renderSignup widget = do
   baseLayout "Login" Nothing [whamlet|
 <section id="content" class="main">
- <div class="row">
-  <div class="col-md-8 columns">
+ <header class="major">
+  <div class="row">
+   <div class="col-md-8 columns">
     <hr>
- <div class="row">
-  <div class="col-md-8 columns">
+  <div class="row">
+   <div class="col-md-8 columns">
     <h3>Signup for an account!
     <form method="POST" action="@{SignupR}">
       ^{widget}

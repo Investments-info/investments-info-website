@@ -29,7 +29,6 @@ getAboutR  = do
 
 
 <section id="second" class="main special">
-    <header class="major">
     <ul class="statistics">
         <li class="style1">
             <span class="icon fa-code-fork"></span>

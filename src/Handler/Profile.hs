@@ -52,6 +52,7 @@ renderProfile u widget = do
   baseLayout "Profile" Nothing [whamlet|
 
 <section id="content" class="main">
+  <header class="major">
     <div>
       <div class="col-md-8">
         <h3> User profile
