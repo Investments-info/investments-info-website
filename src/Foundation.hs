@@ -112,8 +112,8 @@ instance Yesod App where
     master <- getYesod
     mmsg <- getMessage
     maybeUser <- getUser
-    -- mcurrentRoute <- getCurrentRoute
-    -- (title, parents) <- breadcrumbs
+    mcurrentRoute <- getCurrentRoute
+    (title, parents) <- breadcrumbs
     pc <-
       widgetToPageContent $ do
         addStylesheet $ StaticR css_bootstrap_css
@@ -165,9 +165,10 @@ instance Yesod App where
 
 instance YesodBreadcrumbs App where
   breadcrumb HomeR = return ("Home", Nothing)
-  breadcrumb (StoryListR _) = return ("Articles", Nothing)
-  breadcrumb (CompanyListR _) = return ("Companies", Nothing)
-  breadcrumb _ = return ("home", Nothing)
+  breadcrumb (StoryListR _) = return ("Articles", Just HomeR)
+  breadcrumb (CompanyListR _) = return ("Companies", Just HomeR )
+  breadcrumb AboutR = return ("About", Just HomeR)
+  breadcrumb _ = return ("Home", Nothing)
 
 instance YesodPersist App where
   type YesodPersistBackend App = SqlBackend

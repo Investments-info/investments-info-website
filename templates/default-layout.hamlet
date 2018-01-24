@@ -19,8 +19,8 @@
                 <a href="@{CompanyListR 1}" >Companies
             <li>
                 <a href="@{StoryListR 1}">Articles
-            <li>
-                <a href="https://investments-info.com:3000" target=_blank >Financial Graphs
+            <!-- <li> -->
+            <!--     <a href="https://investments-info.com:3000" target=_blank >Financial Graphs -->
         $maybe Entity _ u <- maybeUser
             <li class="pull-right" style="list-style-type:none!important">
                 <a href="@{SignoutR}">Logout: #{userEmail u}
@@ -41,6 +41,15 @@
     <div .pull-right .col-md-3>
         <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
         <div id="search-results">
+    <div .col-md-4 style="background:transparent">
+       $if not $ Just HomeR == mcurrentRoute
+          <ul .breadcrumb>
+            $forall bc <- parents
+                <li>
+                    <a href="@{fst bc}">#{snd bc}
+
+            <li .active>#{title}
+
     ^{widget}
    <footer id="footer">
         <section>
