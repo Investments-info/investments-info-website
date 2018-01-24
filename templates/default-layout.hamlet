@@ -41,7 +41,7 @@
     <div .pull-right .col-md-3>
         <input type="text" #article-finder .form-control placeholder="Search articles" value="" />
         <div id="search-results">
-    <div .col-md-4 style="background:transparent">
+    <div .col-md-4 style="background:transparent;margin-left:25px">
        $if not $ Just HomeR == mcurrentRoute
           <ul .breadcrumb>
             $forall bc <- parents

@@ -12,6 +12,9 @@ $newline never
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="google-site-verification" content="PQ0R5j-9wfdtxqgyNYB6jsDQCIpKvB_qA9j5N3V1jtU" />
         ^{pageHead pc}
+
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans+Condensed:300" rel="stylesheet">
+
         <!--[if lte IE 8]><script src="static/js/ie/html5shiv.js"></script><![endif]-->
         <link rel="stylesheet" href="@{StaticR  css_main_css}" />
         <!--[if lte IE 9]><link rel="stylesheet" href="static/css/ie9.css" /><![endif]-->

@@ -22,6 +22,8 @@ module Application
   ) where
 
 import Control.Monad.Logger (liftLoc, runLoggingT)
+import Data.CSV.Conduit
+import Data.Vector ((!))
 import Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize, runSqlPool)
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
@@ -33,10 +35,6 @@ import Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource 
                                              OutputFormat (..), destination, mkRequestLogger,
                                              outputFormat)
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
-
-import Control.Concurrent (forkIO)
-import Data.CSV.Conduit
-import Data.Vector ((!))
 
 import Handler.About
 import Handler.Admin
@@ -180,12 +178,10 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkIO $ YH.fetchHistoricalData
-  _ <- forkIO $ readCompanyDataFromCSV
-  -- _ <- withAsync YH.fetchHistoricalData $ \_ -> do
-  --     return ()
-  -- _ <- withAsync readCompanyDataFromCSV $ \_ -> do
-  --     return ()
+  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+      return ()
+  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+      return ()
   YH.writeYahooLog $ "[SYSTEM] development start!"
   return (wsettings, app)
 
@@ -210,12 +206,10 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  -- _ <- withAsync YH.fetchHistoricalData $ \_ -> do
-  --     return ()
-  -- _ <- withAsync readCompanyDataFromCSV $ \_ -> do
-  --     return ()
-  _ <- forkIO $ YH.fetchHistoricalData
-  _ <- forkIO $ readCompanyDataFromCSV
+  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+      return ()
+  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+      return ()
   YH.writeYahooLog $ "[SYSTEM] production start!"
   runTLS tlsS (warpSettings foundation) app
 
