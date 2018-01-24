@@ -19,12 +19,15 @@
                 <a href="@{CompanyListR 1}" >Companies
             <li>
                 <a href="@{StoryListR 1}">Articles
+          $maybe Entity _ u <- maybeUser
+            <li style="list-style-type:none!important">
+                <a href="@{ProfileR}">Profile
             <!-- <li> -->
             <!--     <a href="https://investments-info.com:3000" target=_blank >Financial Graphs -->
-        $maybe Entity _ u <- maybeUser
+          $maybe Entity _ u <- maybeUser
             <li class="pull-right" style="list-style-type:none!important">
                 <a href="@{SignoutR}">Logout: #{userEmail u}
-        $nothing
+          $nothing
             <li class="dropdown pull-right" style="list-style-type:none!important">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">Login/Signup
                     <b class="caret">

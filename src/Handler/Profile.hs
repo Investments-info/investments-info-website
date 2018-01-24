@@ -68,7 +68,6 @@ renderProfile u widget = do
           <i>
             <b>#{userEmail u}
         <p>
-           <a class="btn btn-danger btn-sm" href="@{SignoutR}">logout
      <div .clearfix>
 |]
 
