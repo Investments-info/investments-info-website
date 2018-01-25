@@ -1,15 +1,72 @@
-{ mkDerivation, base, curl, fetchgit, scalpel, stdenv, text
-, webdriver
+{ mkDerivation, aeson, amazonka, amazonka-core, amazonka-ses, async
+, base, bcrypt, bytestring, case-insensitive, Chart-diagrams
+, classy-prelude, classy-prelude-conduit, classy-prelude-yesod
+, conduit, conduit-extra, containers, cookie, csv, csv-conduit
+, data-default, directory, email-validate, errors, esqueleto
+, exceptions, fast-logger, file-embed, financial-news-scraper
+, foreign-store, generic-deriving, hashable, hjsmin, hspec
+, http-client, http-client-tls, http-conduit, lens, MailchimpSimple
+, microlens, monad-control, monad-logger, mtl, persistent
+, persistent-postgresql, persistent-sqlite, persistent-template
+, pretty-show, process, regex-pcre-builtin, safe, shakespeare
+, split, stdenv, template-haskell, text, time, transformers
+, unordered-containers, utf8-string, uuid, uuid-types, vector, wai
+, wai-extra, wai-logger, warp, warp-tls, wreq, yadata, yaml, yesod
+, yesod-auth, yesod-core, yesod-form, yesod-static, yesod-test
 }:
 mkDerivation {
-  pname = "financial-news-scraper";
-  version = "0.1.0.0";
-  src = fetchgit {
-    url = "https://github.com/v0d1ch/financial-news-scraper.git";
-    sha256 = "0bji3yn4lvpc2qs4q2rghrfy37q7kcfklzgjbaqxq0g1q4wx3pd7";
-    rev = "8c11f4c76b55a143a8bf935fda2f4866f31ab551";
-  };
-  libraryHaskellDepends = [ base curl scalpel text webdriver ];
-  homepage = "https://github.com/v0d1ch/financial-news-scraper#readme";
-  license = stdenv.lib.licenses.bsd3;
+  pname = "investments-info";
+  version = "0.1.0";
+  src = ./.;
+  isLibrary = true;
+  isExecutable = true;
+  libraryHaskellDepends = [
+    aeson amazonka amazonka-core amazonka-ses async base bcrypt
+    bytestring case-insensitive Chart-diagrams classy-prelude
+    classy-prelude-conduit classy-prelude-yesod conduit conduit-extra
+    containers cookie csv csv-conduit data-default directory
+    email-validate errors esqueleto exceptions fast-logger file-embed
+    financial-news-scraper foreign-store generic-deriving hashable
+    hjsmin http-client http-client-tls http-conduit lens
+    MailchimpSimple monad-control monad-logger mtl persistent
+    persistent-postgresql persistent-sqlite persistent-template
+    pretty-show process regex-pcre-builtin safe shakespeare split
+    template-haskell text time transformers unordered-containers
+    utf8-string uuid uuid-types vector wai wai-extra wai-logger warp
+    warp-tls wreq yadata yaml yesod yesod-auth yesod-core yesod-form
+    yesod-static
+  ];
+  executableHaskellDepends = [
+    aeson amazonka amazonka-core amazonka-ses async base bcrypt
+    bytestring case-insensitive Chart-diagrams classy-prelude
+    classy-prelude-conduit classy-prelude-yesod conduit conduit-extra
+    containers cookie csv csv-conduit data-default directory
+    email-validate errors esqueleto exceptions fast-logger file-embed
+    financial-news-scraper foreign-store generic-deriving hashable
+    hjsmin http-client http-client-tls http-conduit lens
+    MailchimpSimple monad-control monad-logger mtl persistent
+    persistent-postgresql persistent-sqlite persistent-template
+    pretty-show process regex-pcre-builtin safe shakespeare split
+    template-haskell text time transformers unordered-containers
+    utf8-string uuid uuid-types vector wai wai-extra wai-logger warp
+    warp-tls wreq yadata yaml yesod yesod-auth yesod-core yesod-form
+    yesod-static
+  ];
+  testHaskellDepends = [
+    aeson amazonka amazonka-core amazonka-ses async base bcrypt
+    bytestring case-insensitive Chart-diagrams classy-prelude
+    classy-prelude-conduit classy-prelude-yesod conduit conduit-extra
+    containers cookie csv csv-conduit data-default directory
+    email-validate errors esqueleto exceptions fast-logger file-embed
+    financial-news-scraper foreign-store generic-deriving hashable
+    hjsmin hspec http-client http-client-tls http-conduit lens
+    MailchimpSimple microlens monad-control monad-logger mtl persistent
+    persistent-postgresql persistent-sqlite persistent-template
+    pretty-show process regex-pcre-builtin safe shakespeare split
+    template-haskell text time transformers unordered-containers
+    utf8-string uuid uuid-types vector wai wai-extra wai-logger warp
+    warp-tls wreq yadata yaml yesod yesod-auth yesod-core yesod-form
+    yesod-static yesod-test
+  ];
+  license = stdenv.lib.licenses.unfree;
 }
