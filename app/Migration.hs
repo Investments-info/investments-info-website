@@ -1,4 +1,4 @@
-module Main where
+module Migration where
 
 import Prelude
 
