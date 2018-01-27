@@ -178,9 +178,9 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+  withAsync YH.fetchHistoricalData $ \_ -> do
       return ()
-  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+  withAsync readCompanyDataFromCSV $ \_ -> do
       return ()
   YH.writeYahooLog $ "[SYSTEM] development start!"
   return (wsettings, app)

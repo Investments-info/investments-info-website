@@ -19,7 +19,7 @@
                 <a href="@{CompanyListR 1}" >Companies
             <li>
                 <a href="@{StoryListR 1}">Articles
-          $maybe Entity _ u <- maybeUser
+          $maybe Entity _ _ <- maybeUser
             <li style="list-style-type:none!important">
                 <a href="@{ProfileR}">Profile
             <!-- <li> -->
