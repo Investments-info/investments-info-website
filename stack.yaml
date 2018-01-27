@@ -34,6 +34,7 @@ extra-deps:
   - generic-deriving-1.11.2
   - persistent-postgresql-2.6.1
   - persistent-sqlite-2.6.2
+  - word24-1.0.7
 
 flags: {}
 

@@ -12,10 +12,11 @@ import qualified Text.HTML.Fscraper as F
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
 import qualified Data.ByteString.Lazy as L
-
+import Helper.Aws
 
 getHomeR :: Handler Html
 getHomeR  = do
+  liftIO $ sesMail ["brutallesale@gmail.com"] "some subject" "<h1>Some content</h1><p>some cornet"
   now <- liftIO getCurrentTime
   topnews <- getTopStory
   fnews <- getFeatureStories

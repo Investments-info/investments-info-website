@@ -1,8 +1,8 @@
--- This file has been generated from package.yaml by hpack version 0.20.0.
+-- This file has been generated from package.yaml by hpack version 0.21.2.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: dc16c52bf7352a0d74e9933b2d9abf02a1497f96b29cf36c5ccabbd197923a4b
+-- hash: 133c46828332c447768b821f73394b6119af06de9e8ff596fbeccbf23fc344c0
 
 name:           investments-info
 version:        0.1.0
@@ -20,6 +20,44 @@ flag library-only
   default: False
 
 library
+  exposed-modules:
+      Application
+      Foundation
+      Handler.About
+      Handler.Admin
+      Handler.Auth
+      Handler.Common
+      Handler.Company
+      Handler.CompanyDetails
+      Handler.CompanyList
+      Handler.Historical
+      Handler.Home
+      Handler.LogViewer
+      Handler.NewsletterManager
+      Handler.NewsletterNewUser
+      Handler.NewsletterView
+      Handler.Profile
+      Handler.SearchArticles
+      Handler.SearchCompanies
+      Handler.Sessions
+      Handler.StoryDetails
+      Handler.StoryList
+      Helper.Aws
+      Helper.Fixtures
+      Helper.FormHelper
+      Helper.Forms
+      Helper.Helper
+      Helper.YahooDB
+      Helper.YahooHelper
+      Import
+      Import.NoFoundation
+      Model
+      Model.BCrypt
+      Model.Instances
+      Settings
+      Settings.StaticFiles
+  other-modules:
+      Paths_investments_info
   hs-source-dirs:
       src
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
@@ -32,7 +70,10 @@ library
     , amazonka-ses >=1.5.0
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
+    , base16-bytestring >=0.1.1.6
     , bcrypt >=0.0.10
+    , blaze-builder >=0.4.0.2
+    , byteable >=0.1.1
     , bytestring >=0.9 && <0.11
     , case-insensitive
     , classy-prelude >=0.10.2
@@ -42,6 +83,7 @@ library
     , conduit-extra
     , containers
     , cookie
+    , cryptohash >=0.11.9
     , csv
     , csv-conduit >=0.6.7
     , data-default
@@ -60,6 +102,7 @@ library
     , http-client >=0.5.6.0
     , http-client-tls >=0.3.4
     , http-conduit >=2.1 && <2.4
+    , http-types >=0.9.1
     , lens
     , monad-control >=0.3 && <1.1
     , monad-logger >=0.3 && <0.4
@@ -101,48 +144,14 @@ library
     cpp-options: -DDEVELOPMENT
   else
     ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O2
-  exposed-modules:
-      Application
-      Foundation
-      Handler.About
-      Handler.Admin
-      Handler.Auth
-      Handler.Common
-      Handler.Company
-      Handler.CompanyDetails
-      Handler.CompanyList
-      Handler.Historical
-      Handler.Home
-      Handler.LogViewer
-      Handler.NewsletterManager
-      Handler.NewsletterNewUser
-      Handler.NewsletterView
-      Handler.Profile
-      Handler.SearchArticles
-      Handler.SearchCompanies
-      Handler.Sessions
-      Handler.StoryDetails
-      Handler.StoryList
-      Helper.Aws
-      Helper.Fixtures
-      Helper.FormHelper
-      Helper.Forms
-      Helper.Helper
-      Helper.YahooDB
-      Helper.YahooHelper
-      Import
-      Import.NoFoundation
-      Model
-      Model.BCrypt
-      Model.Instances
-      Settings
-      Settings.StaticFiles
-  other-modules:
-      Paths_investments_info
   default-language: Haskell2010
 
 executable investments-info
   main-is: main.hs
+  other-modules:
+      DevelMain
+      Migration
+      Paths_investments_info
   hs-source-dirs:
       app
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
@@ -156,7 +165,10 @@ executable investments-info
     , amazonka-ses >=1.5.0
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
-    , bcrypt >=0.0.10 && <0.0.11
+    , base16-bytestring >=0.1.1.6
+    , bcrypt >=0.0.10
+    , blaze-builder >=0.4.0.2
+    , byteable >=0.1.1
     , bytestring >=0.9 && <0.11
     , case-insensitive
     , classy-prelude >=0.10.2
@@ -166,6 +178,7 @@ executable investments-info
     , conduit-extra
     , containers
     , cookie
+    , cryptohash >=0.11.9
     , csv
     , csv-conduit >=0.6.7
     , data-default
@@ -184,6 +197,7 @@ executable investments-info
     , http-client >=0.5.6.0
     , http-client-tls >=0.3.4
     , http-conduit >=2.1 && <2.4
+    , http-types >=0.9.1
     , investments-info
     , lens
     , monad-control >=0.3 && <1.1
@@ -223,15 +237,18 @@ executable investments-info
     , yesod-static >=1.4.0.3 && <1.6
   if flag(library-only)
     buildable: False
-  other-modules:
-      DevelMain
-      Migration
-      Paths_investments_info
   default-language: Haskell2010
 
 test-suite test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
+  other-modules:
+      Handler.CommentSpec
+      Handler.CommonSpec
+      Handler.HomeSpec
+      Handler.ProfileSpec
+      TestImport
+      Paths_investments_info
   hs-source-dirs:
       test
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
@@ -245,7 +262,10 @@ test-suite test
     , amazonka-ses >=1.5.0
     , async >=2.1.1
     , base >=4.8.2.0 && <4.9 || >=4.9.1.0 && <5
-    , bcrypt >=0.0.8 && <0.0.11
+    , base16-bytestring >=0.1.1.6
+    , bcrypt >=0.0.10
+    , blaze-builder >=0.4.0.2
+    , byteable >=0.1.1
     , bytestring >=0.9 && <0.11
     , case-insensitive
     , classy-prelude >=0.10.2
@@ -255,6 +275,7 @@ test-suite test
     , conduit-extra
     , containers
     , cookie
+    , cryptohash >=0.11.9
     , csv
     , csv-conduit >=0.6.7
     , data-default
@@ -274,6 +295,7 @@ test-suite test
     , http-client >=0.5.6.0
     , http-client-tls >=0.3.4
     , http-conduit >=2.1 && <2.4
+    , http-types >=0.9.1
     , investments-info
     , lens
     , microlens
@@ -313,11 +335,4 @@ test-suite test
     , yesod-form >=1.4.0 && <1.5
     , yesod-static >=1.4.0.3 && <1.6
     , yesod-test
-  other-modules:
-      Handler.CommentSpec
-      Handler.CommonSpec
-      Handler.HomeSpec
-      Handler.ProfileSpec
-      TestImport
-      Paths_investments_info
   default-language: Haskell2010
