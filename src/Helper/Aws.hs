@@ -16,6 +16,8 @@ import Data.Text (Text, unpack)
 import Data.Time (getCurrentTime)
 import Data.Time.Clock (UTCTime)
 import Data.Time.Format (defaultTimeLocale, formatTime)
+import Network.HTTP.Client hiding (httpLbs)
+import Network.HTTP.Client.TLS
 import Network.HTTP.Conduit
 import Network.HTTP.Types
 import Prelude
@@ -37,8 +39,8 @@ data SendEmailRequest = SendEmailRequest
     } deriving Show
 
 data SendEmailResponse = SendEmailResponse
-    { requestId :: Text
-    , messageId :: Text
+    { _requestId :: Text
+    , messageId  :: Text
     } deriving Show
 
 instance FromJSON SendEmailResponse where
@@ -57,14 +59,14 @@ mkAwsCreds =
     }
 
 canonicalRequest :: Request -> ByteString -> ByteString
-canonicalRequest req body = C.concat $
+canonicalRequest req bbody = C.concat $
     intersperse "n"
         [ method req
         , path req
         , queryString req
         , canonicalHeaders req
         , signedHeaders req
-        , hexHash body
+        , hexHash bbody
         ]
 
 hexHash :: ByteString -> ByteString
@@ -91,9 +93,9 @@ v4DerivedKey :: ByteString -> -- ^ AWS Secret Access Key
                 ByteString -> -- ^ AWS region
                 ByteString -> -- ^ AWS service
                 ByteString
-v4DerivedKey secretAccessKey date region service = hmacSHA256 kService "aws4_request"
-  where kDate = hmacSHA256 ("AWS4" <> secretAccessKey) date
-        kRegion = hmacSHA256 kDate region
+v4DerivedKey bsecretAccessKey date bregion service = hmacSHA256 kService "aws4_request"
+  where kDate = hmacSHA256 ("AWS4" <> bsecretAccessKey) date
+        kRegion = hmacSHA256 kDate bregion
         kService = hmacSHA256 kRegion service
 
 hmacSHA256 :: ByteString -> ByteString -> ByteString
@@ -104,11 +106,11 @@ stringToSign :: UTCTime    -> -- ^ current time
                 ByteString -> -- ^ The AWS service
                 ByteString -> -- ^ Hashed canonical request
                 ByteString
-stringToSign date region service hashConReq = C.concat
+stringToSign date bregion service hashConReq = C.concat
     [ "AWS4-HMAC-SHA256n"
     , C.pack (formatAmzDate date) , "n"
     , C.pack (format date) , "/"
-    , region , "/"
+    , bregion , "/"
     , service
     , "/aws4_requestn"
     , hashConReq
@@ -126,10 +128,10 @@ createSignature ::  Request         -> -- ^ Http request
                     ByteString      -> -- ^ Secret Access Key
                     ByteString      -> -- ^ AWS region
                     ByteString
-createSignature req body now key region = v4Signature dKey toSign
-  where canReqHash = hexHash $ canonicalRequest req body
-        toSign = stringToSign now region "ses" canReqHash
-        dKey = v4DerivedKey key (C.pack $ format now) region "ses"
+createSignature req bbody now key bregion = v4Signature dKey toSign
+  where canReqHash = hexHash $ canonicalRequest req bbody
+        toSign = stringToSign now bregion "ses" canReqHash
+        dKey = v4DerivedKey key (C.pack $ format now) bregion "ses"
 
 v4Signature :: ByteString -> ByteString -> ByteString
 v4Signature derivedKey payLoad = B16.encode $ hmacSHA256 derivedKey payLoad
@@ -145,8 +147,10 @@ euWest1 = "eu-west-1"
 
 sendEmail :: SendEmailRequest -> IO (Either String SendEmailResponse)
 sendEmail sendReq = do
-    fReq <- parseUrl $ "https://email." ++ C.unpack (region sendReq) ++ ".amazonaws.com"
+    fReq <- parseUrlThrow $ "https://email." ++ C.unpack (region sendReq) ++ ".amazonaws.com"
     now <- getCurrentTime
+    manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
+    setGlobalManager manager
     let req = fReq
                 { requestHeaders =
                     [ ("Accept", "text/json")
@@ -156,8 +160,8 @@ sendEmail sendReq = do
                 , method = "POST"
                 , requestBody = RequestBodyBS reqBody
                 }
-        sig = createSignature req reqBody now (secretAccessKey sendReq) (region sendReq)
-    resp <- withManager (httpLbs (authenticateRequest sendReq now req reqBody))
+        -- sig = createSignature req reqBody now (secretAccessKey sendReq) (region sendReq)
+    resp <- httpLbs (authenticateRequest sendReq now req reqBody) manager
     case responseStatus resp of
         (Status 200 _) -> return $ eitherDecode (responseBody resp)
         (Status code msg) ->
@@ -188,7 +192,7 @@ toAddressQuery tos =
                 ( "Destination.ToAddresses.member." <>
                     C.pack (show index)
                 , address)
-            ) [1..] tos
+            ) ([1..] :: [Int]) tos
 
 authHeader ::   UTCTime     -> -- ^ Current time
                 ByteString  -> -- ^ Secret access key
