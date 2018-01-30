@@ -21,6 +21,7 @@ module Application
   , getDbConnectionString
   ) where
 
+import Control.Concurrent (forkIO)
 import Control.Monad.Logger (liftLoc, runLoggingT)
 import Data.CSV.Conduit
 import Data.Vector ((!))
@@ -178,10 +179,12 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  withAsync YH.fetchHistoricalData $ \_ -> do
-      return ()
-  withAsync readCompanyDataFromCSV $ \_ -> do
-      return ()
+  _ <- forkIO $ mask_ YH.fetchHistoricalData
+  _ <- forkIO $ mask_ readCompanyDataFromCSV
+  -- withAsync YH.fetchHistoricalData $ \_ -> do
+  --     return ()
+  -- withAsync readCompanyDataFromCSV $ \_ -> do
+  --     return ()
   YH.writeYahooLog $ "[SYSTEM] development start!"
   return (wsettings, app)
 
@@ -206,10 +209,12 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
-      return ()
-  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
-      return ()
+  _ <- forkIO $ mask_ YH.fetchHistoricalData
+  _ <- forkIO $ mask_ readCompanyDataFromCSV
+  -- _ <- withAsync YH.fetchHistoricalData $ \_ -> do
+  --     return ()
+  -- _ <- withAsync readCompanyDataFromCSV $ \_ -> do
+  --     return ()
   YH.writeYahooLog $ "[SYSTEM] production start!"
   runTLS tlsS (warpSettings foundation) app
 
