@@ -136,11 +136,11 @@ createSignature req bbody now key bregion = v4Signature dKey toSign
 v4Signature :: ByteString -> ByteString -> ByteString
 v4Signature derivedKey payLoad = B16.encode $ hmacSHA256 derivedKey payLoad
 
-usEast1 :: ByteString
-usEast1 = "us-east-1"
+_usEast1 :: ByteString
+_usEast1 = "us-east-1"
 
-usWest2 :: ByteString
-usWest2 = "us-west-2"
+_usWest2 :: ByteString
+_usWest2 = "us-west-2"
 
 euWest1 :: ByteString
 euWest1 = "eu-west-1"
