@@ -16,7 +16,7 @@ import Helper.Aws
 
 getHomeR :: Handler Html
 getHomeR  = do
-  liftIO $ sesMail ["brutallesale@gmail.com"] "some subject" "<h1>Some content</h1><p>some cornet"
+  -- liftIO $ sesMail ["brutallesale@gmail.com"] "some subject" "<h1>Some content</h1><p>some cornet"
   now <- liftIO getCurrentTime
   topnews <- getTopStory
   fnews <- getFeatureStories
