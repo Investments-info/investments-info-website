@@ -3950,3 +3950,8 @@
 			#bs-example-navbar-collapse-2{
 				box-shadow: 0 16px 10px -8px #4b6daa
 			}
+
+.search-item a {
+	font-weight:bold;
+	font-size:14px;
+}

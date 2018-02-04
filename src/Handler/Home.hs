@@ -136,7 +136,7 @@ getTopStory = do
 
 getFeatureStories :: MonadIO m => m [F.News]
 getFeatureStories = do
-  stories <- liftIO $ F.featureNews "feature" F.reutersUrl
+  stories <- liftIO $ F.featureNews "column1" F.reutersUrl
   case stories of
     Nothing -> return []
     Just a -> return a
@@ -144,7 +144,7 @@ getFeatureStories = do
 
 getSideStories :: MonadIO m => m [F.News]
 getSideStories = do
-  stories <- liftIO $ F.leftColumnNews "column2" F.reutersUrl
+  stories <- liftIO $ F.leftColumnNews "more-headlines" F.reutersUrl
   case stories of
     Nothing -> return []
     Just a -> return a
