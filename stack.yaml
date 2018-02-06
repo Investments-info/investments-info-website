@@ -1,24 +1,24 @@
 resolver: lts-9.4
 
 packages:
-- '.'
-- location:
-    git: https://github.com/v0d1ch/financial-news-scraper.git
-    commit: 8c11f4c76b55a143a8bf935fda2f4866f31ab551
+  - '.'
+# - location:
+#     git: https://github.com/v0d1ch/financial-news-scraper.git
+#     commit: 8c11f4c76b55a143a8bf935fda2f4866f31ab551
 
-  extra-dep: false
+#   extra-dep: false
 
-- location:
-    git: https://github.com/v0d1ch/MailchimpSimple.git
-    commit: ca789a8c2997178ca98f3728bc4b4ffb4fb702cd
+# - location:
+#     git: https://github.com/v0d1ch/MailchimpSimple.git
+#     commit: ca789a8c2997178ca98f3728bc4b4ffb4fb702cd
 
-  extra-dep: false
+#   extra-dep: false
 
-- location:
-    git: https://github.com/qtests/yadata.git
-    commit: a1627715adc55ffae84cd342a8725b25a5726068
+# - location:
+#     git: https://github.com/qtests/yadata.git
+#     commit: a1627715adc55ffae84cd342a8725b25a5726068
 
-  extra-dep: false
+#   extra-dep: false
 
 extra-deps:
   - wreq-0.5.1.0
@@ -35,6 +35,9 @@ extra-deps:
   - persistent-postgresql-2.6.1
   - persistent-sqlite-2.6.2
   - word24-1.0.7
+  - MailchimpSimple
+  - financial-news-scraper
+  - yadata
 
 flags: {}
 
