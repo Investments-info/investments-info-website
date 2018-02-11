@@ -1,9 +1,0 @@
-[submodule "MailchimpSimple"]
-	path = MailchimpSimple
-	url = git://github.com/v0d1ch/MailchimpSimple.git
-[submodule "financial-news-scraper"]
-	path = financial-news-scraper
-	url = git://github.com/v0d1ch/financial-news-scraper.git
-[submodule "yadata"]
-	path = yadata
-	url = git://github.com/qtests/yadata.git
