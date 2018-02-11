@@ -2,9 +2,6 @@ resolver: lts-9.4
 
 packages:
   - '.'
-# - location:
-#     git: https://github.com/v0d1ch/financial-news-scraper.git
-#     commit: 8c11f4c76b55a143a8bf935fda2f4866f31ab551
 
 #   extra-dep: false
 
@@ -36,7 +33,7 @@ extra-deps:
   - persistent-sqlite-2.6.2
   - word24-1.0.7
   - MailchimpSimple
-  - financial-news-scraper
+  - news-fetcher
   - yadata
 
 flags: {}
