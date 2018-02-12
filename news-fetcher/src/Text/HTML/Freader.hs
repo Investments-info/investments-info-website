@@ -1,12 +1,10 @@
-{-# OPTIONS_GHC -Wall -Werror #-}
 {-# LANGUAGE OverloadedStrings #-}
 module Text.HTML.Freader where
 
-import Control.Exception.Safe (Exception, MonadThrow, SomeException (..), throwM)
-import Control.Monad.IO.Class (MonadIO, liftIO)
-import Data.ByteString.Lazy as B
-import Data.Typeable (TypeRep, Typeable, typeRep)
-import Text.XML
+import           Control.Exception.Safe (Exception, SomeException (..))
+import           Data.ByteString.Lazy as B
+import           Data.Typeable (TypeRep, Typeable, typeRep)
+import           Text.XML (Document, def, parseLBS)
 
 data RssException = RssException String TypeRep
     deriving (Typeable)
@@ -21,10 +19,10 @@ instance Show RssException where
 
 instance Exception RssException
 
-parseRss :: (MonadThrow m, Typeable a, MonadIO m) => B.ByteString -> m a
+parseRss :: B.ByteString -> Either RssException Document
 parseRss bs = res
     where
       res =
         case parseLBS def bs of
-          Left (SomeException a) -> return $ throwM $ RssException (show a) (typeRep res)
-          Right d                -> return _
+          Left (SomeException a) -> Left $ RssException (show a) (typeRep res)
+          Right d                -> Right d

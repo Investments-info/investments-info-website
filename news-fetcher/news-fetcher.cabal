@@ -21,13 +21,13 @@ library
                      , webdriver
                      , text
                      , scalpel
-                     , curl
                      , safe-exceptions
                      , bytestring
                      , xml-conduit
 
 
   default-language:    Haskell2010
+  ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O2
 
 source-repository head
   type:     git

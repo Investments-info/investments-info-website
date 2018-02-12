@@ -1,9 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Text.HTML.Fscraper where
+module Text.HTML.Fscraper
+    ( reutersUrl
+    , News (..)
+    , topStory
+    , featureNews
+    , topStoryImageNews
+    , leftColumnNews
+    , sideColumnTextNews
+    , featureStoryImageNews
+    ) where
 
-import Text.HTML.Scalpel
-import Network.Curl
-import Control.Applicative ((<|>))
+import Text.HTML.Scalpel (Scraper, tagSelector, (@:), (//), chroots,
+                         attr, scrapeURL, hasClass, text)
 
 reutersUrl :: String
 reutersUrl = "http://www.reuters.com/finance/markets"
@@ -62,12 +70,3 @@ featureStoryImageNews = do
   link <- attr "href" $ "a"
   imageURL <- attr "org-src" $ "img"
   return $ ImageNews imageURL title link ""
-
-debugger = do
-    html <- scrapeURLWithOpts opts url $ htmls (tagSelector "ul")
-    maybe printError printHtml html
-  where
-    url = "http://www.reuters.com/finance/markets"
-    opts = [ CurlUserAgent "some user agent string" ]
-    printError = putStrLn "Failed"
-    printHtml = mapM_ putStrLn
