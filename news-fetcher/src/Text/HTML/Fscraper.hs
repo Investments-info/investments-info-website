@@ -22,13 +22,13 @@ type NewsImage = String
 type NewsText = String
 
 data News
-  = TextNews { newstitle :: NewsTitle
-             , newslink :: NewsLink
-             , newstext :: NewsText }
-  | ImageNews { newsimage :: NewsImage
-              , newstitle :: NewsTitle
-              , newslink :: NewsLink
-              , newstext :: NewsText }
+  = TextNews { newstitle :: !NewsTitle
+             , newslink :: !NewsLink
+             , newstext :: !NewsText }
+  | ImageNews { newsimage :: !NewsImage
+              , newstitle :: !NewsTitle
+              , newslink :: !NewsLink
+              , newstext :: !NewsText }
   deriving (Show, Eq)
 
 topStory :: String -> String -> IO (Maybe [News])

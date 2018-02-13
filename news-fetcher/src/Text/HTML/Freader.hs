@@ -6,6 +6,7 @@ import           Data.ByteString.Lazy as B
 import           Data.Typeable (TypeRep, Typeable, typeRep)
 import           Text.XML (Document, def, parseLBS)
 
+
 data RssException = RssException String TypeRep
     deriving (Typeable)
 
