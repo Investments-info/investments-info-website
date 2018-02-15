@@ -7,8 +7,8 @@
 
 module Handler.SearchArticles where
 
-import Database.Esqueleto as E
-import Import
+import           Database.Esqueleto as E
+import           Import
 
 postSearchArticlesR :: Handler Import.Value
 postSearchArticlesR = do
@@ -17,7 +17,7 @@ postSearchArticlesR = do
   articles <-
     runDB $
     select $
-    E.from $ \a -> do E.where_ (a ^. StoryTitle `E.like` (E.val searchStr))
+    E.from $ \a -> do E.where_ (a ^. StoryTitle `E.ilike` (E.val searchStr))
                       E.limit 10
                       E.orderBy [desc (a ^. StoryCreated)]
                       return a

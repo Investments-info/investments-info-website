@@ -7,8 +7,8 @@
 
 module Handler.SearchCompanies where
 
-import Database.Esqueleto as E
-import Import
+import           Database.Esqueleto as E
+import           Import
 
 postSearchCompaniesR:: Handler Import.Value
 postSearchCompaniesR = do
@@ -17,7 +17,8 @@ postSearchCompaniesR = do
   companies <-
     runDB $
     select $
-    E.from $ \a -> do E.where_ (a ^. CompanyTitle `E.like` (E.val searchStr))
+    E.from $ \a -> do E.where_ (a ^. CompanyTitle `E.ilike` (E.val searchStr))
                       E.limit 10
                       return a
+  print companies
   return $ object ["result" .= companies]
