@@ -7,7 +7,7 @@ import qualified Data.Text as T
 import           Data.Typeable (TypeRep, Typeable, typeRep)
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
-import           Text.XML (Document, def, parseLBS)
+import           Text.XML (Document, Element, def, documentRoot, parseLBS)
 
 rssLink :: T.Text
 rssLink = "http://feeds.reuters.com/reuters/businessNews"
@@ -33,7 +33,7 @@ parseRss bs = res
           Left (SomeException a) -> Left $ RssException (show a) (typeRep res)
           Right d                -> Right d
 
-getFeed :: T.Text -> IO (Either RssException Document)
+getFeed :: T.Text -> IO (Either RssException Element)
 getFeed rssUrl = do
   manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
   setGlobalManager manager
@@ -42,4 +42,4 @@ getFeed rssUrl = do
     try (httpLbs rssRequest manager) :: IO (Either RssException (Response ByteString))
   case fmap responseBody crumb of
     Left e  -> return $ Left $ RssException (show e) (typeRep (fmap responseBody crumb))
-    Right a -> return $ parseRss a
+    Right a -> return $ fmap documentRoot (parseRss a)
