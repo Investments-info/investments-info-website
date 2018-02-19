@@ -24,6 +24,11 @@ library
                      , text
                      , webdriver
                      , xml-conduit
+                     , http-client
+                     , http-client-tls
+
+
+
 
 
   default-language:    Haskell2010

@@ -1,7 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RecordWildCards     #-}
 
 module Helper.YahooHelper
   ( fetchHistoricalData
@@ -10,30 +9,29 @@ module Helper.YahooHelper
   , YahooException(..)
   ) where
 
-import Control.Exception as E
-import Control.Monad.Except()
-import Control.Lens
-import Control.Monad (mzero)
-import Control.Monad.Except
+import           Control.Exception as E
+import           Control.Lens
+import           Control.Monad (mzero)
+import           Control.Monad.Except ()
+import           Control.Monad.Except
 import qualified Data.ByteString as BB
-import Data.ByteString.Lazy as B
-       (ByteString, drop, take)
+import           Data.ByteString.Lazy as B (ByteString, drop, take)
 import qualified Data.ByteString.Lazy.Char8 as C
-import Data.CSV.Conduit.Conversion as CSVC
-import Data.Int
-import Data.List.Split
-import Data.Text as T hiding (length, lines, map, splitOn)
-import Data.Time
-import Data.Typeable
-import Helper.YahooDB
-import Import hiding (httpLbs, newManager)
-import Network.HTTP.Client
-import Network.HTTP.Client.TLS
+import           Data.CSV.Conduit.Conversion as CSVC
+import           Data.Int
+import           Data.List.Split
+import           Data.Text as T hiding (length, lines, map, splitOn)
+import           Data.Time
+import           Data.Typeable
+import           Helper.YahooDB
+import           Import hiding (httpLbs, newManager)
+import           Network.HTTP.Client
+import           Network.HTTP.Client.TLS
 -- import Network.HTTP.Simple hiding (httpLbs)
-import qualified Network.Wreq as W
-       (responseBody, responseStatus, statusCode)
-import Text.Regex.PCRE
-import System.IO as SIO (appendFile)
+import qualified Network.Wreq as W (responseBody, responseStatus, statusCode)
+import           System.IO as SIO (appendFile)
+import           Text.Regex.PCRE
+
 crumbleLink :: String -> String
 crumbleLink ticker =
   "https://finance.yahoo.com/quote/" ++ ticker ++ "/history?p=" ++ ticker
@@ -65,9 +63,9 @@ data YahooException
   deriving (Typeable)
 
 instance Show YahooException where
-  show YStatusCodeException     = "Yadata :: data fetch exception!"
-  show YCookieCrumbleException  = "Yadata :: cookie crumble exception!"
-  show YWrongTickerException    = "Yadata :: wrong ticker passed in!"
+  show YStatusCodeException    = "Yadata :: data fetch exception!"
+  show YCookieCrumbleException = "Yadata :: cookie crumble exception!"
+  show YWrongTickerException   = "Yadata :: wrong ticker passed in!"
 
 instance Exception YahooException
 
@@ -80,13 +78,13 @@ type YDataAdjClose = Double
 type YDataVolume = Int
 
 data YahooData = YahooData
-  { yahooDataDate :: !YDataDate
-  , yahooDataOpen :: !YDataOpen
-  , yahooDataHigh :: !YDataHigh
-  , yahooDataLow :: !YDataLow
-  , yahooDataClose :: !YDataClose
+  { yahooDataDate     :: !YDataDate
+  , yahooDataOpen     :: !YDataOpen
+  , yahooDataHigh     :: !YDataHigh
+  , yahooDataLow      :: !YDataLow
+  , yahooDataClose    :: !YDataClose
   , yahooDataAdjClose :: !YDataAdjClose
-  , yahooDataVolume :: !YDataVolume
+  , yahooDataVolume   :: !YDataVolume
   } deriving (Show, Eq)
 
 
@@ -236,5 +234,5 @@ fetchHistoricalData = do
     return ()
 
 logForkedAction :: (Show a, Exception e) => Either e a -> IO ()
-logForkedAction (Left x) = print x
+logForkedAction (Left x)  = print x
 logForkedAction (Right x) = print x
