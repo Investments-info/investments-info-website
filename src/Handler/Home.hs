@@ -9,24 +9,24 @@ module Handler.Home where
 
 import Import
 import qualified Text.HTML.Fscraper as F
+import qualified Text.HTML.Freader as R
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
 import qualified Data.ByteString.Lazy as L
-import Helper.Aws
-
-
 
 getHomeR :: Handler Html
 getHomeR  = do
-  -- liftIO $ sesMail ["brutallesale@gmail.com"] "some subject" "<h1>Some content</h1><p>some cornet"
   now <- liftIO getCurrentTime
   topnews <- getTopStory
   fnews <- getFeatureStories
   snews <- getSideStories
+  rssnews <- liftIO $ R.parseXml "http://feeds.reuters.com/reuters/businessNews"
+
   let topstories = mapM convertImageStory topnews now
       fstories = mapM convertImageStory fnews now
       sstories = mapM convertStory snews now
-      allS = topstories <> fstories <> sstories
+      rssstories = mapM convertRssFeed rssnews now
+      allS = topstories <> fstories <> sstories <> rssstories
   firststory <- runDB $ selectFirst [] [Desc StoryCreated]
   case firststory of
     Nothing -> do
@@ -37,7 +37,7 @@ getHomeR  = do
         $(widgetFile "homepage")
     Just fs -> do
       let tdiff = diffUTCTime now (storyCreated $ entityVal fs)
-      if (tdiff > 3600)
+      if (tdiff > 7200)
         then do
           _ <- mapM checkStorySaved allS
           return ()
@@ -169,6 +169,17 @@ convertStory news now =
   , storyTitle = pack $ F.newstitle news
   , storyLink = pack $ F.newslink news
   , storyContent = Just (pack $ F.newstext news)
+  , storyImage = Nothing
+  , storyCreated = now
+  }
+
+convertRssFeed :: R.RssFeed -> UTCTime -> Story
+convertRssFeed feed now =
+  Story
+  { storyHashId = H.makeHash (R.rssTitle feed)
+  , storyTitle = R.rssTitle feed
+  , storyLink = R.rssUrl feed
+  , storyContent = Nothing
   , storyImage = Nothing
   , storyCreated = now
   }

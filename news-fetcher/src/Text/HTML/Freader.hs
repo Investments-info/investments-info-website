@@ -2,7 +2,8 @@
 {-# LANGUAGE RecordWildCards   #-}
 
 module Text.HTML.Freader
-  ( parseDocument
+  ( parseXml
+  , RssFeed (..)
   ) where
 
 import           Control.Exception.Safe (Exception, SomeException (..), try)
@@ -49,11 +50,11 @@ getFeed rssUrl = do
     Right a               -> parseRss a
 
 -- rssLink = "http://feeds.reuters.com/reuters/businessNews"
-parseDocument :: Text -> IO (Maybe [RssFeed])
-parseDocument url = do
+parseXml :: Text -> IO [RssFeed]
+parseXml url = do
   doc <- runExceptT (getFeed url)
   case doc of
-    Left e -> return Nothing
+    Left e -> return [RssFeed { rssTitle = "", rssUrl = "" }]
     Right d -> do
       let cursor = fromDocument d
       let titles =
@@ -69,7 +70,7 @@ parseDocument url = do
             descendant >>=
             content
       let joinData = Prelude.zip titles links
-      return $ Just $ Prelude.map createFeed joinData
+      return $ Prelude.map createFeed joinData
 
 createFeed :: (Text, Text) -> RssFeed
 createFeed l = RssFeed {rssTitle = fst l, rssUrl = snd l}
