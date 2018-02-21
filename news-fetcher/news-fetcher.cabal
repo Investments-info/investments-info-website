@@ -27,7 +27,6 @@ library
                      , http-client
                      , http-client-tls
                      , mtl
-                     , lens
 
 
 

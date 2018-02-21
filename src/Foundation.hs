@@ -19,7 +19,6 @@ import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
 import Handler.Sessions
--- had to implement this due to non existing MonadLogger IO instance
 import Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import Control.Applicative  (pure)
 
@@ -30,6 +29,8 @@ awsAccessKey = "AKIAIULHBINBL7QQ5F7Q"
 awsSecretKey :: ByteString
 awsSecretKey = "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"
 
+
+-- had to implement this due to non existing MonadLogger IO instance
 instance MonadLogger IO where
     monadLoggerLog _ _ _ = pure $ pure ()
 

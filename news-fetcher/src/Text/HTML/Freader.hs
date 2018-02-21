@@ -3,14 +3,12 @@
 
 module Text.HTML.Freader
   ( parseXml
-  , RssFeed (..)
+  , RssFeed(..)
   ) where
 
 import           Control.Exception.Safe (Exception, SomeException (..), try)
-import           Control.Lens (set)
 import           Control.Monad.Except (ExceptT, lift, runExceptT, throwError)
 import           Data.ByteString.Lazy as B hiding (map, unpack)
-import           Data.Monoid ((<>))
 import           Data.Text
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
@@ -54,7 +52,7 @@ parseXml :: Text -> IO [RssFeed]
 parseXml url = do
   doc <- runExceptT (getFeed url)
   case doc of
-    Left e -> return [RssFeed { rssTitle = "", rssUrl = "" }]
+    Left _ -> return [RssFeed {rssTitle = "", rssUrl = ""}]
     Right d -> do
       let cursor = fromDocument d
       let titles =
