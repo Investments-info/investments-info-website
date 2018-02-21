@@ -26,6 +26,10 @@ library
                      , xml-conduit
                      , http-client
                      , http-client-tls
+                     , mtl
+                     , lens
+
+
 
 
 
