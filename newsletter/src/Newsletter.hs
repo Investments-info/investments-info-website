@@ -9,8 +9,8 @@ import           Network.SES (PublicKey (..), Region (USEast1), SESError, SESRes
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
--- aws-access-key:  AKIAIULHBINBL7QQ5F7Q
--- aws-secret-key:  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
+awsAccessKey= "AKIAI6GDZ5ELIC7ABKJA"
+awsSecretKey= "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"
 
 main :: IO ()
 main = sendMail >>= \case
