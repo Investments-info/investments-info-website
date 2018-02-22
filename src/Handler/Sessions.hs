@@ -2,9 +2,9 @@
 
 module Handler.Sessions where
 
-import Control.Monad.Trans.Maybe
-import Data.Time.Clock (addUTCTime)
-import Import.NoFoundation
+import           Control.Monad.Trans.Maybe
+import           Data.Time.Clock (addUTCTime)
+import           Import.NoFoundation
 
 type YesodLog site = (Yesod site)
 

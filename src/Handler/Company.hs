@@ -1,8 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 module Handler.Company where
 
-import Helper.FormHelper as FH
-import Import
+import           Helper.FormHelper as FH
+import           Import
 
 getCompanyR :: Handler Html
 getCompanyR = do

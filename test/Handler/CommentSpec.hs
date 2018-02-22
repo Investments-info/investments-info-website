@@ -2,8 +2,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.CommentSpec (spec) where
 
-import TestImport
-import Data.Aeson
+import           Data.Aeson
+import           TestImport
 
 spec :: Spec
 spec = withApp $ do

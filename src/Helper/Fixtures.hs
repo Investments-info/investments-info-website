@@ -16,7 +16,7 @@
 {-# LANGUAGE RecordWildCards            #-}
 module Helper.Fixtures where
 
-import Import
+import           Import
 
 newtype UserFixtures = UserFixtures
   { allUsersF :: [Entity User]

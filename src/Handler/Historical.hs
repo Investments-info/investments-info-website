@@ -1,6 +1,6 @@
 module Handler.Historical where
 
-import Import
+import           Import
 
 getHistoricalR :: CompanyId -> Handler Value
 getHistoricalR cid = do

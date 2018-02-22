@@ -8,9 +8,9 @@ module Yadata.LibCSV
     , delColumnInCSV
     ) where
 
-import Data.List
-import Data.Time
-import Text.CSV
+import           Data.List
+import           Data.Time
+import           Text.CSV
 
 {-|
    Converts a number in String to Double

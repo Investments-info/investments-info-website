@@ -8,8 +8,8 @@ module Text.HTML.Freader
 
 import           Control.Exception.Safe (Exception, SomeException (..), try)
 import           Control.Monad.Except (ExceptT, lift, runExceptT, throwError)
-import           Data.ByteString.Lazy as B hiding (map, unpack)
-import           Data.Text
+import           Data.ByteString.Lazy (ByteString)
+import           Data.Text (Text, unpack)
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
 import           Text.XML (Document, def, parseLBS)
@@ -28,7 +28,7 @@ data RssException =
 
 instance Exception RssException
 
-parseRss :: B.ByteString -> RssM Document
+parseRss :: ByteString -> RssM Document
 parseRss bs = res
   where
     res =

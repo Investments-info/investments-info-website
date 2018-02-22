@@ -6,22 +6,22 @@ module Yadata.LibYahoo
   , YahooException(..)
   ) where
 
-import Control.Exception as E
-import Control.Lens
-import Control.Monad.Except
+import           Control.Exception as E
+import           Control.Lens
+import           Control.Monad.Except
 import qualified Data.ByteString.Lazy as B (ByteString, drop, pack, take)
 import qualified Data.ByteString.Lazy.Char8 as C
-import Data.Int
-import Data.Maybe (fromMaybe)
-import Data.Text as T
-import Data.Time.Clock
-import Data.Time.Clock.POSIX
-import Data.Typeable
-import Network.HTTP.Client
-import Network.HTTP.Client.TLS
-import Network.HTTP.Simple hiding (httpLbs)
+import           Data.Int
+import           Data.Maybe (fromMaybe)
+import           Data.Text as T
+import           Data.Time.Clock
+import           Data.Time.Clock.POSIX
+import           Data.Typeable
+import           Network.HTTP.Client
+import           Network.HTTP.Client.TLS
+import           Network.HTTP.Simple hiding (httpLbs)
 import qualified Network.Wreq as W (responseBody, responseStatus, statusCode)
-import Text.Regex.PCRE
+import           Text.Regex.PCRE
 
 crumbleLink :: String -> String
 crumbleLink ticker =
@@ -74,8 +74,8 @@ getYahooData ticker = do
       let body = crb ^. W.responseBody
       qEndDate <- getPOSIXTime
       dataRequest <-
-        parseRequest (yahooDataLink ticker 
-                      (C.unpack $ getCrumble body) 
+        parseRequest (yahooDataLink ticker
+                      (C.unpack $ getCrumble body)
                       (round qEndDate :: Integer)
                      )
       now2 <- getCurrentTime

@@ -27,45 +27,46 @@ module MailchimpSimple
  , sendEmail
  -- ** Batch Requests
  -- $batches
- , batchSubscribe 
+ , batchSubscribe
  -- ** Search Members
  -- $search
  , searchMembersInList ) where
 
+import           Control.Monad.IO.Class (liftIO)
 import           Network.HTTP.Conduit
-import           Network.HTTP.Types ( methodPost, methodGet, methodDelete, Method(..), Status(..), http11, ResponseHeaders, hContentType )
-import           Control.Monad.IO.Class ( liftIO )
+import           Network.HTTP.Types (Method (..), ResponseHeaders, Status (..), hContentType,
+                                     http11, methodDelete, methodGet, methodPost)
 
+import           Control.Exception (Exception, IOException, catch)
+import           Control.Lens.Getter ((^.))
 import           Safe
-import           Control.Exception ( catch, IOException, Exception )
-import           Control.Lens.Getter ( (^.))
-import           System.Exit ( exitWith, ExitCode(..) )
-import           System.FilePath.Posix ( pathSeparator )
+import           System.Exit (ExitCode (..), exitWith)
+import           System.FilePath.Posix (pathSeparator)
 
-import qualified Data.ByteString.Lazy as BL
-import           Data.ByteString.Lazy ( ByteString )
-import qualified Data.ByteString.Char8 as B8
 import qualified Data.ByteString.Base16 as B16
+import qualified Data.ByteString.Char8 as B8
+import           Data.ByteString.Lazy (ByteString)
+import qualified Data.ByteString.Lazy as BL
 import qualified Data.Text as T
 
-import           Data.Aeson ( encode, decode, eitherDecode, Value, Array, ToJSON )
-import           Data.List ( transpose, intercalate )
-import           Data.Aeson.Lens ( key )
+import           Data.Aeson (Array, ToJSON, Value, decode, eitherDecode, encode)
+import           Data.Aeson.Lens (key)
+import           Data.List (intercalate, transpose)
 import           Data.Time.Calendar
 
-import           Data.Maybe ( Maybe(..), fromJust )
-import qualified Data.Vector as V
 import           Crypto.Hash.MD5 as MD5
+import           Data.Maybe (Maybe (..), fromJust)
+import qualified Data.Vector as V
 
 
 -- App modules
-import           Utils.Types
 import           Utils.Logger
+import           Utils.Types
 
 -- | Takes an @apiKey@ of a Mailchimp account, and gives all the mailing-lists in the account.
--- 
+--
 -- This function lists the mailing lists in a particular account
-listMailingLists 
+listMailingLists
     :: String
         -> IO [MailListResponse]
 listMailingLists apiKey = do
@@ -85,13 +86,13 @@ listMailingLists apiKey = do
 
 -- | Takes an @apiKey@ of the Mailchimp account, and a @listName@.
 -- Retrieves all the members in the given list.
--- 
--- Request URL specifies which data to be returned from the response. They are, 
+--
+-- Request URL specifies which data to be returned from the response. They are,
 -- @email_address, unique_email_id, email_type, list_id@, and @status@ for each
 -- member in the reponse.
--- 
+--
 -- This function lists subscribers in a mailing list
-listSubscribers 
+listSubscribers
     :: String
         -> String
         -> IO [ListSubscribersResponse]
@@ -100,7 +101,7 @@ listSubscribers apiKey listName = do
   listid   <- getListID apiKey listName
   let lUrl = url ++ "/lists/" ++ listid ++ "/members?fields=members.email_address,members.unique_email_id,members.email_type,members.list_id,members.status"
   response <- processEmptyRequest lUrl apiKey methodGet
-  let resBody = decode (responseBody response) :: Maybe Value 
+  let resBody = decode (responseBody response) :: Maybe Value
   let vArray = resBody ^. key "members" :: Maybe Array
   let listSubResponse = getValues vArray
   return listSubResponse
@@ -115,12 +116,12 @@ listSubscribers apiKey listName = do
 
 -- | Takes an @apiKey@ of the Mailchimp account, and a @listName@.
 -- Retrieves the activity summary in the given list.
--- 
--- Request URL specifies which data to be returned from the response. They are, 
+--
+-- Request URL specifies which data to be returned from the response. They are,
 -- @day, emails_sent, unique_opens, recipient_clicks@, and @subs@ for the given list.
--- 
+--
 -- This function gives the summary of activities in a mailing list
-listListActivity 
+listListActivity
     :: String
         -> String
         -> IO [ListActivityResponse]
@@ -145,7 +146,7 @@ listListActivity apiKey listName = do
 
 -- | Taking @apiKey,@ @listName,@ @emailAddress,@ @emailType,@ and @memberStatus@ as input
 -- parameters in the given order, this function creates and add the member to the given list.
--- 
+--
 -- This function adds a new member to a given list
 addSubscriber
     :: String
@@ -171,15 +172,15 @@ addSubscriber apiKey listName email emailType status = do
                                  SubscriptionResponse email euid status (Just listName)
         filterListID list = filter ((==(Just listName)) . l_name) list
 
--- | Giving an @apiKey,@ @emailAddress,@ and @listName@ which the member belongs to, this 
+-- | Giving an @apiKey,@ @emailAddress,@ and @listName@ which the member belongs to, this
 -- function unsubscribe the member from the list. This function does not deletes the particular
 -- user profile from the mailing-list.
--- 
+--
 -- This function removes a member from a given list
 removeSubscriber
-    :: String 
-        -> String 
-        -> String 
+    :: String
+        -> String
+        -> String
         -> IO Bool
 removeSubscriber apiKey email listName = do
   let url = endPointUrl apiKey
@@ -239,10 +240,10 @@ getCampaigns apiKey = do
                                 (cid, name)
 
 -- | Usage of this function to create a new Campaign and save is as follows;
--- 
+--
 -- @createCampaign@ @apiKey listName replyTo fromName cType title subject -> campaignID@
--- 
--- This function creates a new campaign and save it 
+--
+-- This function creates a new campaign and save it
 createCampaign
     :: String
         -> String
@@ -275,12 +276,12 @@ createCampaign apiKey
 
 -- | Input parameters for this function are @apiKey@ and the @campaignID@ of the
 -- particular Campaign to be sent.
--- 
+--
 -- This function sends an email campaign
 sendEmail
  :: String
     -> String
-    -> IO (Either String SendMailResponse)  
+    -> IO (Either String SendMailResponse)
 sendEmail apiKey cid = do
   let url  = endPointUrl apiKey
   let sUrl = url ++ "/campaigns/" ++ cid ++ "/actions/send"
@@ -290,12 +291,12 @@ sendEmail apiKey cid = do
 
 -- | Efficiently processes a batch subscription requests for a given list
 -- of @emailAddress@ and @subscriptionStatus@ combinations.
--- 
+--
 -- This function can be re-implemented to perform other batch requests by changing the
 -- @body@ and @path@ properties of @Operation@ data structure.
--- 
+--
 -- This function adds a batch of subscribers
-batchSubscribe 
+batchSubscribe
     :: String
         -> String
         -> [(String, String)]
@@ -320,8 +321,8 @@ batchSubscribe apiKey listName subs = do
                                               , o_body = B8.unpack $ BL.toStrict $ encode sub }
 
 -- | Search a specific list for members that match specified query terms.
--- 
--- Invoking this function with an empty @listName@ , we can get all 
+--
+-- Invoking this function with an empty @listName@ , we can get all
 -- the memebers that match the specified query terms in the account.
 searchMembersInList
     :: String
@@ -343,7 +344,7 @@ searchMembersInList apiKey listName query = do
             let parsedmembers = getValues members
             let searchresults = SearchResultResponse (Just parsedmembers) totalcount
             return searchresults
-    else error $ "Error in response: " ++ show response  
+    else error $ "Error in response: " ++ show response
   where getValues ls
           | ls /= (Just V.empty) = constructMembers (fmap V.head ls) : getValues (fmap V.tail ls)
           | otherwise = []
@@ -352,7 +353,7 @@ searchMembersInList apiKey listName query = do
                                     sEuid      = elem ^. key "unique_email_id" :: Maybe String
                                     sListID    = elem ^. key "list_id" :: Maybe String
                                     sEmailType = elem ^. key "email_type" :: Maybe String
-                                    sStatus    = elem ^. key "status" :: Maybe String       
+                                    sStatus    = elem ^. key "status" :: Maybe String
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
@@ -405,7 +406,7 @@ endPointUrl apiKey
   | otherwise    = "https://" ++ (last splitted) ++ ".api.mailchimp.com/3.0"
   where splitted = splitString '-' apiKey
 
--- | Utility function to split strings  
+-- | Utility function to split strings
 splitString :: Char -> String -> [String]
 splitString d [] = []
 splitString d s  = x : splitString d (drop 1 y) where (x,y) = span (/= d) s

@@ -1,8 +1,8 @@
 module Migration where
 
-import Prelude
+import           Prelude
 
-import Model
+import           Model
 
 main :: IO ()
 main = do

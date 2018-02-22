@@ -3,9 +3,9 @@ module Model.BCrypt
   , module Import
   ) where
 
-import Prelude
+import           Prelude
 
-import Crypto.BCrypt as Import hiding (hashPassword)
+import           Crypto.BCrypt as Import hiding (hashPassword)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import           Database.Persist.Sql

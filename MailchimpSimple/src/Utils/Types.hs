@@ -1,4 +1,5 @@
-{-# LANGUAGE DeriveGeneric, OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- |
 -- Module:      Utils.Types
@@ -8,8 +9,8 @@
 --
 -- JSON data structures to work with Mailchimp JSON API Version 3.0
 
-module Utils.Types 
-( 
+module Utils.Types
+(
  -- ** JSON Requests
  -- $requests
   Subscription(..)
@@ -19,23 +20,23 @@ module Utils.Types
  , Params(..)
  , Campaign(..)
  , Settings(..)
- , Receipient(..) 
+ , Receipient(..)
  -- ** JSON Responses
  -- $responses
  , ListSubscribersResponse(..)
  , ListActivityResponse(..)
- , MailListResponse(..) 
+ , MailListResponse(..)
  , TemplateResponse(..)
  , SendMailResponse(..)
- , SubscriptionResponse(..) 
+ , SubscriptionResponse(..)
  , BatchSubscriptionResponse(..)
  , SearchResultResponse(..) ) where
 
+import           Control.Monad (mzero)
 import           Data.Aeson
-import           GHC.Generics hiding ( head )
-import           Control.Monad ( mzero )
-import           Data.Maybe ( catMaybes )
+import           Data.Maybe (catMaybes)
 import           Data.Time.Calendar
+import           GHC.Generics hiding (head)
 
 -- | JSON structure containing a single subscription.
 --
@@ -43,9 +44,9 @@ import           Data.Time.Calendar
 -- the member's profile.
 -- @email_type@ accepts the two values; html / text
 data Subscription =
-  Subscription { s_email :: String
+  Subscription { s_email      :: String
                , s_email_type :: String
-               , s_status :: String
+               , s_status     :: String
                } deriving (Show, Generic)
 
 instance FromJSON Subscription where
@@ -72,12 +73,12 @@ instance FromJSON EmailId where
     leid  <- fmap (fmap ListEmailId) $ v   .:? "leid"
     case catMaybes [email, euid, leid] of
       (x:_) -> return x
-      _ -> mzero
+      _     -> mzero
   parseJSON _ = mzero
 
 -- | JSON structure for Batch oprations.
 data Batch = Batch { operations :: [Operation] } deriving (Show)
-                   
+
 instance ToJSON Batch where
   toJSON (Batch operations) = object [ "operations" .= operations ]
 
@@ -87,10 +88,10 @@ instance ToJSON Batch where
 -- For POST requests, @o_body@ should be given the String representation of the
 -- encoded JSON data.
 data Operation = Operation { o_method :: String
-                           , o_path :: String
+                           , o_path   :: String
                            , o_params :: Params
-                           , o_body :: String } deriving (Show)
-                             
+                           , o_body   :: String } deriving (Show)
+
 instance ToJSON Operation where
   toJSON (Operation method path params body) = object [ "method" .= method
                                                       , "path"   .= path
@@ -104,29 +105,29 @@ instance ToJSON Params where
   toJSON (Params params) = object [ "params" .= params ]
 
 -- | JSON structure to construct a Campaign
--- 
+--
 -- This takes a @campaign_type@, which accepts these possible values;
--- @regular, plaintext, absplit, rss,@ and @variate@. 
+-- @regular, plaintext, absplit, rss,@ and @variate@.
 data Campaign =
-  Campaign { c_type :: String
-           , c_settings :: Settings
+  Campaign { c_type        :: String
+           , c_settings    :: Settings
            , c_receipients :: Receipient
            } deriving (Show)
 
 instance ToJSON Campaign where
   toJSON (Campaign c_type c_settings c_receipients) = object [ "type"       .= c_type
-                                                             , "settings"   .= c_settings 
+                                                             , "settings"   .= c_settings
                                                              , "recipients" .= c_receipients ]
 
 -- | Settings for the Campaign creation
 --
 -- This includes the basic properties of the Campaign, like
 -- subject_line, title, from_name, and reply_to address.
-data Settings = 
-  Settings { s_subject :: String
-           , s_title :: String
+data Settings =
+  Settings { s_subject   :: String
+           , s_title     :: String
            , s_from_name :: String
-           , s_reply_to :: String
+           , s_reply_to  :: String
            } deriving (Show)
 
 instance ToJSON Settings where
@@ -144,11 +145,11 @@ instance ToJSON Receipient where
 -- | Data structure to hold the HTTP response of the request
 -- to list the subscribers in a mailing-list.
 data ListSubscribersResponse =
-  ListSubscribersResponse { ls_name :: Maybe String
-                          , ls_euid :: Maybe String
-                          , ls_listName :: Maybe String
+  ListSubscribersResponse { ls_name      :: Maybe String
+                          , ls_euid      :: Maybe String
+                          , ls_listName  :: Maybe String
                           , ls_emailType :: Maybe String
-                          , ls_status :: Maybe String
+                          , ls_status    :: Maybe String
                           } deriving (Show, Generic)
 
 instance FromJSON ListSubscribersResponse where
@@ -156,11 +157,11 @@ instance FromJSON ListSubscribersResponse where
 -- | Data structure to hold the HTTP response of the request
 -- to list the activity in a mailing-list.
 data ListActivityResponse =
-  ListActivityResponse { ac_date :: Maybe Day
-                       , ac_sent :: Maybe Int
-                       , ac_opens :: Maybe Int
+  ListActivityResponse { ac_date   :: Maybe Day
+                       , ac_sent   :: Maybe Int
+                       , ac_opens  :: Maybe Int
                        , ac_clicks :: Maybe Int
-                       , ac_subs :: Maybe Int
+                       , ac_subs   :: Maybe Int
                        } deriving (Show, Generic)
 
 instance FromJSON ListActivityResponse where
@@ -169,9 +170,9 @@ instance FromJSON ListActivityResponse where
 -- list the mailing-lists in the account.
 data MailListResponse =
   MailListResponse { l_name :: Maybe String
-                   , l_id :: Maybe String 
+                   , l_id   :: Maybe String
                    } deriving (Show, Generic)
-                   
+
 instance FromJSON MailListResponse where
 
 -- | Data structure to hold the Template information.
@@ -179,38 +180,38 @@ instance FromJSON MailListResponse where
 -- This contains the template name and ID.
 data TemplateResponse =
   TemplateResponse { t_name :: Maybe String
-                   , t_id :: Maybe Int 
+                   , t_id   :: Maybe Int
                    } deriving (Show, Generic)
 
 instance FromJSON TemplateResponse where
 
-data SendMailResponse = 
+data SendMailResponse =
   SendMailResponse { complete :: Bool } deriving (Show, Generic)
 
 instance FromJSON SendMailResponse where
 
 -- | Data structure to hold the HTTP response of the
--- subscription request. 
+-- subscription request.
 data SubscriptionResponse =
-  SubscriptionResponse { email :: Maybe String
-                       , euid :: Maybe String
+  SubscriptionResponse { email  :: Maybe String
+                       , euid   :: Maybe String
                        , status :: Maybe String
-                       , lname :: Maybe String 
+                       , lname  :: Maybe String
                        } deriving (Show, Generic)
-                       
+
 instance FromJSON SubscriptionResponse where
 
--- | Data structure to hold the response of the Batch request 
+-- | Data structure to hold the response of the Batch request
 data BatchSubscriptionResponse =
-  BatchSubscriptionResponse { b_id :: Maybe String
+  BatchSubscriptionResponse { b_id     :: Maybe String
                             , b_status :: Maybe String
                             } deriving (Show, Generic)
-                            
+
 instance FromJSON BatchSubscriptionResponse where
 
 -- | Data structure to hold the response from search members request
 data SearchResultResponse =
-  SearchResultResponse { members :: Maybe [ListSubscribersResponse]
+  SearchResultResponse { members     :: Maybe [ListSubscribersResponse]
                        , total_items :: Maybe Int
                        } deriving (Show, Generic)
 

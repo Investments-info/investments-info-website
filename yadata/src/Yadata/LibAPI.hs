@@ -11,32 +11,32 @@ module Yadata.LibAPI
     createGraphForNewsletter
 ) where
 
-import Yadata.LibCSV
-import Yadata.LibTS
-import Yadata.LibYahoo
+import           Yadata.LibCSV
+import           Yadata.LibTS
+import           Yadata.LibYahoo
 
 -- import CSV related functions
 import qualified Data.ByteString.Lazy.Char8 as C
 import qualified Data.ByteString.Lazy.UTF8 as DBLU
-import Text.CSV
+import           Text.CSV
 
 -- import other
-import Control.Arrow (first)
-import Data.Either
-import Data.Maybe
-import Data.Time
+import           Control.Arrow (first)
+import           Data.Either
+import           Data.Maybe
+import           Data.Time
 
 -- import graphics
-import Graphics.Rendering.Chart.Backend.Cairo
-import Graphics.Rendering.Chart.Backend.Diagrams hiding (toFile)
-import Graphics.Rendering.Chart.Easy
+import           Graphics.Rendering.Chart.Backend.Cairo
+import           Graphics.Rendering.Chart.Backend.Diagrams hiding (toFile)
+import           Graphics.Rendering.Chart.Easy
 
 -- import system process
-import Control.Exception as E
-import System.IO (FilePath)
-import System.Process
+import           Control.Exception as E
+import           System.IO (FilePath)
+import           System.Process
 
-import Control.Monad
+import           Control.Monad
 
 -- #############################################################################
 

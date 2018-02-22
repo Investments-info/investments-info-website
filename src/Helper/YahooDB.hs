@@ -16,7 +16,7 @@
 module Helper.YahooDB where
 
 import qualified Database.Esqueleto as E
-import Import
+import           Import
 
 insertIfNotSaved :: Historical -> IO (Key Historical)
 insertIfNotSaved hrec = do

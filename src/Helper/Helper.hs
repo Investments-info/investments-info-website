@@ -10,10 +10,10 @@
 
 module Helper.Helper where
 
-import Database.Esqueleto as E
-import Database.Esqueleto.Internal.Language
-import Database.Persist.Sql (SqlBackend, rawSql, unSingle)
-import Import
+import           Database.Esqueleto as E
+import           Database.Esqueleto.Internal.Language
+import           Database.Persist.Sql (SqlBackend, rawSql, unSingle)
+import           Import
 
 truncateTables :: MonadIO m => ReaderT SqlBackend m [Text]
 truncateTables = do

@@ -1,6 +1,6 @@
 module Helper.Forms where
 
-import Import.NoFoundation
+import           Import.NoFoundation
 
 named :: Text -> FieldSettings master -> FieldSettings master
 named t f =
