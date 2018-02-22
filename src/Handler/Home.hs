@@ -12,36 +12,11 @@ import qualified Text.HTML.Fscraper as F
 import qualified Text.HTML.Freader as R
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
-import qualified Data.ByteString.Lazy as L
+-- import qualified Data.ByteString.Lazy as L
 
 getHomeR :: Handler Html
 getHomeR  = do
-  now <- liftIO getCurrentTime
-  topnews <- getTopStory
-  fnews <- getFeatureStories
-  snews <- getSideStories
-  rssnews <- liftIO $ R.parseXml "http://feeds.reuters.com/reuters/businessNews"
-
-  let topstories = mapM convertImageStory topnews now
-      fstories = mapM convertImageStory fnews now
-      sstories = mapM convertStory snews now
-      rssstories = mapM convertRssFeed rssnews now
-      allS = topstories <> fstories <> sstories <> rssstories
-  firststory <- runDB $ selectFirst [] [Desc StoryCreated]
-  case firststory of
-    Nothing -> do
-      _ <- mapM checkStorySaved allS
-      allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
-      defaultLayout $ do
-        setTitle "Finance portal"
-        $(widgetFile "homepage")
-    Just fs -> do
-      let tdiff = diffUTCTime now (storyCreated $ entityVal fs)
-      if (tdiff > 7200)
-        then do
-          _ <- mapM checkStorySaved allS
-          return ()
-        else return ()
+      _ <- insertStoriesReuters
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
       defaultLayout $ do
         setTitle "Investments info"
@@ -112,11 +87,33 @@ $(document).ready(function(){
  });
 |]
 
-httpExceptionHandler ::   HttpExceptionContent -> IO (Either String L.ByteString)
-httpExceptionHandler (StatusCodeException _ _) = do
-          return $ Left "oops"
-httpExceptionHandler _ = do
-          return $ Left "oops some error"
+insertStoriesReuters :: Handler ()
+insertStoriesReuters = do
+  print "[INSERT STORIES]"
+  now <- liftIO getCurrentTime
+  topnews <- getTopStory
+  fnews <- getFeatureStories
+  snews <- getSideStories
+  rssnews <- liftIO $ R.parseXml "http://feeds.reuters.com/reuters/businessNews"
+  let topstories = mapM convertImageStory topnews now
+      fstories = mapM convertImageStory fnews now
+      sstories = mapM convertStory snews now
+      rssstories = mapM convertRssFeed rssnews now
+      allS = topstories <> fstories <> sstories <> rssstories
+  firststory <- runDB $ selectFirst [] [Desc StoryCreated]
+  case firststory of
+    Nothing -> do
+      _ <- mapM checkStorySaved allS
+      return ()
+    Just fs -> do
+      let tdiff = diffUTCTime now (storyCreated $ entityVal fs)
+      if (tdiff > 7200)
+        then do
+          _ <- mapM checkStorySaved allS
+          return ()
+        else return ()
+      return ()
+
 
 checkStorySaved :: Story -> HandlerT App IO (Maybe (Entity Story))
 checkStorySaved story = do
