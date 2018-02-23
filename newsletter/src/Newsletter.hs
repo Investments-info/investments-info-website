@@ -3,35 +3,44 @@
 
 module Newsletter where
 
-import           Control.Exception.Safe (Exception)
+import           Control.Exception.Safe (Exception, displayException)
+import           Control.Monad.Error (ErrorT, runErrorT)
 import           Control.Monad.Except (ExceptT, lift, throwError)
-import           Data.Text (Text, pack)
-import           Network.SES (PublicKey (..), Region (USEast1), SESError, SESResult (..),
+import           Data.ByteString (ByteString)
+import           Data.Text (Text, pack, unpack)
+import           Network.SES (PublicKey (..), Region (USEast1), SESError (..), SESResult (..),
                               SecretKey (..), sendEmailBlaze)
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
-awsAccessKey :: Text
+awsAccessKey :: ByteString
 awsAccessKey = "AKIAI6GDZ5ELIC7ABKJA"
 
-awsSecretKey :: Text
+awsSecretKey :: ByteString
 awsSecretKey = "wsuBXNMeGs2Ty7qNNMhxgeFXqDs1Nwxb8NnzLzXL"
 
 data SesException = SesException Text deriving Show
 
 instance Exception SesException
 
-main :: ExceptT Text IO ()
+printSesError :: SESError -> Text
+printSesError  er =
+    case er of
+       SESConnectionError e -> pack e
+       SESError _ _ e       -> pack e
+
+
+main :: IO Text
 main =
-  lift $ sendMail >>= \case
-    Error e -> throwError $ SesException $ pack (show e)
-    Success -> return ()
+  sendMail >>= \case
+    Error e -> return $ printSesError e
+    Success -> return ""
 
 sendMail :: IO SESResult
 sendMail = sendEmailBlaze publicKey secretKey region from to subject html
   where
-    publicKey = PublicKey "AKIAI6GDZ5ELIC7ABKJA"
-    secretKey = SecretKey "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"
+    publicKey = PublicKey awsAccessKey
+    secretKey = SecretKey awsSecretKey
     region = USEast1
     from = "contact@investments-info.com"
     to = ["contact@investments-info.com"]

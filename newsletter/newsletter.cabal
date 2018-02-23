@@ -20,11 +20,12 @@ library
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.10 && <4.11
-                     , ses-html
                      , blaze-html
-                     , text
+                     , bytestring
                      , mtl
                      , safe-exceptions
+                     , ses-html
+                     , text
 
 
 
