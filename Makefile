@@ -5,7 +5,7 @@ build-watch:
 	stack build --fast --file-watch --extra-include-dirs=/usr/local/opt/openssl/include
 
 copy-bins:
-	stack build --copy-bins --local-bin-path bin --extra-include-dirs=/usr/local/opt/openssl/include
+	stack build --fast -j4 --copy-bins --local-bin-path bin --extra-include-dirs=/usr/local/opt/openssl/include
 
 echo-warn:
 	echo "Testing in progress"
@@ -29,7 +29,7 @@ ghci-object:
 copy-remote:
 	scp -i  ~/Documents/investments-info/finance-info.pem ~/code/investments-info/bin/investments-info  ubuntu@ec2-34-192-129-154.compute-1.amazonaws.com:/home/ubuntu
 
-deploy-bin: build copy-bins
+deploy-bin: copy-bins
 	sudo ./deploy.sh
 
 ssh-aws:
