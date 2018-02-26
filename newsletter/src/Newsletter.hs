@@ -1,7 +1,9 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Newsletter where
+module Newsletter
+  ( sesEmail
+  ) where
 
 import           Control.Exception.Safe (Exception, displayException)
 import           Control.Monad.Except (ExceptT, lift, throwError)
@@ -25,14 +27,15 @@ data SesException =
 
 instance Exception SesException
 
-main :: [L.ByteString] -> IO (Either Text Text)
-main to =
-    sendMail to >>= \case
-      Error e -> return $ Left $ pack (show e)
-      Success -> return $ Right (pack "success")
+sesEmail :: [L.ByteString] -> IO (Either Text Text)
+sesEmail to =
+  sendMail to >>= \case
+    Error e -> return $ Left $ pack (show e)
+    Success -> return $ Right (pack "success")
 
 sendMail :: [L.ByteString] -> IO SESResult
-sendMail emailList = sendEmailBlaze publicKey secretKey region from to subject html
+sendMail emailList =
+  sendEmailBlaze publicKey secretKey region from to subject html
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
