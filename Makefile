@@ -1,11 +1,11 @@
 build:
-	stack build --fast -j4
+	stack build --fast -j4 --extra-include-dirs=/usr/local/opt/openssl/include
 
 build-watch:
-	stack build --fast --file-watch
+	stack build --fast --file-watch --extra-include-dirs=/usr/local/opt/openssl/include
 
 copy-bins:
-	stack build --copy-bins --local-bin-path bin
+	stack build --copy-bins --local-bin-path bin --extra-include-dirs=/usr/local/opt/openssl/include
 
 echo-warn:
 	echo "Testing in progress"
