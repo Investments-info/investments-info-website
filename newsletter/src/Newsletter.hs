@@ -3,6 +3,7 @@
 
 module Newsletter
   ( sesEmail
+  , News (..)
   ) where
 
 import           Data.ByteString (ByteString)
