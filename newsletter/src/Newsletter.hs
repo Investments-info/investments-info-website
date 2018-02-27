@@ -19,15 +19,19 @@ awsAccessKey = "AKIAI6GDZ5ELIC7ABKJA"
 awsSecretKey :: ByteString
 awsSecretKey = "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"
 
+data News = News
+    { _nTitle :: Text
+    , _nLink  :: Text
+    } deriving (Show)
 
-sesEmail :: [L.ByteString] -> IO (Either Text Text)
-sesEmail to =
-  sendMail to >>= \case
+sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
+sesEmail to n =
+  sendMail to n >>= \case
     Error e -> return $ Left $ pack (show e)
     Success -> return $ Right (pack "success")
 
-sendMail :: [L.ByteString] -> IO SESResult
-sendMail emailList =
+sendMail :: [L.ByteString] -> [News] -> IO SESResult
+sendMail emailList n =
   sendEmailBlaze publicKey secretKey region from to subject html
   where
     publicKey = PublicKey awsAccessKey
