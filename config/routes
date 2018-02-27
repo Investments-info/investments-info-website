@@ -19,6 +19,7 @@
 /!company/#CompanyId           CompanyDetailsR         GET
 /logview                       LogViewerR              GET
 /newsletter                    NewsletterManagerR      GET POST
-/newsletter/view               NewsletterViewR         GET
+/newsletter/send               NewsletterSendR         GET
+/newsletter/sendtest           NewsletterSendtR     GET
 /newsletter/newuser            NewsletterNewUserR      GET
 /profile                       ProfileR                GET POST

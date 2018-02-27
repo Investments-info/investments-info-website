@@ -16,7 +16,7 @@ module Model
   ) where
 
 import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
-import ClassyPrelude.Yesod hiding ((==.), hash, on)
+import ClassyPrelude.Yesod hiding ((==.), hash, on, groupBy)
 import Data.Maybe (listToMaybe)
 import Database.Esqueleto
 import qualified Database.Persist as P
@@ -203,6 +203,16 @@ getAllCompanyHistoricalDataById cid =
   orderBy [desc (c ^. HistoricalRecordDate)]
   limit 1000
   return c
+
+getLatestUniqueStories :: DB [Entity Story]
+getLatestUniqueStories = do
+  stories <- select $
+    from $ \story -> do
+    groupBy (story ^. StoryId, story ^. StoryHashId)
+    orderBy [desc (story ^. StoryCreated)]
+    limit 10
+    return story
+  return stories
 
 
 --------------------------------------------------------

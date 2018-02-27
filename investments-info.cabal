@@ -24,7 +24,7 @@ library
       src
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
   build-depends:
-                      Chart-diagrams
+                        Chart-diagrams
                 , MailchimpSimple >=0.2.0.0
                 , aeson >=0.6 && <1.3
                 , amazonka >=1.5.0
@@ -35,6 +35,7 @@ library
                 , base16-bytestring >=0.1.1.6
                 , bcrypt >=0.0.10
                 , blaze-builder >=0.4.0.2
+                , blaze-html
                 , byteable >=0.1.1
                 , bytestring >=0.9 && <0.11
                 , case-insensitive
@@ -124,6 +125,8 @@ library
       Handler.NewsletterManager
       Handler.NewsletterNewUser
       Handler.NewsletterView
+      Handler.NewsletterSend
+      Handler.NewsletterSendt
       Handler.Profile
       Handler.SearchArticles
       Handler.SearchCompanies
@@ -155,7 +158,7 @@ executable investments-info
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
   ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-                      Chart-diagrams
+                        Chart-diagrams
                 , MailchimpSimple >=0.2.0.0
                 , aeson >=0.6 && <1.3
                 , amazonka >=1.5.0
@@ -166,6 +169,7 @@ executable investments-info
                 , base16-bytestring >=0.1.1.6
                 , bcrypt >=0.0.10
                 , blaze-builder >=0.4.0.2
+                , blaze-html
                 , byteable >=0.1.1
                 , bytestring >=0.9 && <0.11
                 , case-insensitive
@@ -251,7 +255,7 @@ test-suite test
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
   ghc-options: -Wall
   build-depends:
-                      Chart-diagrams
+                        Chart-diagrams
                 , MailchimpSimple >=0.2.0.0
                 , aeson >=0.6 && <1.3
                 , amazonka >=1.5.0
@@ -262,6 +266,7 @@ test-suite test
                 , base16-bytestring >=0.1.1.6
                 , bcrypt >=0.0.10
                 , blaze-builder >=0.4.0.2
+                , blaze-html
                 , byteable >=0.1.1
                 , bytestring >=0.9 && <0.11
                 , case-insensitive

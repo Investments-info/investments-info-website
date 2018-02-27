@@ -3,7 +3,7 @@
 
 module II.Newsletter
   ( sesEmail
-  , News (..)
+  , News(..)
   ) where
 
 import           Data.ByteString (ByteString)
@@ -41,11 +41,22 @@ sendMail emailList n =
     from = "contact@investments-info.com"
     subject = "Investments Info Newsletter"
     to = emailList
-    links =  linesToHtml $ map (\x -> H.a H.! A.href (H.textValue (_nLink x)) $ (H.toHtml (_nTitle x)) ) n
+    links =
+      linesToHtml $
+      map
+        (\x ->
+           H.html $ do
+             H.a H.! A.href (H.textValue (_nLink x)) $ (H.toHtml (_nTitle x))
+             H.br)
+        n
     html =
       H.html $ do
         H.body $ do
-           links
+          H.h3 "Investments Info Newsletter"
+          H.br
+          links
+          H.br
+          H.img H.! A.src "http://localhost:3000/static/newsletter-graph.jpg"
 
 -- | Render the lines as HTML lines.
 linesToHtml :: [H.Html] -> H.Html
@@ -53,6 +64,9 @@ linesToHtml = htmlIntercalate H.br
 
 -- | Intercalate the given things.
 htmlIntercalate :: H.Html -> [H.Html] -> H.Html
-htmlIntercalate _ [x]      = x
-htmlIntercalate sep (x:xs) = do x; sep; htmlIntercalate sep xs
-htmlIntercalate _ []       = mempty
+htmlIntercalate _ [x] = x
+htmlIntercalate sep (x:xs) = do
+  x
+  sep
+  htmlIntercalate sep xs
+htmlIntercalate _ [] = mempty

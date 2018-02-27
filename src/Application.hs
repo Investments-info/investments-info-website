@@ -49,7 +49,8 @@ import           Handler.Home
 import           Handler.LogViewer
 import           Handler.NewsletterManager
 import           Handler.NewsletterNewUser
-import           Handler.NewsletterView
+import           Handler.NewsletterSend
+import           Handler.NewsletterSendt
 import           Handler.Profile
 import           Handler.SearchArticles
 import           Handler.SearchCompanies

@@ -1,12 +1,13 @@
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+{-# LANGUAGE OverloadedStrings      #-}
 
 module Handler.NewsletterView where
 
 import Import
-import II.Newsletter
 import qualified Text.HTML.Fscraper as F
 import Text.Hamlet (hamletFile)
 import Yadata.LibAPI as YL
+
 
 getNewsletterViewR :: Handler Html
 getNewsletterViewR = do
@@ -59,23 +60,3 @@ newsletterLayout widget = do
   pc <- widgetToPageContent $ do $(widgetFile "newsletter-layout")
   withUrlRenderer
     $(hamletFile "templates/layout/newsletter-layout-wrapper.hamlet")
-
-sendNewsletter :: IO ()
-sendNewsletter = do
-  now <- liftIO getCurrentTime
-  allStories <- liftIO $ runDBA $ selectList [] [Desc StoryCreated, LimitTo 10]
-  let n = map convertToNews allStories
-  liftIO $
-    YL.createGraphForNewsletter
-      ["IBM", "MSFT", "AAPL", "KO"]
-      "static/newsletter-graph.jpg"
-  emailingResult <- sesEmail ["contact@investments-info.com"] n
-  case emailingResult of
-     Left e -> print e
-     Right _ -> print "[Emails are on the way]"
-
-convertToNews :: Entity Story -> News
-convertToNews sl = News t l
-  where
-    t = storyTitle $ entityVal sl
-    l = storyLink $ entityVal sl
