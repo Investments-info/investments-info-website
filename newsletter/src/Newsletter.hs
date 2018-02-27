@@ -5,13 +5,11 @@ module Newsletter
   ( sesEmail
   ) where
 
-import           Control.Exception.Safe (Exception, displayException)
-import           Control.Monad.Except (ExceptT, lift, throwError)
 import           Data.ByteString (ByteString)
 import qualified Data.ByteString.Lazy as L
-import           Data.Text (Text, pack, unpack)
-import           Network.SES (PublicKey (..), Region (USEast1), SESError (..), SESResult (..),
-                              SecretKey (..), sendEmailBlaze)
+import           Data.Text (Text, pack)
+import           Network.SES (PublicKey (..), Region (USEast1), SESResult (..), SecretKey (..),
+                              sendEmailBlaze)
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
 
@@ -21,11 +19,6 @@ awsAccessKey = "AKIAI6GDZ5ELIC7ABKJA"
 awsSecretKey :: ByteString
 awsSecretKey = "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"
 
-data SesException =
-  SesException Text
-  deriving (Show)
-
-instance Exception SesException
 
 sesEmail :: [L.ByteString] -> IO (Either Text Text)
 sesEmail to =
