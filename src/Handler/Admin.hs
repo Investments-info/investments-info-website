@@ -7,8 +7,7 @@ getAdminR = do
   _ <- requireAdmin
   baseLayout "Admin" Nothing [whamlet|
 <section id="intro" class="main">
-<div .row #content>
-  <div .medium-8 .columns>
+  <div .col-md-8>
     <h3>Welcome to the Admin page
     <ul>
       <li><a href="@{CompanyR}">Create new company

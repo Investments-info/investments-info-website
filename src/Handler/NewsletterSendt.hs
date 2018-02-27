@@ -11,15 +11,15 @@ reutersUrl = "https://www.reuters.com/"
 
 getNewsletterSendtR :: Handler ()
 getNewsletterSendtR = do
-  redirectIfLoggedIn HomeR
+  _ <- requireAdmin
   em <- liftIO sendNewsletter
   case em of
     Left e -> do
       setMessage $ H.text e
       redirect NewsletterManagerR
     Right _ -> do
-      setMessage "Emails are on the way!"
-      redirect NewsletterManagerR
+      setMessage "Test Email is on the way!"
+      redirect AdminR
 
 sendNewsletter :: IO (Either Text ())
 sendNewsletter = do
@@ -51,5 +51,7 @@ redirectIfLoggedIn
 redirectIfLoggedIn r = do
   maybeUser <- getUser
   case maybeUser of
-    Nothing  -> return ()
+    Nothing  -> do
+        setMessage "You are not authorized to do this!"
+        return ()
     (Just _) -> redirect r

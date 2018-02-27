@@ -11,7 +11,7 @@ reutersUrl = "https://www.reuters.com/"
 
 getNewsletterSendR :: Handler ()
 getNewsletterSendR = do
-  redirectIfLoggedIn HomeR
+  _ <- requireAdmin
   em <- liftIO sendNewsletter
   case em of
     Left e -> do
@@ -19,7 +19,7 @@ getNewsletterSendR = do
       redirect NewsletterManagerR
     Right _ -> do
       setMessage "Emails are on the way!"
-      redirect NewsletterManagerR
+      redirect AdminR
 
 sendNewsletter :: IO (Either Text ())
 sendNewsletter = do
