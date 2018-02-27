@@ -41,13 +41,11 @@ sendMail emailList n =
     from = "contact@investments-info.com"
     subject = "Investments Info Newsletter"
     to = emailList
-    links = map (\x -> H.a H.! A.href (H.textValue (_nLink x))) n
-    hfours = linesToHtml $ map (\x -> H.h4 (H.toHtml (_nTitle x))) n
+    links =  linesToHtml $ map (\x -> H.a H.! A.href (H.textValue (_nLink x)) $ (H.toHtml (_nTitle x)) ) n
     html =
       H.html $ do
         H.body $ do
-           hfours
-                              -- $ H.h4 (H.toHtml (_nTitle x))
+           links
 
 -- | Render the lines as HTML lines.
 linesToHtml :: [H.Html] -> H.Html

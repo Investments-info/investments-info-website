@@ -60,7 +60,7 @@ newsletterLayout widget = do
   withUrlRenderer
     $(hamletFile "templates/layout/newsletter-layout-wrapper.hamlet")
 
-sendNewsletter :: IO (Either Text Text)
+sendNewsletter :: IO ()
 sendNewsletter = do
   now <- liftIO getCurrentTime
   allStories <- liftIO $ runDBA $ selectList [] [Desc StoryCreated, LimitTo 10]
@@ -69,7 +69,10 @@ sendNewsletter = do
     YL.createGraphForNewsletter
       ["IBM", "MSFT", "AAPL", "KO"]
       "static/newsletter-graph.jpg"
-  sesEmail ["brutallesale@gmail.com"] n
+  emailingResult <- sesEmail ["contact@investments-info.com"] n
+  case emailingResult of
+     Left e -> print e
+     Right _ -> print "[Emails are on the way]"
 
 convertToNews :: Entity Story -> News
 convertToNews sl = News t l

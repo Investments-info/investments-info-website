@@ -12,11 +12,12 @@ import qualified Text.HTML.Fscraper as F
 import qualified Text.HTML.Freader as R
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
--- import qualified Data.ByteString.Lazy as L
+import Handler.NewsletterView as NV
 
 getHomeR :: Handler Html
 getHomeR  = do
       _ <- insertStoriesReuters
+      _ <- liftIO $ NV.sendNewsletter
       allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
       defaultLayout $ do
         setTitle "Investments info"
