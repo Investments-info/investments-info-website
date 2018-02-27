@@ -1,7 +1,7 @@
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Newsletter
+module II.Newsletter
   ( sesEmail
   , News (..)
   ) where
@@ -21,9 +21,9 @@ awsSecretKey :: ByteString
 awsSecretKey = "wsuBXNMeGs2Ty7qNNMhxgeFXqDs1Nwxb8NnzLzXL"
 
 data News = News
-    { _nTitle :: Text
-    , _nLink  :: Text
-    } deriving (Show)
+  { _nTitle :: Text
+  , _nLink  :: Text
+  } deriving (Show)
 
 sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
 sesEmail to n =
@@ -39,10 +39,22 @@ sendMail emailList n =
     secretKey = SecretKey awsSecretKey
     region = USEast1
     from = "contact@investments-info.com"
-    subject = "Test Subject"
+    subject = "Investments Info Newsletter"
     to = emailList
+    links = map (\x -> H.a H.! A.href (H.textValue (_nLink x))) n
+    hfours = linesToHtml $ map (\x -> H.h4 (H.toHtml (_nTitle x))) n
     html =
       H.html $ do
         H.body $ do
-          H.img H.! A.src "http://haskell-lang.org/static/img/logo.png"
-          H.h1 "Html email! Hooray"
+           hfours
+                              -- $ H.h4 (H.toHtml (_nTitle x))
+
+-- | Render the lines as HTML lines.
+linesToHtml :: [H.Html] -> H.Html
+linesToHtml = htmlIntercalate H.br
+
+-- | Intercalate the given things.
+htmlIntercalate :: H.Html -> [H.Html] -> H.Html
+htmlIntercalate _ [x]      = x
+htmlIntercalate sep (x:xs) = do x; sep; htmlIntercalate sep xs
+htmlIntercalate _ []       = mempty

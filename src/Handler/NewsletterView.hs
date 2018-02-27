@@ -1,7 +1,9 @@
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+
 module Handler.NewsletterView where
 
 import Import
+import II.Newsletter
 import qualified Text.HTML.Fscraper as F
 import Text.Hamlet (hamletFile)
 import Yadata.LibAPI as YL
@@ -10,11 +12,15 @@ getNewsletterViewR :: Handler Html
 getNewsletterViewR = do
   now <- liftIO getCurrentTime
   allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 10]
-  liftIO $ YL.createGraphForNewsletter ["IBM", "MSFT", "AAPL", "KO"] "static/newsletter-graph.jpg"
+  liftIO $
+    YL.createGraphForNewsletter
+      ["IBM", "MSFT", "AAPL", "KO"]
+      "static/newsletter-graph.jpg"
   let issue = "1" :: Text
   newsletterLayout $ do
-      setTitle "Investments info"
-      toWidget [whamlet|
+    setTitle "Investments info"
+    toWidget
+      [whamlet|
     <table border="0" cellpadding="0" cellspacing="0" .body>
       <tr>
         <td>&nbsp;
@@ -49,7 +55,24 @@ getNewsletterViewR = do
 
 newsletterLayout :: Widget -> Handler Html
 newsletterLayout widget = do
-    master <- getYesod
-    pc <- widgetToPageContent $ do
-      $(widgetFile "newsletter-layout")
-    withUrlRenderer $(hamletFile "templates/layout/newsletter-layout-wrapper.hamlet")
+  master <- getYesod
+  pc <- widgetToPageContent $ do $(widgetFile "newsletter-layout")
+  withUrlRenderer
+    $(hamletFile "templates/layout/newsletter-layout-wrapper.hamlet")
+
+sendNewsletter :: IO (Either Text Text)
+sendNewsletter = do
+  now <- liftIO getCurrentTime
+  allStories <- liftIO $ runDBA $ selectList [] [Desc StoryCreated, LimitTo 10]
+  let n = map convertToNews allStories
+  liftIO $
+    YL.createGraphForNewsletter
+      ["IBM", "MSFT", "AAPL", "KO"]
+      "static/newsletter-graph.jpg"
+  sesEmail ["brutallesale@gmail.com"] n
+
+convertToNews :: Entity Story -> News
+convertToNews sl = News t l
+  where
+    t = storyTitle $ entityVal sl
+    l = storyLink $ entityVal sl

@@ -27,7 +27,6 @@ import           Helper.YahooDB
 import           Import hiding (httpLbs, newManager)
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
--- import Network.HTTP.Simple hiding (httpLbs)
 import qualified Network.Wreq as W (responseBody, responseStatus, statusCode)
 import           System.IO as SIO (appendFile)
 import           Text.Regex.PCRE

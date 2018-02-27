@@ -2,12 +2,11 @@
 
 module Model.Instances where
 
-import           ClassyPrelude.Yesod
-
 import           Data.ByteString.Char8 as B8
 import           Data.UUID (UUID)
 import qualified Data.UUID as UUID
 import           Database.Persist.Sql
+import           Prelude (Either (..), Maybe (..), ($), (.))
 
 instance PersistField UUID where
   toPersistValue u = PersistDbSpecific . B8.pack . UUID.toString $ u
