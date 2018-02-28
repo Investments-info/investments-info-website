@@ -4,17 +4,16 @@
 module II.Newsletter
   ( sesEmail
   , verifyEmail
+  , listVerifiedEmails
   , News(..)
   ) where
 
 import Control.Exception (SomeException, try)
 import Crypto.Hash (Digest, SHA256, hmac, hmacGetDigest)
 import Data.ByteString (ByteString)
-import Data.ByteString (ByteString)
 import Data.ByteString.Base64 (encode)
 import Data.ByteString.Char8 (concat, pack, unpack)
 import qualified Data.ByteString.Char8 as C8
-import qualified Data.ByteString.Lazy as L
 import qualified Data.ByteString.Lazy as L
 import Data.Byteable (toBytes)
 import Data.Monoid ((<>))
@@ -95,11 +94,12 @@ htmlIntercalate sep (x:xs) = do
 htmlIntercalate _ [] = mempty
 
 verifyEmail :: Text -> IO ByteString
-verifyEmail email = makeRequest publicKey secretKey region (encodeUtf8 (fromStrict email))
+verifyEmail email = makeRequest publicKey secretKey region action (L.toStrict (encodeUtf8 (fromStrict email)))
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
     region = USEast1
+    action = "VerifyEmailIdentity"
 
 makeSig
   :: ByteString -- ^ Payload
@@ -108,13 +108,24 @@ makeSig
 makeSig payload key =
   encode $ toBytes (hmacGetDigest $ hmac key payload :: Digest SHA256)
 
+listVerifiedEmails :: IO ByteString
+listVerifiedEmails = makeRequest publicKey secretKey region action (L.toStrict (encodeUtf8 (fromStrict email)))
+  where
+    publicKey = PublicKey awsAccessKey
+    secretKey = SecretKey awsSecretKey
+    region = USEast1
+    action = "ListVerifiedEmailAddresses"
+    email = ""
+
+
 makeRequest
-  :: PublicKey -- ^ AWS Public Key
-  -> SecretKey -- ^ AWS Secret Key
-  -> Region -- ^ The Region to send the Request
-  -> L.ByteString -- ^ The Email to verify
+  :: PublicKey     -- ^ AWS Public Key
+  -> SecretKey     -- ^ AWS Secret Key
+  -> Region        -- ^ The Region to send the Request
+  -> ByteString  -- ^ The Email to verify
+  -> ByteString    -- ^ Api Action
   -> IO ByteString
-makeRequest (PublicKey publicKey) (SecretKey secretKey) region verify =
+makeRequest (PublicKey publicKey) (SecretKey secretKey) region action verify =
   withOpenSSL $ do
     now <- getCurrentTime
     let date = C8.pack $ format now
@@ -128,8 +139,8 @@ makeRequest (PublicKey publicKey) (SecretKey secretKey) region verify =
             , sig
             ]
         queryString =
-          ("Action", "VerifyEmailIdentity") :
-          ("EmailAddress", L.toStrict verify) : []
+          ("Action", action ) :
+          ("EmailAddress", verify) : []
     req <-
       buildRequest $ do
         http POST "/"
@@ -151,8 +162,8 @@ makeRequest (PublicKey publicKey) (SecretKey secretKey) region verify =
           try (sendRequest con req $ encodedFormBody queryString) :: ConnectionError ()
         case result of
           Left s -> connectionError s
-          Right _ -> do
+          Right a -> do
             closeConnection con
-            return "Success"
+            return . C8.pack . show $ a
   where
     connectionError = return . C8.pack . show
