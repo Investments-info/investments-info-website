@@ -1,1 +1,4 @@
 resolver: lts-10.6
+
+extra-deps:
+ - blaze-0.0.2

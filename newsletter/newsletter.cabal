@@ -27,6 +27,15 @@ library
                      , safe-exceptions
                      , ses-html
                      , text
+                     , base64-bytestring
+                     , blaze-html
+                     , bytestring
+                     , byteable
+                     , cryptohash
+                     , http-streams
+                     , HsOpenSSL
+                     , tagsoup
+                     , time >= 1.6.0.1
 
 
 
