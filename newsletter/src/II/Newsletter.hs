@@ -1,4 +1,5 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE GADTs             #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module II.Newsletter
@@ -8,31 +9,33 @@ module II.Newsletter
   , News(..)
   ) where
 
-import Control.Exception (SomeException, try)
-import Crypto.Hash (Digest, SHA256, hmac, hmacGetDigest)
-import Data.ByteString (ByteString)
-import Data.ByteString.Base64 (encode)
-import Data.ByteString.Char8 (concat, pack, unpack)
+import           Control.Exception (SomeException, try)
+import           Crypto.Hash (Digest, SHA256, hmac, hmacGetDigest)
+import           Data.Byteable (toBytes)
+import           Data.ByteString (ByteString)
+import           Data.ByteString.Base64 (encode)
+import           Data.ByteString.Char8 (concat, pack, unpack)
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as L
-import Data.Byteable (toBytes)
-import Data.Monoid ((<>))
-import Data.Text (Text, pack)
-import Data.Text.Lazy.Encoding (encodeUtf8)
+import           Data.Monoid ((<>))
+import           Data.Text (Text, pack)
 import qualified Data.Text as T
-import Data.Text.Lazy (fromStrict)
-import Data.Time.Clock (getCurrentTime)
-import Data.Time.Format (defaultTimeLocale, formatTime)
-import Network.Http.Client
-       (Connection, Method(POST), baselineContextSSL, buildRequest,
-        closeConnection, encodedFormBody, http, openConnectionSSL,
-        sendRequest, setContentType, setHeader)
-import Network.SES
-       (PublicKey(..), Region(USEast1), SESErrorType(..), SESResult(..),
-        SecretKey(..), sendEmailBlaze)
-import OpenSSL (withOpenSSL)
+import           Data.Text.Lazy (fromStrict)
+import           Data.Text.Lazy.Encoding (encodeUtf8)
+import           Data.Time.Clock (getCurrentTime)
+import           Data.Time.Format (defaultTimeLocale, formatTime)
+import           Network.Http.Client (Connection, Method (POST), baselineContextSSL, buildRequest,
+                                      closeConnection, encodedFormBody, http, openConnectionSSL,
+                                      sendRequest, setContentType, setHeader)
+import           Network.SES (PublicKey (..), Region (USEast1), SESErrorType (..), SESResult (..),
+                              SecretKey (..), sendEmailBlaze)
+import           OpenSSL (withOpenSSL)
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
+
+data AwsActions a where
+        ListAwsIdentities :: AwsActions a
+        VerifyAwsIdentity :: ByteString -> AwsActions a
 
 awsAccessKey :: ByteString
 awsAccessKey = "AKIAI6GDZ5ELIC7ABKJA"
@@ -44,7 +47,7 @@ type ConnectionError a = IO (Either SomeException a)
 
 data News = News
   { _nTitle :: Text
-  , _nLink :: Text
+  , _nLink  :: Text
   } deriving (Show)
 
 sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
@@ -94,12 +97,30 @@ htmlIntercalate sep (x:xs) = do
 htmlIntercalate _ [] = mempty
 
 verifyEmail :: Text -> IO ByteString
-verifyEmail email = makeRequest publicKey secretKey region action (L.toStrict (encodeUtf8 (fromStrict email)))
+verifyEmail email = makeRequest publicKey secretKey region query
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
     region = USEast1
     action = "VerifyEmailIdentity"
+    query =
+      generateQueryString $
+      VerifyAwsIdentity (L.toStrict (encodeUtf8 (fromStrict email)))
+
+listVerifiedEmails :: IO ByteString
+listVerifiedEmails = makeRequest publicKey secretKey region query
+  where
+    publicKey = PublicKey awsAccessKey
+    secretKey = SecretKey awsSecretKey
+    region = USEast1
+    action = "ListIdentities"
+    query = generateQueryString ListAwsIdentities
+
+generateQueryString :: AwsActions a -> [(ByteString, ByteString)]
+generateQueryString (VerifyAwsIdentity a) =
+  ("Action", "VerifyEmailIdentity") : ("EmailAddress", a) : []
+generateQueryString ListAwsIdentities =
+  ("Action", "ListIdentities") : ("IdentityType", "EmailAddress") : []
 
 makeSig
   :: ByteString -- ^ Payload
@@ -108,24 +129,13 @@ makeSig
 makeSig payload key =
   encode $ toBytes (hmacGetDigest $ hmac key payload :: Digest SHA256)
 
-listVerifiedEmails :: IO ByteString
-listVerifiedEmails = makeRequest publicKey secretKey region action (L.toStrict (encodeUtf8 (fromStrict email)))
-  where
-    publicKey = PublicKey awsAccessKey
-    secretKey = SecretKey awsSecretKey
-    region = USEast1
-    action = "ListVerifiedEmailAddresses"
-    email = ""
-
-
 makeRequest
-  :: PublicKey     -- ^ AWS Public Key
-  -> SecretKey     -- ^ AWS Secret Key
-  -> Region        -- ^ The Region to send the Request
-  -> ByteString  -- ^ The Email to verify
-  -> ByteString    -- ^ Api Action
+  :: PublicKey -- ^ AWS Public Key
+  -> SecretKey -- ^ AWS Secret Key
+  -> Region -- ^ The Region to send the Request
+  -> [(ByteString, ByteString)] -- ^ Api query
   -> IO ByteString
-makeRequest (PublicKey publicKey) (SecretKey secretKey) region action verify =
+makeRequest (PublicKey publicKey) (SecretKey secretKey) region query =
   withOpenSSL $ do
     now <- getCurrentTime
     let date = C8.pack $ format now
@@ -138,9 +148,7 @@ makeRequest (PublicKey publicKey) (SecretKey secretKey) region action verify =
             , ", Algorithm=HmacSHA256, Signature="
             , sig
             ]
-        queryString =
-          ("Action", action ) :
-          ("EmailAddress", verify) : []
+        queryString = query
     req <-
       buildRequest $ do
         http POST "/"
@@ -165,5 +173,5 @@ makeRequest (PublicKey publicKey) (SecretKey secretKey) region action verify =
           Right a -> do
             closeConnection con
             return . C8.pack . show $ a
-  where
-    connectionError = return . C8.pack . show
+     where
+       connectionError = return . C8.pack . show
