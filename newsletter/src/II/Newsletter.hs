@@ -24,9 +24,9 @@ import           Data.Text.Lazy (fromStrict)
 import           Data.Text.Lazy.Encoding (encodeUtf8)
 import           Data.Time.Clock (getCurrentTime)
 import           Data.Time.Format (defaultTimeLocale, formatTime)
-import           Network.Http.Client (Connection, Method (POST), baselineContextSSL, buildRequest,
-                                      closeConnection, encodedFormBody, http, openConnectionSSL,
-                                      sendRequest, setContentType, setHeader)
+import           Network.Http.Client (Connection, Method (GET, POST), baselineContextSSL,
+                                      buildRequest, closeConnection, encodedFormBody, http,
+                                      openConnectionSSL, sendRequest, setContentType, setHeader)
 import           Network.SES (PublicKey (..), Region (USEast1), SESErrorType (..), SESResult (..),
                               SecretKey (..), sendEmailBlaze)
 import           OpenSSL (withOpenSSL)
@@ -97,23 +97,25 @@ htmlIntercalate sep (x:xs) = do
 htmlIntercalate _ [] = mempty
 
 verifyEmail :: Text -> IO ByteString
-verifyEmail email = makeRequest publicKey secretKey region query
+verifyEmail email = makeRequest publicKey secretKey region requestMethod query
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
     region = USEast1
     action = "VerifyEmailIdentity"
+    requestMethod = POST
     query =
       generateQueryString $
       VerifyAwsIdentity (L.toStrict (encodeUtf8 (fromStrict email)))
 
 listVerifiedEmails :: IO ByteString
-listVerifiedEmails = makeRequest publicKey secretKey region query
+listVerifiedEmails = makeRequest publicKey secretKey region requestMethod query
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
     region = USEast1
     action = "ListIdentities"
+    requestMethod = GET
     query = generateQueryString ListAwsIdentities
 
 generateQueryString :: AwsActions a -> [(ByteString, ByteString)]
@@ -133,9 +135,10 @@ makeRequest
   :: PublicKey -- ^ AWS Public Key
   -> SecretKey -- ^ AWS Secret Key
   -> Region -- ^ The Region to send the Request
+  -> Method -- ^ Request type POST || GET
   -> [(ByteString, ByteString)] -- ^ Api query
   -> IO ByteString
-makeRequest (PublicKey publicKey) (SecretKey secretKey) region query =
+makeRequest (PublicKey publicKey) (SecretKey secretKey) region requestMethod query =
   withOpenSSL $ do
     now <- getCurrentTime
     let date = C8.pack $ format now
@@ -151,7 +154,7 @@ makeRequest (PublicKey publicKey) (SecretKey secretKey) region query =
         queryString = query
     req <-
       buildRequest $ do
-        http POST "/"
+        http requestMethod "/"
         setContentType "application/x-www-form-urlencoded"
         setHeader "X-Amzn-Authorization" auth
         setHeader "Date" date
