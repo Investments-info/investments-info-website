@@ -7,6 +7,7 @@
 {-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TypeOperators              #-}
+
 module Server where
 
 import           Prelude ()
@@ -33,10 +34,25 @@ import           System.Directory
 import qualified Text.Blaze.Html
 import           Text.Blaze.Html.Renderer.Utf8
 
-type CompanyAPI = "company" :> Get '[JSON] [Company]
+type CompanySchema = "company" :> Get '[ JSON] [Company]
 
 data Company = Company
   { name :: String
   } deriving (Eq, Show, Generic)
 
 instance ToJSON Company
+
+companies :: [Company]
+companies = [Company "Apple", Company "IBM"]
+
+server :: Server CompanySchema
+server = return companies
+
+companyAPI :: Proxy CompanySchema
+companyAPI = Proxy
+
+app :: Application
+app = serve companyAPI server
+
+main :: IO ()
+main = run 8081 app
