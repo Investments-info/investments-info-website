@@ -40,7 +40,6 @@ import           Control.Monad ((>=>))
 import           Data.IORef
 import           Foreign.Store
 import           GHC.Word
-import           Helper.YahooHelper as YH
 import           Network.Wai.Handler.Warp
 
 -- | Start or restart the server.

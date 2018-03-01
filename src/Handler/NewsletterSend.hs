@@ -25,9 +25,6 @@ sendNewsletter :: IO (Either Text ())
 sendNewsletter = do
   allStories <- liftIO $ runDBA $ getLatestUniqueStories
   let n = map convertToNews allStories
-  verifiedEmails <- liftIO $ listVerifiedEmails
-  _ <- print "verifiedEmails"
-  _ <- print verifiedEmails
   liftIO $
     YL.createGraphForNewsletter
       ["IBM", "MSFT", "AAPL", "KO"]
