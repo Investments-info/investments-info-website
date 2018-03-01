@@ -50,6 +50,7 @@ data News = News
   , _nLink  :: Text
   } deriving (Show)
 
+
 sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
 sesEmail to n =
   sendMail to n >>= \case
@@ -115,7 +116,7 @@ listVerifiedEmails = makeRequest publicKey secretKey region requestMethod query
     secretKey = SecretKey awsSecretKey
     region = USEast1
     action = "ListIdentities"
-    requestMethod = GET
+    requestMethod = POST
     query = generateQueryString ListAwsIdentities
 
 generateQueryString :: AwsActions a -> [(ByteString, ByteString)]
