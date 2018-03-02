@@ -10,32 +10,28 @@
 
 module Server where
 
-import           Prelude ()
-import           Prelude.Compat
-
 import           Control.Monad.Except
-import           Control.Monad.Reader
 import           Data.Aeson.Compat
-import qualified Data.Aeson.Parser
-import           Data.Aeson.Types
-import           Data.Attoparsec.ByteString
-import           Data.ByteString (ByteString)
-import           Data.List
-import           Data.Maybe
-import           Data.String.Conversions
-import           Data.Time.Calendar
 import           GHC.Generics
-import           Lucid
-import           Network.HTTP.Media ((//), (/:))
 import           Network.Wai
 import           Network.Wai.Handler.Warp
+import           Prelude ()
+import           Prelude.Compat
 import           Servant
-import           System.Directory
-import qualified Text.Blaze.Html
-import           Text.Blaze.Html.Renderer.Utf8
+import           Servant.HTML.Blaze
+import           Text.Blaze.Html5 hiding (main)
 
-type CompanySchema = "company" :> Get '[ JSON] [Company]
+-- | Home
+data Home =
+  Home
 
+home :: Proxy Home
+home = Proxy
+
+instance ToMarkup Home where
+  toMarkup Home = h1 "Investments Info API"
+
+-- | Companies
 data Company = Company
   { name :: String
   } deriving (Eq, Show, Generic)
@@ -45,14 +41,19 @@ instance ToJSON Company
 companies :: [Company]
 companies = [Company "Apple", Company "IBM"]
 
-server :: Server CompanySchema
-server = return companies
+-- | API
+type ApiSchema = Get '[ HTML] Home :<|> "company" :> Get '[ JSON] [Company]
 
-companyAPI :: Proxy CompanySchema
-companyAPI = Proxy
+appAPI :: Proxy ApiSchema
+appAPI = Proxy
+
+appServer :: Server ApiSchema
+appServer = return $
+    home :<|> companies
+    where home =
 
 app :: Application
-app = serve companyAPI server
+app = serve appAPI appServer
 
 main :: IO ()
 main = run 8081 app
