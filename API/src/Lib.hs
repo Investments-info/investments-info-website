@@ -24,7 +24,7 @@ data User = User
 
 $(deriveJSON defaultOptions ''User)
 
-type API =  "/home" :> Get '[HTML] Html :<|> "users" :> Get '[JSON] [User]
+type API =  "home" :> Get '[HTML] Html :<|> "users" :> Get '[JSON] [User]
 
 startApp :: IO ()
 startApp = run 8080 app
