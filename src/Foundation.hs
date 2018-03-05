@@ -22,7 +22,6 @@ import Handler.Sessions
 import Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import Control.Applicative  (pure)
 
-
 awsAccessKey :: ByteString
 awsAccessKey = "AKIAIULHBINBL7QQ5F7Q"
 

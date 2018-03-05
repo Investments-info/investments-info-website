@@ -23,15 +23,14 @@ library
   hs-source-dirs:
       src
   default-extensions: NoImplicitPrelude FlexibleContexts QuasiQuotes TemplateHaskell ConstraintKinds GADTs RankNTypes OverloadedStrings GeneralizedNewtypeDeriving ViewPatterns
-  build-depends:
-                          Chart-diagrams
+  build-depends: base >=4.9.1.0 && <5
+                , Chart-diagrams
                 , MailchimpSimple >=0.2.0.0
                 , aeson >=0.6 && <1.3
                 , amazonka >=1.5.0
                 , amazonka-core >=1.5.0
                 , amazonka-ses >=1.5.0
                 , async >=2.1.1
-                , base >=4.9.1.0 && <5
                 , base16-bytestring >=0.1.1.6
                 , bcrypt >=0.0.10
                 , blaze-builder >=0.4.0.2
@@ -114,6 +113,8 @@ library
       Foundation
       Handler.About
       Handler.Admin
+      Handler.Api
+      Handler.ApiUsers
       Handler.Auth
       Handler.Common
       Handler.Company

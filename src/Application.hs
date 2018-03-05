@@ -39,6 +39,8 @@ import           System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLo
 
 import           Handler.About
 import           Handler.Admin
+import           Handler.Api
+import           Handler.ApiUsers
 import           Handler.Auth
 import           Handler.Common
 import           Handler.Company

@@ -20,6 +20,8 @@
 /logview                       LogViewerR              GET
 /newsletter                    NewsletterManagerR      GET POST
 /newsletter/send               NewsletterSendR         GET
-/newsletter/sendtest           NewsletterSendtR     GET
+/newsletter/sendtest           NewsletterSendtR        GET
 /newsletter/newuser            NewsletterNewUserR      GET
 /profile                       ProfileR                GET POST
+/!api/v1                       ApiR                    GET
+/!api/v1/users                 ApiUsersR               GET
