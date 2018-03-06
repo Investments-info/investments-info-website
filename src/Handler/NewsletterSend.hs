@@ -1,8 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Handler.NewsletterSend where
 
+import           Control.Lens
+import           Helper.Aws (listAllEmails)
 import           II.Newsletter
 import           Import
+import           Network.AWS.SES.ListIdentities (lirsIdentities)
 import qualified Text.Blaze.Html5 as H
 import           Yadata.LibAPI as YL
 
@@ -23,25 +26,29 @@ getNewsletterSendR = do
 
 sendNewsletter :: IO (Either Text ())
 sendNewsletter = do
-  allStories <- liftIO $ runDBA $ getLatestUniqueStories
+  allStories <- liftIO $ runDBA getLatestUniqueStories
   let n = map convertToNews allStories
   liftIO $
     YL.createGraphForNewsletter
       ["IBM", "MSFT", "AAPL", "KO"]
       "static/newsletter-graph.jpg"
-  emailingResult <- sesEmail ["contact@investments-info.com"] n
-  case emailingResult of
-    Left e  -> return $ Left e
-    Right _ -> return $ Right ()
+  emails <- listAllEmails
+  case emails of
+      Right eList -> do
+        emailingResult <- sesEmail (map (encodeUtf8 . fromStrict) (eList ^. lirsIdentities)) n
+        case emailingResult of
+          Left e  -> return $ Left e
+          Right _ -> return $ Right ()
+      Left e  -> return $ Left $ pack (show e)
 
 convertToNews :: Entity Story -> News
 convertToNews sl = News t l
   where
-    link = (storyLink $ entityVal sl)
-    httplink = reutersUrl <> (storyLink $ entityVal sl)
-    t = (storyTitle $ entityVal sl)
+    link = storyLink $ entityVal sl
+    httplink = reutersUrl <> storyLink (entityVal sl)
+    t = storyTitle $ entityVal sl
     l =
-      if isInfixOf "http" link
+      if "http" `isInfixOf` link
         then link
         else httplink
 
