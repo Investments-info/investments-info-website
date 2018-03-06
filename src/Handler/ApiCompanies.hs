@@ -5,7 +5,6 @@ module Handler.ApiCompanies where
 
 import           Import
 
--- | needed for the servant style handlers to work
 instance {-# OVERLAPPABLE #-} (ToJSON a) => ToContent a where
   toContent = toContent . toJSON
 instance {-# OVERLAPPABLE #-} (ToJSON a) => ToTypedContent a where
@@ -13,7 +12,6 @@ instance {-# OVERLAPPABLE #-} (ToJSON a) => ToTypedContent a where
 
 getApiCompaniesR :: Handler [Company]
 getApiCompaniesR = do
-  now <- liftIO getCurrentTime
   cmps <- runDB allCompanies
   return $ map entityVal cmps
 
