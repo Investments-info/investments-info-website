@@ -27,7 +27,7 @@ import Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
 import Data.Yaml
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-User sql=users
+User json sql=users
     email Text
     name Text Maybe
     lastname Text Maybe
@@ -38,6 +38,7 @@ User sql=users
     created_at UTCTime default=current_timestamp
     UniqueUserEmail email
     deriving Eq Show Typeable
+
 Password sql=passwords
   hash BCrypt
   user UserId
@@ -68,6 +69,7 @@ Company json
     created UTCTime default=current_timestamp
     deriving Eq
     deriving Show
+
 Historical json
     companyId CompanyId
     ticker Text

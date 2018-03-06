@@ -1,6 +1,6 @@
 module Handler.Api where
 
-import           Import hiding (head)
+import           Import
 
 getApiR :: Handler Value
 getApiR = return $ String "api v0.0.1"
