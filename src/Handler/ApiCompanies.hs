@@ -1,10 +1,9 @@
 {-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Handler.ApiUsers where
+module Handler.ApiCompanies where
 
-import           Import hiding (head)
-import           Prelude (head)
+import           Import
 
 -- | needed for the servant style handlers to work
 instance {-# OVERLAPPABLE #-} (ToJSON a) => ToContent a where
@@ -12,11 +11,9 @@ instance {-# OVERLAPPABLE #-} (ToJSON a) => ToContent a where
 instance {-# OVERLAPPABLE #-} (ToJSON a) => ToTypedContent a where
   toTypedContent = TypedContent typeJson . toContent
 
-getApiUsersR :: Handler [User]
-getApiUsersR = do
+getApiCompaniesR :: Handler [Company]
+getApiCompaniesR = do
   now <- liftIO getCurrentTime
-  return
-    [User "a" (Just "isac") Nothing Nothing Nothing Nothing Nothing now]
+  cmps <- runDB allCompanies
+  return $ map entityVal cmps
 
-getFirstUserR :: Handler User
-getFirstUserR = head <$> getApiUsersR

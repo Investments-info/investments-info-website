@@ -114,7 +114,7 @@ library
       Handler.About
       Handler.Admin
       Handler.Api
-      Handler.ApiUsers
+      Handler.ApiCompanies
       Handler.Auth
       Handler.Common
       Handler.Company

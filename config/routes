@@ -24,4 +24,4 @@
 /newsletter/newuser            NewsletterNewUserR      GET
 /profile                       ProfileR                GET POST
 /!api/v1                       ApiR                    GET
-/!api/v1/users                 ApiUsersR               GET
+/!api/v1/companies             ApiCompaniesR           GET
