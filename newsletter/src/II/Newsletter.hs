@@ -11,18 +11,15 @@ module II.Newsletter
   , News(..)
   ) where
 
-import           Control.Applicative
 import           Control.Exception (SomeException, try)
-import           Control.Monad.Error
 import           Crypto.Hash (Digest, SHA256, hmac, hmacGetDigest)
 import           Data.Byteable (toBytes)
 import           Data.ByteString (ByteString)
 import           Data.ByteString.Base64 (encode)
-import           Data.ByteString.Char8 (concat, pack, unpack)
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.ByteString.Lazy as L
 import           Data.Monoid ((<>))
-import           Data.Text (Text, pack)
+import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Text.Lazy (fromStrict)
 import           Data.Text.Lazy.Encoding (encodeUtf8)
@@ -31,8 +28,8 @@ import           Data.Time.Format (defaultTimeLocale, formatTime)
 import           Network.Http.Client (Connection, Method (GET, POST), baselineContextSSL,
                                       buildRequest, closeConnection, encodedFormBody, http,
                                       openConnectionSSL, sendRequest, setContentType, setHeader)
-import           Network.SES (PublicKey (..), Region (USEast1), SESErrorType (..), SESResult (..),
-                              SecretKey (..), sendEmailBlaze)
+import           Network.SES (PublicKey (..), Region (USEast1), SESResult (..), SecretKey (..),
+                              sendEmailBlaze)
 import           OpenSSL (withOpenSSL)
 import qualified Text.Blaze.Html5 as H
 import qualified Text.Blaze.Html5.Attributes as A
@@ -53,15 +50,6 @@ data News = News
   { _nTitle :: Text
   , _nLink  :: Text
   } deriving (Show)
-
-data VErr = VErr Text deriving (Eq, Show)
-data VResult = VResult Text deriving (Eq, Show)
-
-data VerifiedEmailsRes a =
-    VerifiedEmailsRes
-    { verror  :: VErr
-    , vresult :: VResult
-    } deriving (Eq, Show, Functor, Applicative, Monad, MonadIO, MonadError VErr)
 
 sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
 sesEmail to n =
@@ -88,13 +76,13 @@ sendMail emailList n =
              H.br)
         n
     html =
-      H.html $ do
-        H.body $ do
-          H.h3 "Investments Info Newsletter"
-          H.br
-          links
-          H.br
-          H.img H.! A.src "http://localhost:3000/static/newsletter-graph.jpg"
+      H.html $
+      H.body $ do
+        H.h3 "Investments Info Newsletter"
+        H.br
+        links
+        H.br
+        H.img H.! A.src "http://localhost:3000/static/newsletter-graph.jpg"
 
 -- | Render the lines as HTML lines.
 linesToHtml :: [H.Html] -> H.Html
@@ -115,7 +103,6 @@ verifyEmail email = makeRequest publicKey secretKey region requestMethod query
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
     region = USEast1
-    action = "VerifyEmailIdentity"
     requestMethod = POST
     query =
       generateQueryString $
@@ -127,15 +114,14 @@ listVerifiedEmails = makeRequest publicKey secretKey region requestMethod query
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
     region = USEast1
-    action = "ListIdentities"
-    requestMethod = POST
+    requestMethod = GET
     query = generateQueryString ListAwsIdentities
 
 generateQueryString :: AwsActions a -> [(ByteString, ByteString)]
 generateQueryString (VerifyAwsIdentity a) =
-  ("Action", "VerifyEmailIdentity") : ("EmailAddress", a) : []
+  [("Action", "VerifyEmailIdentity"), ("EmailAddress", a)]
 generateQueryString ListAwsIdentities =
-  ("Action", "ListIdentities") : ("IdentityType", "EmailAddress") : []
+  [("Action", "ListIdentities"), ("IdentityType", "EmailAddress")]
 
 makeSig
   :: ByteString -- ^ Payload
@@ -189,5 +175,5 @@ makeRequest (PublicKey publicKey) (SecretKey secretKey) region requestMethod que
           Right a -> do
             closeConnection con
             return . C8.pack . show $ a
-     where
-       connectionError = return . C8.pack . show
+      where
+        connectionError = return . C8.pack . show
