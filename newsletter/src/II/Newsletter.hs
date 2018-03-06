@@ -1,3 +1,5 @@
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveFunctor     #-}
 {-# LANGUAGE GADTs             #-}
 {-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -9,7 +11,9 @@ module II.Newsletter
   , News(..)
   ) where
 
+import           Control.Applicative
 import           Control.Exception (SomeException, try)
+import           Control.Monad.Error
 import           Crypto.Hash (Digest, SHA256, hmac, hmacGetDigest)
 import           Data.Byteable (toBytes)
 import           Data.ByteString (ByteString)
@@ -50,6 +54,14 @@ data News = News
   , _nLink  :: Text
   } deriving (Show)
 
+data VErr = VErr Text deriving (Eq, Show)
+data VResult = VResult Text deriving (Eq, Show)
+
+data VerifiedEmailsRes a =
+    VerifiedEmailsRes
+    { verror  :: VErr
+    , vresult :: VResult
+    } deriving (Eq, Show, Functor, Applicative, Monad, MonadIO, MonadError VErr)
 
 sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
 sesEmail to n =
