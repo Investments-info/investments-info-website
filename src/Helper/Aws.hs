@@ -23,4 +23,4 @@ listAllEmails :: IO (Either Error ListIdentitiesResponse)
 listAllEmails = do
   env <- newEnv $ FromKeys (AccessKey awsAccessKey) (SecretKey awsSecretKey)
   trying _Error (runResourceT . runAWST env . within NorthVirginia $
-       send (listIdentities & liIdentityType .~ (Just EmailAddress) )) :: IO (Either Error ListIdentitiesResponse)
+       send (listIdentities & liIdentityType .~ Just EmailAddress)) :: IO (Either Error ListIdentitiesResponse)
