@@ -74,3 +74,11 @@ getAwsKey t = do
     "awsSesAccessKey" -> return $ fromJust (awsSesAccessKey settings)
     "awsSesSecretKey" -> return $ fromJust (awsSesSecretKey settings)
     _                 -> error "no such key in settings file!"
+
+-- | Read admin users from settings.yml
+getAdmins
+  :: MonadIO m
+  => m [AdminUsers]
+getAdmins = do
+  settings <- liftIO $ loadYamlSettings ["config/settings.yml"] [] useEnv
+  return $ fromJust (administrators settings)

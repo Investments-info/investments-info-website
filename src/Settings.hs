@@ -1,8 +1,10 @@
 {-# LANGUAGE CPP               #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TemplateHaskell   #-}
+
 -- | Settings are centralized, as much as possible, into this file. This
 -- includes database connection settings, static file locations, etc.
 -- In addition, you can configure a number of different aspects of Yesod
@@ -23,9 +25,12 @@ import           Yesod.Default.Util (WidgetFileSettings, widgetFileNoReload, wid
 
 data AdminUsers =
     AdminUsers
-    { email    :: Text
-    , password :: Text
-    }
+    { aemail    :: Text
+    , apassword :: Text
+    } deriving (Eq, Show, Generic)
+
+instance FromJSON AdminUsers
+
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
 -- theoretically even a database.
@@ -68,6 +73,7 @@ data AppSettings = AppSettings
     , awsSecretKey              :: Maybe Text
     , awsSesAccessKey           :: Maybe Text
     , awsSesSecretKey           :: Maybe Text
+    , administrators            :: Maybe [AdminUsers]
 
     }
 
@@ -98,6 +104,7 @@ instance FromJSON AppSettings where
         awsSecretKey              <- o .:? "aws-secret-key"
         awsSesAccessKey           <- o .:? "aws-ses-access-key"
         awsSesSecretKey           <- o .:? "aws-ses-secret-key"
+        administrators            <- o .:  "admins"
 
 
         appAuthDummyLogin         <- o .:? "auth-dummy-login"      .!= defaultDev
