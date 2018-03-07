@@ -21,6 +21,11 @@ import           Network.Wai.Handler.Warp (HostPreference)
 import           Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
 import           Yesod.Default.Util (WidgetFileSettings, widgetFileNoReload, widgetFileReload)
 
+data AdminUsers =
+    AdminUsers
+    { email    :: Text
+    , password :: Text
+    }
 -- | Runtime settings to configure this application. These settings can be
 -- loaded from various sources: defaults, environment variables, config files,
 -- theoretically even a database.
@@ -59,6 +64,11 @@ data AppSettings = AppSettings
 
     , appAuthDummyLogin         :: Bool
     -- ^ Indicate if auth dummy login should be enabled.
+    , awsAccessKey              :: Maybe Text
+    , awsSecretKey              :: Maybe Text
+    , awsSesAccessKey           :: Maybe Text
+    , awsSesSecretKey           :: Maybe Text
+
     }
 
 instance FromJSON AppSettings where
@@ -84,6 +94,11 @@ instance FromJSON AppSettings where
 
         appCopyright              <- o .:  "copyright"
         appAnalytics              <- o .:? "analytics"
+        awsAccessKey              <- o .:? "aws-access-key"
+        awsSecretKey              <- o .:? "aws-secret-key"
+        awsSesAccessKey           <- o .:? "aws-ses-access-key"
+        awsSesSecretKey           <- o .:? "aws-ses-secret-key"
+
 
         appAuthDummyLogin         <- o .:? "auth-dummy-login"      .!= defaultDev
 

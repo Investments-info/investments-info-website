@@ -138,41 +138,41 @@ insertCompanyIfNotInDB vecLen v = do
   now <- liftIO getCurrentTime
   if vecLen > 0
     then do
-      let c = mkCompany ((!) v (vecLen)) now
+      let c = mkCompany ((!) v vecLen) now
       insertedCompany <-
-        runDBA $ selectFirst [CompanyTicker ==. (companyTicker c)] []
+        runDBA $ selectFirst [CompanyTicker ==. companyTicker c] []
       case insertedCompany of
         Nothing -> do
           _ <- runDBA $ insert c
           return ()
-        Just (Entity cId dbCompany) -> do
-          case (companyWebsite dbCompany) of
+        Just (Entity cId dbCompany) ->
+          case companyWebsite dbCompany of
             Nothing -> do
-              YH.writeYahooLog $ "[COMPANY INSERT] Update company data"
+              YH.writeYahooLog  "[COMPANY INSERT] Update company data"
               _ <-
                 runDBA $
                 update
                   cId
-                  [ CompanyWebsite =. (companyWebsite c)
-                  , CompanyGicssector =. (companyGicssector c)
-                  , CompanyGicssubindustry =. (companyGicssubindustry c)
+                  [ CompanyWebsite =. companyWebsite c
+                  , CompanyGicssector =. companyGicssector c
+                  , CompanyGicssubindustry =. companyGicssubindustry c
                   ]
               return ()
             Just "" -> do
-              YH.writeYahooLog $ "[COMPANY INSERT] Update company data "
+              YH.writeYahooLog "[COMPANY INSERT] Update company data "
               _ <-
                 runDBA $
                 update
                   cId
-                  [ CompanyWebsite =. (companyWebsite c)
-                  , CompanyGicssector =. (companyGicssector c)
-                  , CompanyGicssubindustry =. (companyGicssubindustry c)
+                  [ CompanyWebsite =. companyWebsite c
+                  , CompanyGicssector =. companyGicssector c
+                  , CompanyGicssubindustry =. companyGicssubindustry c
                   ]
               return ()
             Just _ -> return ()
       insertCompanyIfNotInDB (vecLen - 1) v
       return ()
-    else YH.writeYahooLog $ "[COMPANY INSERT] Company insert finished"
+    else YH.writeYahooLog "[COMPANY INSERT] Company insert finished"
 
 readCompanyDataFromCSV :: IO ()
 readCompanyDataFromCSV = do
@@ -180,10 +180,9 @@ readCompanyDataFromCSV = do
   let v =
         decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
   case v of
-    Left _ -> do
-      YH.writeYahooLog $ "[COMPANY INSERT] No file found"
+    Left _ -> YH.writeYahooLog "[COMPANY INSERT] No file found"
     Right a -> do
-      let vectorLen = (length a) - 1
+      let vectorLen = length a - 1
       insertCompanyIfNotInDB vectorLen a
       return ()
 
@@ -196,11 +195,11 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  withAsync YH.fetchHistoricalData $ \_ -> do
-      return ()
-  withAsync readCompanyDataFromCSV $ \_ -> do
-      return ()
-  YH.writeYahooLog $ "[SYSTEM] development start!"
+  withAsync YH.fetchHistoricalData $
+      \_ -> return ()
+  withAsync readCompanyDataFromCSV $
+      \_ -> return ()
+  YH.writeYahooLog "[SYSTEM] development start!"
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -224,11 +223,11 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- withAsync YH.fetchHistoricalData $ \_ -> do
-      return ()
-  _ <- withAsync readCompanyDataFromCSV $ \_ -> do
-      return ()
-  YH.writeYahooLog $ "[SYSTEM] production start!"
+  _ <- withAsync YH.fetchHistoricalData
+      $ \_ -> return ()
+  _ <- withAsync readCompanyDataFromCSV
+      $ \_ -> return ()
+  YH.writeYahooLog "[SYSTEM] production start!"
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------

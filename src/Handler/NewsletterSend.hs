@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module Handler.NewsletterSend where
 
 import           Control.Lens
 import           Helper.Aws (listAllEmails)
+import           Helper.Helper (getAwsKey)
 import           II.Newsletter
 import           Import
 import           Network.AWS.SES.ListIdentities (lirsIdentities)
@@ -34,12 +36,19 @@ sendNewsletter = do
       "static/newsletter-graph.jpg"
   emails <- listAllEmails
   case emails of
-      Right eList -> do
-        emailingResult <- sesEmail (map (encodeUtf8 . fromStrict) (eList ^. lirsIdentities)) n
-        case emailingResult of
-          Left e  -> return $ Left e
-          Right _ -> return $ Right ()
-      Left e  -> return $ Left $ pack (show e)
+    Right eList -> do
+      awsAk <- getAwsKey "awsSesAccessKey"
+      awsSk <- getAwsKey "awsSesSecretKey"
+      emailingResult <-
+        sesEmail
+          (encodeUtf8 awsAk)
+          (encodeUtf8 awsSk)
+          (map (encodeUtf8 . fromStrict) (eList ^. lirsIdentities))
+          n
+      case emailingResult of
+        Left e  -> return $ Left e
+        Right _ -> return $ Right ()
+    Left e -> return $ Left $ pack (show e)
 
 convertToNews :: Entity Story -> News
 convertToNews sl = News t l

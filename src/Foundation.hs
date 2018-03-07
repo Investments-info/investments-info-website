@@ -9,28 +9,22 @@
 
 module Foundation where
 
+import Control.Applicative (pure)
+import Control.Monad.Logger (MonadLogger, monadLoggerLog)
+import qualified Data.CaseInsensitive as CI
+import qualified Data.Text.Encoding as TE
 import Database.Persist.Sql (ConnectionPool, runSqlPool)
+import Handler.Sessions
 import Import.NoFoundation
 import Text.Hamlet (hamletFile)
 import Text.Jasmine (minifym)
-import qualified Data.CaseInsensitive as CI
-import qualified Data.Text.Encoding as TE
 import Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import Yesod.Default.Util (addStaticContentExternal)
-import Handler.Sessions
-import Control.Monad.Logger (MonadLogger, monadLoggerLog)
-import Control.Applicative  (pure)
-
-awsAccessKey :: ByteString
-awsAccessKey = "AKIAIULHBINBL7QQ5F7Q"
-
-awsSecretKey :: ByteString
-awsSecretKey = "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"
 
 -- had to implement this due to non existing MonadLogger IO instance
 instance MonadLogger IO where
-    monadLoggerLog _ _ _ = pure $ pure ()
+  monadLoggerLog _ _ _ = pure $ pure ()
 
 data App = App
   { appSettings :: AppSettings
@@ -41,11 +35,14 @@ data App = App
   }
 
 type Page = Int
+
 type ArticleSearchString = Text
 
 mkYesodData "App" $(parseRoutesFile "config/routes")
 
-htmlOnly :: (MonadHandler m) => m Html -> m TypedContent
+htmlOnly
+  :: (MonadHandler m)
+  => m Html -> m TypedContent
 htmlOnly = selectRep . provideRep
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
@@ -69,7 +66,6 @@ type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 --         <li>
 --           <a href="@{SignupR}">Signup -->
 -- |]
-
 baseLayout :: Html -> Maybe (Entity User) -> WidgetT App IO () -> Handler Html
 baseLayout title _ content = do
   defaultLayout $ do
@@ -98,13 +94,11 @@ instance Yesod App where
       case appRoot $ appSettings app of
         Nothing -> getApprootText guessApproot app req
         Just root -> root
-
   makeSessionBackend _ =
     Just <$>
     defaultClientSessionBackend
       120 -- timeout in minutes
       "config/client_session_key.aes"
-
   yesodMiddleware = defaultYesodMiddleware
   defaultLayout widget = do
     master <- getYesod
@@ -117,32 +111,37 @@ instance Yesod App where
         addStylesheet $ StaticR css_bootstrap_css
         $(widgetFile "default-layout")
     withUrlRenderer $(hamletFile "templates/default-layout-wrapper.hamlet")
-
-
   errorHandler NotFound = do
-      user <- getUser
-      htmlOnly $ baseLayout "Not found!" user $ errorFragment' (Just "Sorry, but the page you were looking for could not be found") "404 - Page not found"
-
+    user <- getUser
+    htmlOnly $
+      baseLayout "Not found!" user $
+      errorFragment'
+        (Just "Sorry, but the page you were looking for could not be found")
+        "404 - Page not found"
   errorHandler (InternalError err) = do
-      user <- getUser
-      htmlOnly $ baseLayout "Our bad!" user $ errorFragment' (Just err) "500 - Internal Server Error"
-
+    user <- getUser
+    htmlOnly $
+      baseLayout "Our bad!" user $
+      errorFragment' (Just err) "500 - Internal Server Error"
   errorHandler (InvalidArgs _) = do
-      user <- getUser
-      htmlOnly $ baseLayout "Invalid request" user $ errorFragment "400 - Bad Request"
-
+    user <- getUser
+    htmlOnly $
+      baseLayout "Invalid request" user $ errorFragment "400 - Bad Request"
   errorHandler NotAuthenticated = do
-      user <- getUser
-      htmlOnly $ baseLayout "Not authenticated" user $ errorFragment' (Just "You are not logged in") "401 - Unauthorized"
-
+    user <- getUser
+    htmlOnly $
+      baseLayout "Not authenticated" user $
+      errorFragment' (Just "You are not logged in") "401 - Unauthorized"
   errorHandler (PermissionDenied msg) = do
-      user <- getUser
-      htmlOnly $ baseLayout "Permission denied" user $ errorFragment' (Just msg) "403 - Forbidden"
-
+    user <- getUser
+    htmlOnly $
+      baseLayout "Permission denied" user $
+      errorFragment' (Just msg) "403 - Forbidden"
   errorHandler (BadMethod _) = do
-      user <- getUser
-      htmlOnly $ baseLayout "Bad method for request" user $ errorFragment "400 - Bad Request"
-
+    user <- getUser
+    htmlOnly $
+      baseLayout "Bad method for request" user $
+      errorFragment "400 - Bad Request"
   addStaticContent ext mime content = do
     master <- getYesod
     let staticDir = appStaticDir $ appSettings master
@@ -164,7 +163,7 @@ instance Yesod App where
 instance YesodBreadcrumbs App where
   breadcrumb HomeR = return ("Home", Nothing)
   breadcrumb (StoryListR _) = return ("Articles", Just HomeR)
-  breadcrumb (CompanyListR _) = return ("Companies", Just HomeR )
+  breadcrumb (CompanyListR _) = return ("Companies", Just HomeR)
   breadcrumb AboutR = return ("About", Just HomeR)
   breadcrumb SignupR = return ("Signup", Just HomeR)
   breadcrumb LoginR = return ("Login", Just HomeR)
@@ -180,7 +179,6 @@ instance YesodPersist App where
 
 instance YesodPersistRunner App where
   getDBRunner = defaultGetDBRunner appConnPool
-
 
 instance RenderMessage App FormMessage where
   renderMessage _ _ = defaultFormMessage

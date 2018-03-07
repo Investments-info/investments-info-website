@@ -38,12 +38,6 @@ data AwsActions a where
         ListAwsIdentities :: AwsActions a
         VerifyAwsIdentity :: ByteString -> AwsActions a
 
-awsAccessKey :: ByteString
-awsAccessKey = "AKIAI6GDZ5ELIC7ABKJA"
-
-awsSecretKey :: ByteString
-awsSecretKey = "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"
-
 type ConnectionError a = IO (Either SomeException a)
 
 data News = News
@@ -51,14 +45,14 @@ data News = News
   , _nLink  :: Text
   } deriving (Show)
 
-sesEmail :: [L.ByteString] -> [News] -> IO (Either Text Text)
-sesEmail to n =
-  sendMail to n >>= \case
+sesEmail :: ByteString -> ByteString -> [L.ByteString] -> [News] -> IO (Either Text Text)
+sesEmail awsAccessKey awsSecretKey to n =
+  sendMail awsAccessKey awsSecretKey to n >>= \case
     Error e -> return $ Left $ T.pack (show e)
     Success -> return $ Right (T.pack "success")
 
-sendMail :: [L.ByteString] -> [News] -> IO SESResult
-sendMail emailList n =
+sendMail :: ByteString -> ByteString -> [L.ByteString] -> [News] -> IO SESResult
+sendMail awsAccessKey awsSecretKey emailList n =
   sendEmailBlaze publicKey secretKey region from to subject html
   where
     publicKey = PublicKey awsAccessKey
@@ -97,8 +91,8 @@ htmlIntercalate sep (x:xs) = do
   htmlIntercalate sep xs
 htmlIntercalate _ [] = mempty
 
-verifyEmail :: Text -> IO ByteString
-verifyEmail email = makeRequest publicKey secretKey region requestMethod query
+verifyEmail :: ByteString -> ByteString -> Text -> IO ByteString
+verifyEmail awsAccessKey awsSecretKey email = makeRequest publicKey secretKey region requestMethod query
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey
@@ -108,8 +102,8 @@ verifyEmail email = makeRequest publicKey secretKey region requestMethod query
       generateQueryString $
       VerifyAwsIdentity (L.toStrict (encodeUtf8 (fromStrict email)))
 
-listVerifiedEmails :: IO ByteString
-listVerifiedEmails = makeRequest publicKey secretKey region requestMethod query
+listVerifiedEmails :: ByteString -> ByteString -> IO ByteString
+listVerifiedEmails awsAccessKey awsSecretKey = makeRequest publicKey secretKey region requestMethod query
   where
     publicKey = PublicKey awsAccessKey
     secretKey = SecretKey awsSecretKey

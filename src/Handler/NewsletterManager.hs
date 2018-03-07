@@ -35,7 +35,7 @@ postNewsletterManagerR = do
               (unpack email)
               "newsletter-user"
               "subscribed"
-          _ <- liftIO $ verifyEmail email
+          _ <- liftIO $ verifyEmail ("bs" :: ByteString) ("bs" :: ByteString) email
           setUserSession dbUserKey True
           setMessage
             "You have signed-up for our newsletter! Expect it in your inbox once a week !"
@@ -55,7 +55,7 @@ postNewsletterManagerR = do
                   (unpack email)
                   "newsletter-user"
                   "subscribed"
-              _ <- liftIO $ verifyEmail email
+              _ <- liftIO $ verifyEmail ("bs" :: ByteString) ("bs" :: ByteString) email
 
               setMessage
                 "You have signed-up for our newsletter! Expect it in your inbox once a week !"
