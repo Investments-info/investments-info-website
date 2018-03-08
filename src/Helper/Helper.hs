@@ -69,11 +69,13 @@ getAwsKey
 getAwsKey t = do
   settings <- liftIO $ loadYamlSettings ["config/settings.yml"] [] useEnv
   case t of
-    "awsAccessKey"    -> return $ fromJust (awsAccessKey settings)
-    "awsSecretKey"    -> return $ fromJust (awsSecretKey settings)
-    "awsSesAccessKey" -> return $ fromJust (awsSesAccessKey settings)
-    "awsSesSecretKey" -> return $ fromJust (awsSesSecretKey settings)
-    _                 -> error "no such key in settings file!"
+    "awsAccessKey"      -> return $ fromJust (awsAccessKey settings)
+    "awsSecretKey"      -> return $ fromJust (awsSecretKey settings)
+    "awsSesAccessKey"   -> return $ fromJust (awsSesAccessKey settings)
+    "awsSesSecretKey"   -> return $ fromJust (awsSesSecretKey settings)
+    "mailchimp-api-key" -> return $ fromJust (mailchimpApiKey settings)
+
+    _                   -> error "no such key in settings file!"
 
 -- | Read admin users from settings.yml
 getAdmins

@@ -74,7 +74,7 @@ data AppSettings = AppSettings
     , awsSesAccessKey           :: Maybe Text
     , awsSesSecretKey           :: Maybe Text
     , administrators            :: Maybe [AdminUsers]
-
+    , mailchimpApiKey           :: Maybe Text
     }
 
 instance FromJSON AppSettings where
@@ -105,6 +105,8 @@ instance FromJSON AppSettings where
         awsSesAccessKey           <- o .:? "aws-ses-access-key"
         awsSesSecretKey           <- o .:? "aws-ses-secret-key"
         administrators            <- o .:  "admins"
+        mailchimpApiKey           <- o .:  "mailchimp-api-key"
+
 
 
         appAuthDummyLogin         <- o .:? "auth-dummy-login"      .!= defaultDev
