@@ -26,7 +26,7 @@ postNewsletterManagerR = do
         Nothing -> do
           awsAk <- getAwsKey "awsSesAccessKey"
           awsSk <- getAwsKey "awsSesSecretKey"
-          mailchimpKey <- getAwsKey "mailchimpkey"
+          mailchimpKey <- getAwsKey "mailchimp-api-key"
           (Entity dbUserKey _) <-
             runDB $ createUserForNewsletter email "dummy-pass" (Just 1)
           _ <-
