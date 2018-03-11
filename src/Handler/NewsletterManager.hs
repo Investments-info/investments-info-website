@@ -49,7 +49,7 @@ postNewsletterManagerR = do
               redirect HomeR
             _ -> do
               dbUserKeyU <- runDB $ setUserForNewsletter (Just 1) dbUKey
-              mailchimpKey <- getAwsKey "mailchimpkey"
+              mailchimpKey <- getAwsKey "mailchimp-api-key"
 
               _ <-
                 liftIO $
