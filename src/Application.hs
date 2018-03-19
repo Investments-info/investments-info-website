@@ -21,6 +21,7 @@ module Application
   , getDbConnectionString
   ) where
 
+import           Control.Concurrent (forkIO)
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Data.CSV.Conduit
 import           Data.Vector ((!))
@@ -148,7 +149,7 @@ insertCompanyIfNotInDB vecLen v = do
         Just (Entity cId dbCompany) ->
           case companyWebsite dbCompany of
             Nothing -> do
-              YH.writeYahooLog  "[COMPANY INSERT] Update company data"
+              YH.writeYahooLog  "[COMPANY INSERT] Update company data" False
               _ <-
                 runDBA $
                 update
@@ -159,7 +160,7 @@ insertCompanyIfNotInDB vecLen v = do
                   ]
               return ()
             Just "" -> do
-              YH.writeYahooLog "[COMPANY INSERT] Update company data "
+              YH.writeYahooLog "[COMPANY INSERT] Update company data " False
               _ <-
                 runDBA $
                 update
@@ -172,7 +173,7 @@ insertCompanyIfNotInDB vecLen v = do
             Just _ -> return ()
       insertCompanyIfNotInDB (vecLen - 1) v
       return ()
-    else YH.writeYahooLog "[COMPANY INSERT] Company insert finished"
+    else YH.writeYahooLog "[COMPANY INSERT] Company insert finished" False
 
 readCompanyDataFromCSV :: IO ()
 readCompanyDataFromCSV = do
@@ -180,7 +181,7 @@ readCompanyDataFromCSV = do
   let v =
         decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
   case v of
-    Left _ -> YH.writeYahooLog "[COMPANY INSERT] No file found"
+    Left _ -> YH.writeYahooLog "[COMPANY INSERT] No file found" False
     Right a -> do
       let vectorLen = length a - 1
       insertCompanyIfNotInDB vectorLen a
@@ -189,17 +190,18 @@ readCompanyDataFromCSV = do
 -- | For yesod devel, return the Warp settings and WAI Application.
 getApplicationDev :: IO (Settings, Application)
 getApplicationDev = do
+  YH.writeYahooLog "[SYSTEM] development start!" False
   settings <- getAppSettings
   foundation <- makeFoundation settings
   wsettings <- getDevSettings $ warpSettings foundation
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  withAsync YH.fetchHistoricalData $
-      \_ -> return ()
-  withAsync readCompanyDataFromCSV $
-      \_ -> return ()
-  YH.writeYahooLog "[SYSTEM] development start!"
+  lock <- newMVar ()
+  let yahoo = withMVar lock (\_ -> YH.fetchHistoricalData)
+  _ <- forkIO yahoo
+  let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
+  _ <- forkIO companies
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -223,11 +225,12 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- withAsync YH.fetchHistoricalData
-      $ \_ -> return ()
-  _ <- withAsync readCompanyDataFromCSV
-      $ \_ -> return ()
-  YH.writeYahooLog "[SYSTEM] production start!"
+  lock <- newMVar ()
+  let yahoo = withMVar lock (\_ -> YH.fetchHistoricalData)
+  _ <- forkIO yahoo
+  let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
+  _ <- forkIO companies
+  YH.writeYahooLog "[SYSTEM] production start!" False
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------
