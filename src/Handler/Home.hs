@@ -13,6 +13,8 @@ import qualified Text.HTML.Freader as R
 import Data.Time.Clock (diffUTCTime)
 import Helper.Helper  as H
 
+
+
 getHomeR :: Handler Html
 getHomeR  = do
       -- _ <- insertStoriesReuters
@@ -29,7 +31,8 @@ getHomeR  = do
                 <ul class="features">
                   $forall Entity _ Story{..} <- allStories
                     <li>
-                        <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
+                        -- <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
+                        <a href=#{ F.buildFullUrl F.reutersUrl storyLink } target=_blank> #{storyTitle}
                         <p>
                             $maybe img <- storyImage
                                    <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
