@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Text.HTML.Fscraper
     ( reutersUrl
+    , buildFullUrl
     , News (..)
     , topStory
     , featureNews
@@ -10,11 +11,21 @@ module Text.HTML.Fscraper
     , featureStoryImageNews
     ) where
 
-import Text.HTML.Scalpel (Scraper, tagSelector, (@:), (//), chroots,
-                         attr, scrapeURL, hasClass, text)
+import Text.HTML.Scalpel (Scraper, tagSelector, (@:), (//), chroots, attr, scrapeURL, hasClass, text)
+
+import Text.Regex.PCRE
+import Data.Text 
 
 reutersUrl :: String
 reutersUrl = "http://www.reuters.com/finance/markets"
+
+buildFullUrl :: String -> Text -> Text
+buildFullUrl retuters storylink = pack $ reuters_ ++ storylink_
+  where
+    storylink_ = unpack storylink :: String
+    test_string = "feed" :: String
+    test       = storylink_ =~ test_string :: Int
+    reuters_   = if test == 0 then retuters else "" :: String
 
 type NewsLink = String
 type NewsTitle = String

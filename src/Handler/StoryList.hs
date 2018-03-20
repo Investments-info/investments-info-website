@@ -30,7 +30,7 @@ getStoryListR currentPage = do
     $forall Entity _ Story{..} <- allStories
           <li .list-group-item>
             <div>
-              <h4><a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
+              <h4><a href=#{F.buildFullUrl F.reutersUrl storyLink } target=_blank> #{storyTitle}
               <p>
                 $maybe img <- storyImage
                   <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
