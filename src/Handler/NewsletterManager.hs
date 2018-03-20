@@ -19,13 +19,13 @@ getNewsletterManagerR = do
 postNewsletterManagerR :: Handler Html
 postNewsletterManagerR = do
   ((result, widget), _) <- runFormPost signupForm
+  awsAk <- getAwsKey "awsSesAccessKey"
+  awsSk <- getAwsKey "awsSesSecretKey"
   case result of
     FormSuccess email -> do
       maybeUser <- runDB (getUserForNewsletter email)
       case maybeUser of
         Nothing -> do
-          awsAk <- getAwsKey "awsSesAccessKey"
-          awsSk <- getAwsKey "awsSesSecretKey"
           mailchimpKey <- getAwsKey "mailchimp-api-key"
           (Entity dbUserKey _) <-
             runDB $ createUserForNewsletter email "dummy-pass" (Just 1)
@@ -60,8 +60,8 @@ postNewsletterManagerR = do
                   "newsletter-user"
                   "subscribed"
               _ <-
-                liftIO $
-                verifyEmail ("bs" :: ByteString) ("bs" :: ByteString) email
+                liftIO $ verifyEmail (encodeUtf8 awsAk) (encodeUtf8 awsSk) email
+                -- verifyEmail ("bs" :: ByteString) ("bs" :: ByteString) email
               setMessage
                 "You have signed-up for our newsletter! Expect it in your inbox once a week !"
               setUserSession dbUserKeyU True
