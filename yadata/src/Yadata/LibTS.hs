@@ -39,16 +39,16 @@ module Yadata.LibTS
     movingAverageXTS
 ) where
 
-import           Data.Either
-import           Data.List
+import Data.Either
+import Data.List
 import qualified Data.Map as Map
-import           Data.Maybe
-import           Data.Semigroup
-import           Data.Time
-import           Data.Time.Calendar.WeekDate
-import           Text.CSV
+import Data.Maybe
+import Data.Semigroup
+import Data.Time
+import Data.Time.Calendar.WeekDate
+import Text.CSV
 
-import           Yadata.LibCSV
+import Yadata.LibCSV
 -- ###########################################################################
 
 isAWorkingDay::UTCTime -> Bool
@@ -178,7 +178,7 @@ readFileTS path = do
                 (\_-> [])
                 (\x-> fmap (read2UTCTimeMaybe "%Y-%m-%d %H:%M:%S %Z") x)
                                 (getColumnInCSVEither ptxt "Date")
-    let date = if any (== Nothing) date_ then [] else catMaybes date_
+    let date = if any (== Nothing) date_ then [] else catMaybes date_                      
     let value = either
                 (\_-> [])
                 (\x-> fmap read2Double x) (getColumnInCSVEither ptxt "Value")
@@ -244,7 +244,7 @@ diffTS (TS times values) = TS times (0:diffValues)
 
 -- Moving Average
 movingAvg :: (Real a) => Int -> [a]  -> [Double]
-movingAvg n []  = []
+movingAvg _ []  = []
 movingAvg n vals = if (length nextVals) == n
                    then (mean nextVals):(movingAvg n restVals)
                    else []

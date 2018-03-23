@@ -8,9 +8,9 @@ module Yadata.LibCSV
     , delColumnInCSV
     ) where
 
-import           Data.List
-import           Data.Time
-import           Text.CSV
+import Data.List
+import Data.Time
+import Text.CSV
 
 {-|
    Converts a number in String to Double
@@ -41,7 +41,6 @@ applyToColumnInCSV func csv column =
       nfieldsInFile = length $ head csv
       records = tail $ filter (\record -> nfieldsInFile == length record) csv
       elements ci = map (\record -> genericIndex record ci) records
-
 
 {-|
    Gets a column from a CSV value.
