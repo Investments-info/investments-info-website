@@ -34,6 +34,7 @@ aws-ses-secret-key: aaaaaaaaaaaa
 
 aws-access-key:  aaaaaaaaaaaaaaa
 aws-secret-key:  aaaaaaaaaaaaaaa
+mailchimp-api-key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 
 
 admins:
   [

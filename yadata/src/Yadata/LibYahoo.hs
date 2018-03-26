@@ -3,35 +3,37 @@
 
 module Yadata.LibYahoo
   ( getYahooData
+  , getYahooHistoData
+  , crumbleLink
+  , getCrumble
+  , yahooDataLink4TimePeriod
   , YahooException(..)
   ) where
 
-import           Control.Exception as E
-import           Control.Lens
-import           Control.Monad.Except
+import Control.Exception as E
+import Control.Lens
+import Control.Monad.Except
 import qualified Data.ByteString.Lazy as B (ByteString, drop, pack, take)
 import qualified Data.ByteString.Lazy.Char8 as C
-import           Data.Int
-import           Data.Maybe (fromMaybe)
-import           Data.Text as T
-import           Data.Time.Clock
-import           Data.Time.Clock.POSIX
-import           Data.Typeable
-import           Network.HTTP.Client
-import           Network.HTTP.Client.TLS
-import           Network.HTTP.Simple hiding (httpLbs)
+import Data.Time
+import Data.Time.Clock.POSIX
+import Data.Typeable
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS
+-- import Network.HTTP.Simple hiding (httpLbs)
 import qualified Network.Wreq as W (responseBody, responseStatus, statusCode)
-import           Text.Regex.PCRE
+import Text.Regex.PCRE
 
 crumbleLink :: String -> String
 crumbleLink ticker =
   "https://finance.yahoo.com/quote/" ++ ticker ++ "/history?p=" ++ ticker
 
   -- https://stackoverflow.com/questions/12916353/how-do-i-convert-from-unixtime-to-a-date-time-in-haskell
-yahooDataLink :: (Integral a, Show a) => String -> String -> a -> String
-yahooDataLink ticker crumb endDate =
+
+yahooDataLink4TimePeriod :: (Integral a, Show a) => String -> String -> a -> a -> String
+yahooDataLink4TimePeriod ticker crumb startDate endDate =
     "https://query1.finance.yahoo.com/v7/finance/download/" ++ ticker ++
-    "?period1=1000000000&period2=" ++ (show endDate) ++
+    "?period1=" ++ show startDate ++"&period2=" ++ show endDate ++
     "&interval=1d&events=history&crumb=" ++ crumb
 
 crumblePattern :: String
@@ -61,6 +63,14 @@ instance Exception YahooException
 
 getYahooData :: String -> IO (Either YahooException C.ByteString)
 getYahooData ticker = do
+  endDate <- getCurrentTime
+  let starDate = UTCTime  (fromGregorian 2000 01 01) 0
+  getYahooHistoData ticker starDate endDate
+
+
+
+getYahooHistoData :: String -> UTCTime -> UTCTime-> IO (Either YahooException C.ByteString)
+getYahooHistoData ticker startDate endDate= do
   manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
   setGlobalManager manager
   cookieRequest <- parseRequest (crumbleLink "KO")
@@ -72,11 +82,12 @@ getYahooData ticker = do
       now <- getCurrentTime
       let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
       let body = crb ^. W.responseBody
-      qEndDate <- getPOSIXTime
+      -- qEndDate <- getPOSIXTime
       dataRequest <-
-        parseRequest (yahooDataLink ticker
-                      (C.unpack $ getCrumble body)
-                      (round qEndDate :: Integer)
+        parseRequest (yahooDataLink4TimePeriod ticker 
+                      (C.unpack $ getCrumble body) 
+                      (round (utcTimeToPOSIXSeconds startDate) :: Integer)
+                      (round (utcTimeToPOSIXSeconds endDate) :: Integer)
                      )
       now2 <- getCurrentTime
       let (dataReq, jar2) = insertCookiesIntoRequest dataRequest jar1 now2
@@ -88,5 +99,5 @@ getYahooData ticker = do
           let body2 = d ^. W.responseBody
           let status = d ^. W.responseStatus . W.statusCode
           if status == 200
-            then return $ Right $ body2
+            then return $ Right body2
             else return $ Left YStatusCodeException

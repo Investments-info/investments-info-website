@@ -198,7 +198,7 @@ getApplicationDev = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   lock <- newMVar ()
-  let yahoo = withMVar lock (\_ -> YH.fetchHistoricalData)
+  let yahoo = withMVar lock (\_ -> forever YH.fetchHistoricalData)
   _ <- forkIO yahoo
   let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
   _ <- forkIO companies
@@ -226,7 +226,7 @@ appMain = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   lock <- newMVar ()
-  let yahoo = withMVar lock (\_ -> YH.fetchHistoricalData)
+  let yahoo = withMVar lock (\_ -> forever YH.fetchHistoricalData)
   _ <- forkIO yahoo
   let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
   _ <- forkIO companies

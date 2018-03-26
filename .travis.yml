@@ -10,7 +10,6 @@ install:
 script:
   - stack setup --no-terminal
   - stack build -j2 --fast --no-terminal
-  - stack test --fast --no-terminal
 
 cache:
   timeout: 2000
