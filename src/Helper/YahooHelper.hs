@@ -6,7 +6,7 @@ module Helper.YahooHelper
   ( fetchHistoricalData
   , logForkedAction
   , writeYahooLog
-  , YahooException(..)
+  , YL.YahooException(..)
   ) where
 
 import Control.Exception as E
@@ -14,7 +14,7 @@ import Control.Lens
 import Control.Monad (mzero)
 import Control.Monad.Except
 import qualified Data.ByteString as BB
-import Data.ByteString.Lazy as B (ByteString, drop, take)
+-- import Data.ByteString.Lazy as B (ByteString, drop, take)
 import qualified Data.ByteString.Lazy.Char8 as C
 import Data.CSV.Conduit.Conversion as CSVC
 import Data.Int
@@ -22,7 +22,8 @@ import Data.List.Split
 import Data.Text as T hiding (length, lines, map, splitOn)
 import Data.Text (Text)
 import Data.Time
-import Data.Typeable
+import Data.Time.Clock.POSIX
+-- import Data.Typeable
 import Helper.YahooDB
 import Import hiding (httpLbs, newManager)
 import Network.HTTP.Client
@@ -30,9 +31,12 @@ import Network.HTTP.Client.TLS
 import qualified Network.Wreq as W
        (responseBody, responseStatus, statusCode)
 import System.IO as SIO (appendFile)
-import Text.Regex.PCRE
+-- import Text.Regex.PCRE
 
-crumbleLink :: String -> String
+-- yadata Lib
+import qualified Yadata.LibYahoo as YL
+
+{- crumbleLink :: String -> String
 crumbleLink ticker =
   "https://finance.yahoo.com/quote/" ++ ticker ++ "/history?p=" ++ ticker
 
@@ -61,9 +65,9 @@ data YahooException
 instance Show YahooException where
   show YStatusCodeException = "Yadata :: data fetch exception!"
   show YCookieCrumbleException = "Yadata :: cookie crumble exception!"
-  show YWrongTickerException = "Yadata :: wrong ticker passed in!"
+  show YWrongTickerException = "Yadata :: wrong ticker passed in!" -}
 
-instance Exception YahooException
+-- instance Exception YL.YahooException
 
 type YDataDate = YUTCTime
 
@@ -119,37 +123,50 @@ instance FromField YUTCTime where
     x <- parseTimestamp "%Y-%m-%d" (C.unpack (C.fromStrict u))
     pure (YUTCTime x)
 
-getYahooData :: Text -> ExceptT YahooException IO C.ByteString
-getYahooData ticker =
+
+getYahooData :: Text -> ExceptT YL.YahooException IO C.ByteString
+getYahooData ticker = do
+  endDate <- liftIO getCurrentTime
+  let starDate = UTCTime  (fromGregorian 2000 01 01) 0
+  getYahooHistoData ticker starDate endDate
+  
+
+
+getYahooHistoData :: Text -> UTCTime -> UTCTime-> ExceptT YL.YahooException IO C.ByteString
+getYahooHistoData ticker startDate endDate =
   ExceptT $ do
     manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
     setGlobalManager manager
-    cookieRequest <- parseRequest (crumbleLink "KO")
+    cookieRequest <- parseRequest (YL.crumbleLink "KO")
     crumb <-
-      E.try (httpLbs cookieRequest manager) :: IO (Either YahooException (Response C.ByteString))
+      E.try (httpLbs cookieRequest manager) :: IO (Either YL.YahooException (Response C.ByteString))
     case crumb of
       Left _ -> do
         writeYahooLog "[YAHOO ERR] cookieRequest received Left result " False
-        writeYahooLog ("[YAHOO ERR]  " ++ show YCookieCrumbleException) False
-        return $ Left YCookieCrumbleException
+        writeYahooLog ("[YAHOO ERR]  " ++ show YL.YCookieCrumbleException) False
+        return $ Left YL.YCookieCrumbleException
       Right crb -> do
         writeYahooLog "[YAHOO] cookieRequest received Right result " False
         now <- getCurrentTime
         let (jar1, _) =
               updateCookieJar crb cookieRequest now (createCookieJar [])
         let body = crb ^. W.responseBody
+        -- qEndDate <- getPOSIXTime
         dataRequest <-
           parseRequest
-            (yahooDataLink (T.unpack ticker) (C.unpack $ getCrumble body))
+            (YL.yahooDataLink4TimePeriod (T.unpack ticker) (C.unpack $ YL.getCrumble body) 
+              (round (utcTimeToPOSIXSeconds startDate) :: Integer)
+              (round (utcTimeToPOSIXSeconds   endDate) :: Integer)  
+            )
         now2 <- getCurrentTime
         let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
         result <-
-          E.try (httpLbs dataReq manager) :: IO (Either YahooException (Response C.ByteString))
+          E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
         case result of
           Left _ -> do
             writeYahooLog "[YAHOO ERR] yahooDataRequest received Left result " False
-            writeYahooLog ("[YAHOO ERR]  " ++ show YStatusCodeException) False
-            return $ Left YStatusCodeException
+            writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
+            return $ Left YL.YStatusCodeException
           Right d -> do
             writeYahooLog "[YAHOO] yahooDataRequest received Right result " False
             let body2 = d ^. W.responseBody
@@ -159,9 +176,9 @@ getYahooData ticker =
               else do
                 writeYahooLog
                   "[YAHOO ERR] yahooDataRequest status code was not 200" False
-                writeYahooLog ("[YAHOO ERR]  " ++ show YStatusCodeException) False
+                writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
                 writeYahooLog ("[YAHOO ERR]  " ++ show body2) False
-                return $ Left YStatusCodeException
+                return $ Left YL.YStatusCodeException
 
 readToType :: Text -> ExceptT String IO [Parser YahooData]
 readToType ticker =
@@ -170,8 +187,8 @@ readToType ticker =
     case res of
       Left _ -> do
         writeYahooLog "[YAHOO ERR] readToType received Left result " False
-        writeYahooLog ("[YAHOO ERR]  " ++ show YStatusCodeException) False
-        return $ Left $ show YStatusCodeException
+        writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
+        return $ Left $ show YL.YStatusCodeException
       Right yd -> do
         writeYahooLog "[YAHOO] readToType received Right result " False
         let charList = lines $ C.unpack yd
@@ -203,14 +220,14 @@ saveCompanyData companyE = do
       return ()
 
 onespace :: Text
-onespace = (" " :: Text)
+onespace = " " :: Text
 
 writeYahooLog :: String -> Bool -> IO ()
 writeYahooLog s printToFile = do
   now <- getCurrentTime
   _ <- putStrLn $ onespace
-      <> (T.pack (show now)) <> onespace
-      <> (T.pack s)
+      <> T.pack (show now) <> onespace
+      <> T.pack s
   when printToFile $ SIO.appendFile "yahoo_.txt" (show now ++ " " ++ s ++ "\r\n")
   return ()
 
