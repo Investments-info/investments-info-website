@@ -126,9 +126,8 @@ instance FromField YUTCTime where
 
 getYahooData :: Text -> ExceptT YL.YahooException IO C.ByteString
 getYahooData ticker = do
-  -- endDate <- getCurrentTime
-  let endDate  = UTCTime  (fromGregorian 2200 01 01) 0
-      starDate = UTCTime  (fromGregorian 2000 01 01) 0
+  endDate <- liftIO getCurrentTime
+  let starDate = UTCTime  (fromGregorian 2000 01 01) 0
   getYahooHistoData ticker starDate endDate
   
 
