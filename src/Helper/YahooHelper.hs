@@ -1,6 +1,6 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE RecordWildCards     #-}
 
 module Helper.YahooHelper
   ( fetchHistoricalData
@@ -9,88 +9,43 @@ module Helper.YahooHelper
   , YL.YahooException(..)
   ) where
 
-import Control.Exception as E
-import Control.Lens
-import Control.Monad (mzero)
-import Control.Monad.Except
+import           Control.Exception as E
+import           Control.Lens
+import           Control.Monad (mzero)
+import           Control.Monad.Except
 import qualified Data.ByteString as BB
--- import Data.ByteString.Lazy as B (ByteString, drop, take)
 import qualified Data.ByteString.Lazy.Char8 as C
-import Data.CSV.Conduit.Conversion as CSVC
-import Data.Int
-import Data.List.Split
-import Data.Text as T hiding (length, lines, map, splitOn)
-import Data.Text (Text)
-import Data.Time
-import Data.Time.Clock.POSIX
--- import Data.Typeable
-import Helper.YahooDB
-import Import hiding (httpLbs, newManager)
-import Network.HTTP.Client
-import Network.HTTP.Client.TLS
-import qualified Network.Wreq as W
-       (responseBody, responseStatus, statusCode)
-import System.IO as SIO (appendFile)
--- import Text.Regex.PCRE
-
--- yadata Lib
+import           Data.CSV.Conduit.Conversion as CSVC
+import           Data.Int
+import           Data.List.Split
+import           Data.Text as T hiding (length, lines, map, splitOn)
+import           Data.Text (Text)
+import           Data.Time
+import           Data.Time.Clock.POSIX
+import           Helper.YahooDB
+import           Import hiding (httpLbs, newManager)
+import           Network.HTTP.Client
+import           Network.HTTP.Client.TLS
+import qualified Network.Wreq as W (responseBody, responseStatus, statusCode)
+import           System.IO as SIO (appendFile)
 import qualified Yadata.LibYahoo as YL
 
-{- crumbleLink :: String -> String
-crumbleLink ticker =
-  "https://finance.yahoo.com/quote/" ++ ticker ++ "/history?p=" ++ ticker
-
-yahooDataLink :: String -> String -> String
-yahooDataLink ticker crumb =
-  "https://query1.finance.yahoo.com/v7/finance/download/" ++ ticker ++
-  "?period1=1201686274&period2=1504364674&interval=1d&events=history&crumb=" ++
-  crumb
-
-crumblePattern :: String
-crumblePattern = "CrumbStore\":{\"crumb\":\"(.*?)\"}"
-
-getCrumble :: B.ByteString -> B.ByteString
-getCrumble crumbText = do
-  let test = crumbText =~ crumblePattern :: (Int, Int)
-  B.take
-    (fromIntegral (snd test) - 24)
-    (B.drop (fromIntegral (fst test) + 22) crumbText)
-
-data YahooException
-  = YStatusCodeException
-  | YCookieCrumbleException
-  | YWrongTickerException
-  deriving (Typeable)
-
-instance Show YahooException where
-  show YStatusCodeException = "Yadata :: data fetch exception!"
-  show YCookieCrumbleException = "Yadata :: cookie crumble exception!"
-  show YWrongTickerException = "Yadata :: wrong ticker passed in!" -}
-
--- instance Exception YL.YahooException
-
 type YDataDate = YUTCTime
-
 type YDataOpen = Double
-
 type YDataHigh = Double
-
 type YDataLow = Double
-
 type YDataClose = Double
-
 type YDataAdjClose = Double
-
 type YDataVolume = Int
 
 data YahooData = YahooData
-  { yahooDataDate :: !YDataDate
-  , yahooDataOpen :: !YDataOpen
-  , yahooDataHigh :: !YDataHigh
-  , yahooDataLow :: !YDataLow
-  , yahooDataClose :: !YDataClose
+  { yahooDataDate     :: !YDataDate
+  , yahooDataOpen     :: !YDataOpen
+  , yahooDataHigh     :: !YDataHigh
+  , yahooDataLow      :: !YDataLow
+  , yahooDataClose    :: !YDataClose
   , yahooDataAdjClose :: !YDataAdjClose
-  , yahooDataVolume :: !YDataVolume
+  , yahooDataVolume   :: !YDataVolume
   } deriving (Show, Eq)
 
 instance FromRecord YahooData where
@@ -123,14 +78,11 @@ instance FromField YUTCTime where
     x <- parseTimestamp "%Y-%m-%d" (C.unpack (C.fromStrict u))
     pure (YUTCTime x)
 
-
 getYahooData :: Text -> ExceptT YL.YahooException IO C.ByteString
 getYahooData ticker = do
   endDate <- liftIO getCurrentTime
   let starDate = UTCTime  (fromGregorian 2000 01 01) 0
   getYahooHistoData ticker starDate endDate
-  
-
 
 getYahooHistoData :: Text -> UTCTime -> UTCTime-> ExceptT YL.YahooException IO C.ByteString
 getYahooHistoData ticker startDate endDate =
@@ -154,9 +106,9 @@ getYahooHistoData ticker startDate endDate =
         -- qEndDate <- getPOSIXTime
         dataRequest <-
           parseRequest
-            (YL.yahooDataLink4TimePeriod (T.unpack ticker) (C.unpack $ YL.getCrumble body) 
+            (YL.yahooDataLink4TimePeriod (T.unpack ticker) (C.unpack $ YL.getCrumble body)
               (round (utcTimeToPOSIXSeconds startDate) :: Integer)
-              (round (utcTimeToPOSIXSeconds   endDate) :: Integer)  
+              (round (utcTimeToPOSIXSeconds   endDate) :: Integer)
             )
         now2 <- getCurrentTime
         let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
@@ -269,5 +221,5 @@ fetchHistoricalData = do
 logForkedAction
   :: (Show a, Exception e)
   => Either e a -> IO ()
-logForkedAction (Left x) = print x
+logForkedAction (Left x)  = print x
 logForkedAction (Right x) = print x
