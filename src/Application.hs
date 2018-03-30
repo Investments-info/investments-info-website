@@ -21,10 +21,7 @@ module Application
   , getDbConnectionString
   ) where
 
-import           Control.Concurrent (forkIO)
 import           Control.Monad.Logger (liftLoc, runLoggingT)
-import           Data.CSV.Conduit
-import           Data.Vector ((!))
 import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
                                               runSqlPool)
 import           Import
@@ -121,72 +118,6 @@ warpSettings foundation =
          (toLogStr $ "Exception from Warp: " ++ show e))
     defaultSettings
 
-mkCompany :: Vector ByteString -> UTCTime -> Company
-mkCompany v now =
-  Company
-  { companyTitle = decodeUtf8 $ (!) v 1
-  , companyWebsite = Just $ decodeUtf8 $ (!) v 6
-  , companyDescription = Just $ decodeUtf8 $ (!) v 7
-  , companyImage = Nothing
-  , companyTicker = decodeUtf8 $ (!) v 0
-  , companyGicssector = Just $ decodeUtf8 $ (!) v 2
-  , companyGicssubindustry = Just $ decodeUtf8 $ (!) v 3
-  , companyCreated = now
-  }
-
-insertCompanyIfNotInDB :: Int -> Vector (Vector ByteString) -> IO ()
-insertCompanyIfNotInDB vecLen v = do
-  now <- liftIO getCurrentTime
-  if vecLen > 0
-    then do
-      let c = mkCompany ((!) v vecLen) now
-      insertedCompany <-
-        runDBA $ selectFirst [CompanyTicker ==. companyTicker c] []
-      case insertedCompany of
-        Nothing -> do
-          _ <- runDBA $ insert c
-          return ()
-        Just (Entity cId dbCompany) ->
-          case companyWebsite dbCompany of
-            Nothing -> do
-              YH.writeYahooLog  "[COMPANY INSERT] Update company data" False
-              _ <-
-                runDBA $
-                update
-                  cId
-                  [ CompanyWebsite =. companyWebsite c
-                  , CompanyGicssector =. companyGicssector c
-                  , CompanyGicssubindustry =. companyGicssubindustry c
-                  ]
-              return ()
-            Just "" -> do
-              YH.writeYahooLog "[COMPANY INSERT] Update company data " False
-              _ <-
-                runDBA $
-                update
-                  cId
-                  [ CompanyWebsite =. companyWebsite c
-                  , CompanyGicssector =. companyGicssector c
-                  , CompanyGicssubindustry =. companyGicssubindustry c
-                  ]
-              return ()
-            Just _ -> return ()
-      insertCompanyIfNotInDB (vecLen - 1) v
-      return ()
-    else YH.writeYahooLog "[COMPANY INSERT] Company insert finished" False
-
-readCompanyDataFromCSV :: IO ()
-readCompanyDataFromCSV = do
-  s <- readFile "csvCompanies.csv"
-  let v =
-        decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
-  case v of
-    Left _ -> YH.writeYahooLog "[COMPANY INSERT] No file found" False
-    Right a -> do
-      let vectorLen = length a - 1
-      insertCompanyIfNotInDB vectorLen a
-      return ()
-
 -- | For yesod devel, return the Warp settings and WAI Application.
 getApplicationDev :: IO (Settings, Application)
 getApplicationDev = do
@@ -197,11 +128,6 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  lock <- newMVar ()
-  let yahoo = withMVar lock (\_ -> forever YH.fetchHistoricalData)
-  _ <- forkIO yahoo
-  let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
-  _ <- forkIO companies
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -225,11 +151,6 @@ appMain = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  lock <- newMVar ()
-  let yahoo = withMVar lock (\_ -> forever YH.fetchHistoricalData)
-  _ <- forkIO yahoo
-  let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
-  _ <- forkIO companies
   YH.writeYahooLog "[SYSTEM] production start!" False
   runTLS tlsS (warpSettings foundation) app
 
