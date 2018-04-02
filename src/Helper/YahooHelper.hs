@@ -2,13 +2,10 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RecordWildCards     #-}
 
-module Helper.YahooHelper
-  ( fetchHistoricalData
-  , logForkedAction
-  , writeYahooLog
-  , YL.YahooException(..)
-  ) where
+module Helper.YahooHelper where
 
+import           Data.Vector ((!))
+import           Data.CSV.Conduit
 import           Control.Exception as E
 import           Control.Lens
 import           Control.Monad (mzero)
@@ -207,19 +204,93 @@ parseTimestamp
   -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale
 
---------------------------------------------
--- YAHOO
--------------------------------------------
-fetchHistoricalData :: IO ()
-fetchHistoricalData = do
-  companies <- liftIO $ runDBA allCompanies
-  writeYahooLog "[fetched companies]" False
-  _ <- traverse saveCompanyData companies
-  writeYahooLog "[SAVED COMPANY DATA]" False
+--------------------------------------------------------------------------------
+
+type YQueue = TVar [Entity Company]
+
+threader :: IO ()
+threader = do
+  -- lock <- newMVar ()
+  -- let yahoo = withMVar lock (\_ -> forever fetchHistoricalData)
+  -- _ <- forkIO yahoo
+  -- let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
+  -- _ <- forkIO companies
+
+  -- companies <- liftIO $ runDBA allCompanies
+  -- ycomps <- CCSTM.atomically (newTVar companies)
+  -- c <- CCSTM.atomically $ popComp ycomps       
+  -- lock <- newMVar ()
   return ()
 
-logForkedAction
-  :: (Show a, Exception e)
-  => Either e a -> IO ()
-logForkedAction (Left x)  = print x
-logForkedAction (Right x) = print x
+-- | pop a company from queue and return it
+popComp :: YQueue -> STM (Entity Company) 
+popComp queue = do
+  (x:xs) <- readTVar queue
+  writeTVar queue xs 
+  return x 
+
+mkCompany :: Vector ByteString -> UTCTime -> Company
+mkCompany v now =
+  Company
+  { companyTitle = decodeUtf8 $ (!) v 1
+  , companyWebsite = Just $ decodeUtf8 $ (!) v 6
+  , companyDescription = Just $ decodeUtf8 $ (!) v 7
+  , companyImage = Nothing
+  , companyTicker = decodeUtf8 $ (!) v 0
+  , companyGicssector = Just $ decodeUtf8 $ (!) v 2
+  , companyGicssubindustry = Just $ decodeUtf8 $ (!) v 3
+  , companyCreated = now
+  }
+
+insertCompanyIfNotInDB :: Int -> Vector (Vector ByteString) -> IO ()
+insertCompanyIfNotInDB vecLen v = do
+  now <- liftIO getCurrentTime
+  if vecLen > 0
+    then do
+      let c = mkCompany ((!) v vecLen) now
+      insertedCompany <-
+        runDBA $ selectFirst [CompanyTicker ==. companyTicker c] []
+      case insertedCompany of
+        Nothing -> do
+          _ <- runDBA $ insert c
+          return ()
+        Just (Entity cId dbCompany) ->
+          case companyWebsite dbCompany of
+            Nothing -> do
+              writeYahooLog  "[COMPANY INSERT] Update company data" False
+              _ <-
+                runDBA $
+                update
+                  cId
+                  [ CompanyWebsite =. companyWebsite c
+                  , CompanyGicssector =. companyGicssector c
+                  , CompanyGicssubindustry =. companyGicssubindustry c
+                  ]
+              return ()
+            Just "" -> do
+              writeYahooLog "[COMPANY INSERT] Update company data " False
+              _ <-
+                runDBA $
+                update
+                  cId
+                  [ CompanyWebsite =. companyWebsite c
+                  , CompanyGicssector =. companyGicssector c
+                  , CompanyGicssubindustry =. companyGicssubindustry c
+                  ]
+              return ()
+            Just _ -> return ()
+      insertCompanyIfNotInDB (vecLen - 1) v
+      return ()
+    else writeYahooLog "[COMPANY INSERT] Company insert finished" False
+
+readCompanyDataFromCSV :: IO ()
+readCompanyDataFromCSV = do
+  s <- readFile "csvCompanies.csv"
+  let v =
+        decodeCSV defCSVSettings s :: Either SomeException (Vector (Vector ByteString))
+  case v of
+    Left _ -> writeYahooLog "[COMPANY INSERT] No file found" False
+    Right a -> do
+      let vectorLen = length a - 1
+      insertCompanyIfNotInDB vectorLen a
+      return ()
