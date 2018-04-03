@@ -4,14 +4,15 @@
 
 module Helper.YahooHelper where
 
-import           Data.Vector ((!))
-import           Data.CSV.Conduit
+import           Control.Concurrent (forkIO)
+import qualified Control.Concurrent.STM as CC
 import           Control.Exception as E
 import           Control.Lens
 import           Control.Monad (mzero)
 import           Control.Monad.Except
 import qualified Data.ByteString as BB
 import qualified Data.ByteString.Lazy.Char8 as C
+import           Data.CSV.Conduit
 import           Data.CSV.Conduit.Conversion as CSVC
 import           Data.Int
 import           Data.List.Split
@@ -19,8 +20,9 @@ import           Data.Text as T hiding (length, lines, map, splitOn)
 import           Data.Text (Text)
 import           Data.Time
 import           Data.Time.Clock.POSIX
+import           Data.Vector ((!))
 import           Helper.YahooDB
-import           Import hiding (httpLbs, newManager)
+import           Import hiding (httpLbs, mapConcurrently, newManager)
 import           Network.HTTP.Client
 import           Network.HTTP.Client.TLS
 import qualified Network.Wreq as W (responseBody, responseStatus, statusCode)
@@ -75,98 +77,14 @@ instance FromField YUTCTime where
     x <- parseTimestamp "%Y-%m-%d" (C.unpack (C.fromStrict u))
     pure (YUTCTime x)
 
-getYahooData :: Text -> ExceptT YL.YahooException IO C.ByteString
-getYahooData ticker = do
-  endDate <- liftIO getCurrentTime
-  let starDate = UTCTime  (fromGregorian 2000 01 01) 0
-  getYahooHistoData ticker starDate endDate
-
-getYahooHistoData :: Text -> UTCTime -> UTCTime-> ExceptT YL.YahooException IO C.ByteString
-getYahooHistoData ticker startDate endDate =
-  ExceptT $ do
-    manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
-    setGlobalManager manager
-    cookieRequest <- parseRequest (YL.crumbleLink "KO")
-    crumb <-
-      E.try (httpLbs cookieRequest manager) :: IO (Either YL.YahooException (Response C.ByteString))
-    case crumb of
-      Left _ -> do
-        writeYahooLog "[YAHOO ERR] cookieRequest received Left result " False
-        writeYahooLog ("[YAHOO ERR]  " ++ show YL.YCookieCrumbleException) False
-        return $ Left YL.YCookieCrumbleException
-      Right crb -> do
-        writeYahooLog "[YAHOO] cookieRequest received Right result " False
-        now <- getCurrentTime
-        let (jar1, _) =
-              updateCookieJar crb cookieRequest now (createCookieJar [])
-        let body = crb ^. W.responseBody
-        -- qEndDate <- getPOSIXTime
-        dataRequest <-
-          parseRequest
-            (YL.yahooDataLink4TimePeriod (T.unpack ticker) (C.unpack $ YL.getCrumble body)
-              (round (utcTimeToPOSIXSeconds startDate) :: Integer)
-              (round (utcTimeToPOSIXSeconds   endDate) :: Integer)
-            )
-        now2 <- getCurrentTime
-        let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
-        result <-
-          E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
-        case result of
-          Left _ -> do
-            writeYahooLog "[YAHOO ERR] yahooDataRequest received Left result " False
-            writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
-            return $ Left YL.YStatusCodeException
-          Right d -> do
-            writeYahooLog "[YAHOO] yahooDataRequest received Right result " False
-            let body2 = d ^. W.responseBody
-            let status = d ^. W.responseStatus . W.statusCode
-            if status == 200
-              then return $ Right body2
-              else do
-                writeYahooLog
-                  "[YAHOO ERR] yahooDataRequest status code was not 200" False
-                writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
-                writeYahooLog ("[YAHOO ERR]  " ++ show body2) False
-                return $ Left YL.YStatusCodeException
-
-readToType :: Text -> ExceptT String IO [Parser YahooData]
-readToType ticker =
-  ExceptT $ do
-    res <- runExceptT $ getYahooData ticker
-    case res of
-      Left _ -> do
-        writeYahooLog "[YAHOO ERR] readToType received Left result " False
-        writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
-        return $ Left $ show YL.YStatusCodeException
-      Right yd -> do
-        writeYahooLog "[YAHOO] readToType received Right result " False
-        let charList = lines $ C.unpack yd
-        let charListofLists = fmap (splitOn ",") charList
-        let bslListofLists = (fmap . fmap) C.pack charListofLists
-        let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
-        let recordsList = fmap record bsListofLists
-        let result = fmap parseRecord recordsList
-        return $ Right result
-
-saveCompanyData :: Entity Company -> IO ()
-saveCompanyData companyE = do
-  let cid = entityKey companyE
-  let company = entityVal companyE
-  pl <- runExceptT $ readToType (companyTicker company)
-  case pl of
-    Left e -> do
-      writeYahooLog e False
-      return ()
-    Right res -> do
-      let result = fmap runParser res
-      let onlyRights = rights result
-      let historicalList =
-            map
-              (convertToHistoricalAction cid (companyTicker company))
-              onlyRights
-      _ <- liftIO $ mapM insertIfNotSaved historicalList
-      writeYahooLog "[saveCompanyData received Right result]" False
-      return ()
+readToType :: C.ByteString -> [Parser YahooData]
+readToType res = do
+  let charList = lines $ C.unpack res
+  let charListofLists = fmap (splitOn ",") charList
+  let bslListofLists = (fmap . fmap) C.pack charListofLists
+  let bsListofLists = (fmap . fmap) toStrict1 bslListofLists
+  let recordsList = fmap record bsListofLists
+  fmap parseRecord recordsList
 
 onespace :: Text
 onespace = " " :: Text
@@ -180,9 +98,11 @@ writeYahooLog s printToFile = do
   when printToFile $ SIO.appendFile "yahoo_.txt" (show now ++ " " ++ s ++ "\r\n")
   return ()
 
-convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
-convertToHistoricalAction cid ticker YahooData {..} =
-  Historical
+convertToHistoricalAction :: Maybe CompanyId -> Maybe Text -> YahooData -> Maybe Historical
+convertToHistoricalAction Nothing _ _ = Nothing
+convertToHistoricalAction _ Nothing _ = Nothing
+convertToHistoricalAction (Just cid) (Just ticker) YahooData {..} =
+  return $ Historical
   { historicalCompanyId = cid
   , historicalTicker = ticker
   , historicalRecordDate = getYtime yahooDataDate
@@ -203,31 +123,6 @@ parseTimestamp
   -> String -- ^ Input string
   -> m t
 parseTimestamp = parseTimeM True defaultTimeLocale
-
---------------------------------------------------------------------------------
-
-type YQueue = TVar [Entity Company]
-
-threader :: IO ()
-threader = do
-  -- lock <- newMVar ()
-  -- let yahoo = withMVar lock (\_ -> forever fetchHistoricalData)
-  -- _ <- forkIO yahoo
-  -- let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
-  -- _ <- forkIO companies
-
-  -- companies <- liftIO $ runDBA allCompanies
-  -- ycomps <- CCSTM.atomically (newTVar companies)
-  -- c <- CCSTM.atomically $ popComp ycomps       
-  -- lock <- newMVar ()
-  return ()
-
--- | pop a company from queue and return it
-popComp :: YQueue -> STM (Entity Company) 
-popComp queue = do
-  (x:xs) <- readTVar queue
-  writeTVar queue xs 
-  return x 
 
 mkCompany :: Vector ByteString -> UTCTime -> Company
 mkCompany v now =
@@ -257,7 +152,7 @@ insertCompanyIfNotInDB vecLen v = do
         Just (Entity cId dbCompany) ->
           case companyWebsite dbCompany of
             Nothing -> do
-              writeYahooLog  "[COMPANY INSERT] Update company data" False
+              writeYahooLog "[COMPANY INSERT] Update company data" False
               _ <-
                 runDBA $
                 update
@@ -294,3 +189,162 @@ readCompanyDataFromCSV = do
       let vectorLen = length a - 1
       insertCompanyIfNotInDB vectorLen a
       return ()
+
+--------------------------------------------------------------------------------
+-- | Part related to doing threaded stuff with yahoo data
+
+type YQueue = TVar [Entity Company]
+
+-- | pop a company from queue and return it
+popComp :: YQueue -> STM (Maybe (Entity Company))
+popComp queue = do
+  l <- readTVar queue
+  case l of
+    (x:xs) -> do
+      writeTVar queue xs
+      return $ Just x
+    _ -> return Nothing
+
+readQ :: TChan a -> IO a
+readQ = atomically . readTChan
+
+writeQ :: MonadIO m => TChan a -> Maybe a -> m ()
+writeQ ch v =
+  case v of
+    Just a  -> atomically $ writeTChan ch a
+    Nothing -> return ()
+
+readerThread :: TChan Text -> IO ThreadId
+readerThread queue = forkIO loop
+  where
+    loop = readQ queue >>= putStrLn . (("Received: " :: Text) <>) >> loop
+
+
+-- let yahoo = withMVarMasked lock (\_ -> fetchHistoricalData)
+-- _ <- forkIO yahoo
+-- let companies = withMVar lock (\_ -> readCompanyDataFromCSV)
+-- _ <- forkIO companies
+threader :: IO ()
+threader = do
+  queue <- atomically $ newTChan
+  companies <- liftIO $ runDBA allCompanies
+  ycomps <- CC.atomically (newTVar companies)
+  _ <- readerThread queue
+  loop queue ycomps
+  where
+    loop queue ycomps = do
+      c <- CC.atomically (popComp ycomps)
+      writeQ queue (companyTitle . entityVal <$> c)
+      y <- liftIO (getYahoo (companyTicker . entityVal <$> c))
+      case y of
+        Just a -> do
+          let res = readToType a
+          let presult = fmap runParser res
+          let onlyRights = rights presult
+          let historicalList =
+                map
+                  (convertToHistoricalAction
+                     (entityKey <$> c)
+                     (companyTicker . entityVal <$> c))
+                  onlyRights
+          _ <- liftIO $ mapM insertIfNotSaved historicalList
+          return ()
+        Nothing -> return ()
+      loop queue ycomps
+
+getYahoo :: Maybe Text -> IO (Maybe C.ByteString)
+getYahoo (Just ticker) = do
+  endDate <- liftIO getCurrentTime
+  let starDate = UTCTime  (fromGregorian 2000 01 01) 0
+  getYahooHisto ticker starDate endDate
+getYahoo Nothing = return Nothing
+
+getYahooHisto :: Text -> UTCTime -> UTCTime-> IO (Maybe C.ByteString)
+getYahooHisto ticker startDate endDate = do
+  manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
+  setGlobalManager manager
+  cookieRequest <- parseRequest (YL.crumbleLink "KO")
+  crumb <-
+    E.try (httpLbs cookieRequest manager) :: IO (Either YL.YahooException (Response C.ByteString))
+  case crumb of
+    Left _ -> return Nothing
+    Right crb -> do
+      now <- getCurrentTime
+      let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
+      let body = crb ^. W.responseBody
+      dataRequest <-
+        parseRequest
+          (YL.yahooDataLink4TimePeriod
+             (T.unpack ticker)
+             (C.unpack $ YL.getCrumble body)
+             (round (utcTimeToPOSIXSeconds startDate) :: Integer)
+             (round (utcTimeToPOSIXSeconds endDate) :: Integer))
+      now2 <- getCurrentTime
+      let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
+      result <-
+        E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
+      case result of
+        Left _ -> return Nothing
+        Right d -> do
+          let body2 = d ^. W.responseBody
+          let status = d ^. W.responseStatus . W.statusCode
+          if status == 200
+            then return $ Just body2
+            else do
+              return Nothing
+
+--------------------------------------------------------------------------------
+-- old version with exceptions
+-- getYahooData :: Text -> ExceptT YL.YahooException IO C.ByteString
+-- getYahooData ticker = do
+--   endDate <- liftIO getCurrentTime
+--   let starDate = UTCTime  (fromGregorian 2000 01 01) 0
+--   getYahooHistoData ticker starDate endDate
+
+-- getYahooHistoData :: Text -> UTCTime -> UTCTime-> ExceptT YL.YahooException IO C.ByteString
+-- getYahooHistoData ticker startDate endDate =
+--   ExceptT $ do
+--     manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
+--     setGlobalManager manager
+--     cookieRequest <- parseRequest (YL.crumbleLink "KO")
+--     crumb <-
+--       E.try (httpLbs cookieRequest manager) :: IO (Either YL.YahooException (Response C.ByteString))
+--     case crumb of
+--       Left _ -> do
+--         writeYahooLog "[YAHOO ERR] cookieRequest received Left result " False
+--         writeYahooLog ("[YAHOO ERR]  " ++ show YL.YCookieCrumbleException) False
+--         return $ Left YL.YCookieCrumbleException
+--       Right crb -> do
+--         writeYahooLog "[YAHOO] cookieRequest received Right result " False
+--         now <- getCurrentTime
+--         let (jar1, _) =
+--               updateCookieJar crb cookieRequest now (createCookieJar [])
+--         let body = crb ^. W.responseBody
+--         -- qEndDate <- getPOSIXTime
+--         dataRequest <-
+--           parseRequest
+--             (YL.yahooDataLink4TimePeriod (T.unpack ticker) (C.unpack $ YL.getCrumble body)
+--               (round (utcTimeToPOSIXSeconds startDate) :: Integer)
+--               (round (utcTimeToPOSIXSeconds   endDate) :: Integer)
+--             )
+--         now2 <- getCurrentTime
+--         let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
+--         result <-
+--           E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
+--         case result of
+--           Left _ -> do
+--             writeYahooLog "[YAHOO ERR] yahooDataRequest received Left result " False
+--             writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
+--             return $ Left YL.YStatusCodeException
+--           Right d -> do
+--             writeYahooLog "[YAHOO] yahooDataRequest received Right result " False
+--             let body2 = d ^. W.responseBody
+--             let status = d ^. W.responseStatus . W.statusCode
+--             if status == 200
+--               then return $ Right body2
+--               else do
+--                 writeYahooLog
+--                   "[YAHOO ERR] yahooDataRequest status code was not 200" False
+--                 writeYahooLog ("[YAHOO ERR]  " ++ show YL.YStatusCodeException) False
+--                 writeYahooLog ("[YAHOO ERR]  " ++ show body2) False
+--                 return $ Left YL.YStatusCodeException
