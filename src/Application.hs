@@ -21,6 +21,7 @@ module Application
   , getDbConnectionString
   ) where
 
+import           Control.Concurrent (forkIO)
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
                                               runSqlPool)
@@ -128,6 +129,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
+  -- _ <- withAsync \_ -> threader 
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
