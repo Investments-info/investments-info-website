@@ -18,9 +18,8 @@ module Helper.YahooDB where
 import qualified Database.Esqueleto as E
 import           Import
 
-insertIfNotSaved :: Maybe Historical -> IO (Key Historical)
-insertIfNotSaved Nothing = return $ toSqlKey 0
-insertIfNotSaved (Just hrec) = do
+insertIfNotSaved :: Historical -> IO (Key Historical)
+insertIfNotSaved hrec = do
   (insertedRecords:_) :: [E.Value Int] <-
     runDBA $
     E.select $

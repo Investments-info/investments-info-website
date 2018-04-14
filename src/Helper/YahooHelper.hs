@@ -1,10 +1,12 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE BangPatterns        #-}
 
 module Helper.YahooHelper where
 
 import           Control.Concurrent (forkIO)
+import           Control.Concurrent.Async (mapConcurrently)
 import qualified Control.Concurrent.STM as CC
 import           Control.Exception as E
 import           Control.Lens
@@ -98,11 +100,9 @@ writeYahooLog s printToFile = do
   when printToFile $ SIO.appendFile "yahoo_.txt" (show now ++ " " ++ s ++ "\r\n")
   return ()
 
-convertToHistoricalAction :: Maybe CompanyId -> Maybe Text -> YahooData -> Maybe Historical
-convertToHistoricalAction Nothing _ _ = Nothing
-convertToHistoricalAction _ Nothing _ = Nothing
-convertToHistoricalAction (Just cid) (Just ticker) YahooData {..} =
-  return $ Historical
+convertToHistoricalAction :: CompanyId -> Text -> YahooData -> Historical
+convertToHistoricalAction cid ticker YahooData {..} =
+  Historical
   { historicalCompanyId = cid
   , historicalTicker = ticker
   , historicalRecordDate = getYtime yahooDataDate
@@ -193,18 +193,6 @@ readCompanyDataFromCSV = do
 --------------------------------------------------------------------------------
 -- | Part related to doing threaded stuff with yahoo data
 
-type YQueue = TVar [Entity Company]
-
--- | pop a company from queue and return it
-popComp :: YQueue -> STM (Maybe (Entity Company))
-popComp queue = do
-  l <- readTVar queue
-  case l of
-    (x:xs) -> do
-      writeTVar queue xs
-      return $ Just x
-    _ -> return Nothing
-
 readQ :: TChan a -> IO a
 readQ = atomically . readTChan
 
@@ -223,41 +211,37 @@ threader :: IO ()
 threader = do
   queue <- atomically $ newTChan
   companies <- liftIO $ runDBA allCompanies
-  ycomps <- CC.atomically (newTVar companies)
   _ <- readerThread queue
-  loop queue ycomps
-  where
-    loop queue ycomps = do
-      threadDelay 100000000
-      c <- CC.atomically (popComp ycomps)
-      writeQ queue (companyTitle . entityVal <$> c)
-      _ <- forkIO $ do
-        y <- liftIO (getYahoo (companyTicker . entityVal <$> c))
-        case y of
-          Just a -> do
-            writeQ queue (Just "yahoo result") 
-            let res = readToType a
-            let presult = fmap runParser res
-            let onlyRights = rights presult
-            let historicalList =
-                  map
-                    (convertToHistoricalAction
-                      (entityKey <$> c)
-                      (companyTicker . entityVal <$> c))
-                    onlyRights
-            _ <- liftIO $ mapM insertIfNotSaved historicalList
-            loop queue ycomps
-          Nothing -> do
-            writeQ queue $ Just "error result" 
-            loop queue ycomps
-      loop queue ycomps
+  _ <- mapConcurrently (yaction queue) companies 
+  writeQ queue $ Just "[END]" 
+  return () 
 
-getYahoo :: Maybe Text -> IO (Maybe C.ByteString)
-getYahoo (Just ticker) = do
+yaction (IsString a , MonaIO m) TChan a -> Entity Company -> m a 
+yaction queue c = do
+  y <- liftIO (getYahoo (companyTicker $ entityVal c))
+  case y of
+    Just a -> do
+      writeQ queue (Just $ "yahoo result")
+      let res = readToType a
+      let presult = fmap runParser res
+      let onlyRights = rights presult
+      let historicalList =
+            map
+              (convertToHistoricalAction
+                 (entityKey c)
+                 (companyTicker (entityVal c)))
+              onlyRights
+      _ <- liftIO $ mapM insertIfNotSaved historicalList
+      writeQ queue (Just $ "inserted yahoo result ")
+    Nothing -> do
+      writeQ queue $ Just "error result"
+      return ()
+
+getYahoo :: Text -> IO (Maybe C.ByteString)
+getYahoo ticker = do
   endDate <- liftIO getCurrentTime
   let starDate = UTCTime  (fromGregorian 2000 01 01) 0
   getYahooHisto ticker starDate endDate
-getYahoo Nothing = return Nothing
 
 getYahooHisto :: Text -> UTCTime -> UTCTime-> IO (Maybe C.ByteString)
 getYahooHisto ticker startDate endDate = do
