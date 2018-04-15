@@ -195,7 +195,7 @@ readCompanyDataFromCSV = do
 readQ :: TChan a -> IO a
 readQ = atomically . readTChan
 
-writeQ :: MonadIO m => TChan a -> Maybe a -> m ()
+writeQ :: MonadIO m => TChan Text -> Maybe Text -> m ()
 writeQ ch v =
   case v of
     Just a  -> atomically $ writeTChan ch a
@@ -206,7 +206,7 @@ readerThread queue = forkIO loop
   where
     loop = readQ queue >>= putStrLn . (("[THREAD LOG] " :: Text) <>) >> loop
 
-go :: (IsString a) => TChan a -> [Entity Company] -> IO ()
+go :: TChan Text -> [Entity Company] -> IO ()
 go queue (Entity k c:cs) = do
   _ <- mapConcurrently (yaction queue k) [c] 
   go queue cs
@@ -222,13 +222,13 @@ threader = do
   writeQ queue $ Just "[END]" 
   return () 
 
-yaction :: (IsString a , MonadIO m, MonadBase IO m) => TChan a -> CompanyId -> Company -> m ()
+yaction :: (MonadIO m, MonadBase IO m) => TChan Text -> CompanyId -> Company -> m ()
 yaction queue cid c = do
   y <- liftIO (getYahoo (companyTicker c))
   threadDelay 10000000
   case y of
-    Just a -> do
-      _ <- liftIO $ writeQ queue (Just $ "yahoo result")
+    Right a -> do
+      _ <- liftIO $ writeQ queue (Just $ "yahoo result for " ++ (companyTitle c))
       let res = readToType a
       let presult = fmap runParser res
       let onlyRights = rights presult
@@ -239,19 +239,22 @@ yaction queue cid c = do
                  (companyTicker c))
               onlyRights
       _ <- liftIO $ mapM insertIfNotSaved historicalList
-      _ <- liftIO $ writeQ queue (Just $ "inserted yahoo result ")
+      _ <- liftIO $ writeQ queue (Just $ "inserted yahoo result for " ++ (companyTitle c))
       return ()
-    Nothing -> do
-      _ <- liftIO $ writeQ queue $ Just "error result"
+    Left e -> do
+      _ <- liftIO $ writeQ queue $
+             Just $ "error result for " ++
+               (companyTitle c) ++
+               (T.pack $ show e) 
       return ()
 
-getYahoo :: Text -> IO (Maybe C.ByteString)
+getYahoo :: Text -> IO (Either C.ByteString C.ByteString)
 getYahoo ticker = do
   endDate <- liftIO getCurrentTime
   let starDate = UTCTime  (fromGregorian 2000 01 01) 0
   getYahooHisto ticker starDate endDate
 
-getYahooHisto :: Text -> UTCTime -> UTCTime-> IO (Maybe C.ByteString)
+getYahooHisto :: Text -> UTCTime -> UTCTime-> IO (Either C.ByteString C.ByteString)
 getYahooHisto ticker startDate endDate = do
   manager <- newManager $ managerSetProxy noProxy tlsManagerSettings
   setGlobalManager manager
@@ -259,7 +262,7 @@ getYahooHisto ticker startDate endDate = do
   crumb <-
     E.try (httpLbs cookieRequest manager) :: IO (Either YL.YahooException (Response C.ByteString))
   case crumb of
-    Left _ -> return Nothing
+    Left e -> return $ Left $ C.pack $ show e 
     Right crb -> do
       now <- getCurrentTime
       let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
@@ -276,11 +279,11 @@ getYahooHisto ticker startDate endDate = do
       result <-
         E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
       case result of
-        Left _ -> return Nothing
+        Left e -> return $ Left $ C.pack $ show e
         Right d -> do
           let body2 = d ^. W.responseBody
           let status = d ^. W.responseStatus . W.statusCode
           if status == 200
-            then return $ Just body2
+            then return $ Right body2
             else do
-              return Nothing
+              return $ Left body2 
