@@ -21,6 +21,7 @@ module Application
   , getDbConnectionString
   ) where
 
+import           Control.Concurrent (forkIO)
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
                                               runSqlPool)
@@ -128,7 +129,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- liftIO threader 
+  _ <- forkIO threader 
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -153,6 +154,7 @@ appMain = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
+  _ <- forkIO threader 
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------

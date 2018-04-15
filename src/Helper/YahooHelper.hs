@@ -222,9 +222,10 @@ threader = do
   writeQ queue $ Just "[END]" 
   return () 
 
-yaction :: (IsString a , MonadIO m) => TChan a -> CompanyId -> Company -> m ()
+yaction :: (IsString a , MonadIO m, MonadBase IO m) => TChan a -> CompanyId -> Company -> m ()
 yaction queue cid c = do
   y <- liftIO (getYahoo (companyTicker c))
+  threadDelay 10000000
   case y of
     Just a -> do
       _ <- liftIO $ writeQ queue (Just $ "yahoo result")
