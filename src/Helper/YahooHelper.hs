@@ -7,7 +7,6 @@ module Helper.YahooHelper where
 
 import           Control.Concurrent (forkIO)
 import           Control.Concurrent.Async (mapConcurrently)
-import qualified Control.Concurrent.STM as CC
 import           Control.Exception as E
 import           Control.Lens
 import           Control.Monad (mzero)
@@ -205,36 +204,44 @@ writeQ ch v =
 readerThread :: TChan Text -> IO ThreadId
 readerThread queue = forkIO loop
   where
-    loop = readQ queue >>= putStrLn . (("Received: " :: Text) <>) >> loop
+    loop = readQ queue >>= putStrLn . (("[THREAD LOG] " :: Text) <>) >> loop
+
+go :: (IsString a) => TChan a -> [Entity Company] -> IO ()
+go queue (Entity k c:cs) = do
+  _ <- mapConcurrently (yaction queue k) [c] 
+  go queue cs
+go _ _ = return () 
 
 threader :: IO ()
 threader = do
   queue <- atomically $ newTChan
   companies <- liftIO $ runDBA allCompanies
   _ <- readerThread queue
-  _ <- mapConcurrently (yaction queue) companies 
+  writeQ queue $ Just "[START]" 
+  go queue companies
   writeQ queue $ Just "[END]" 
   return () 
 
-yaction (IsString a , MonaIO m) TChan a -> Entity Company -> m a 
-yaction queue c = do
-  y <- liftIO (getYahoo (companyTicker $ entityVal c))
+yaction :: (IsString a , MonadIO m) => TChan a -> CompanyId -> Company -> m ()
+yaction queue cid c = do
+  y <- liftIO (getYahoo (companyTicker c))
   case y of
     Just a -> do
-      writeQ queue (Just $ "yahoo result")
+      _ <- liftIO $ writeQ queue (Just $ "yahoo result")
       let res = readToType a
       let presult = fmap runParser res
       let onlyRights = rights presult
       let historicalList =
             map
               (convertToHistoricalAction
-                 (entityKey c)
-                 (companyTicker (entityVal c)))
+                 cid
+                 (companyTicker c))
               onlyRights
       _ <- liftIO $ mapM insertIfNotSaved historicalList
-      writeQ queue (Just $ "inserted yahoo result ")
+      _ <- liftIO $ writeQ queue (Just $ "inserted yahoo result ")
+      return ()
     Nothing -> do
-      writeQ queue $ Just "error result"
+      _ <- liftIO $ writeQ queue $ Just "error result"
       return ()
 
 getYahoo :: Text -> IO (Maybe C.ByteString)
