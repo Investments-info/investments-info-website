@@ -261,29 +261,31 @@ getYahooHisto ticker startDate endDate = do
   cookieRequest <- parseRequest (YL.crumbleLink "KO")
   crumb <-
     E.try (httpLbs cookieRequest manager) :: IO (Either YL.YahooException (Response C.ByteString))
-  case crumb of
-    Left e -> return $ Left $ C.pack $ show e 
-    Right crb -> do
-      now <- getCurrentTime
-      let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
-      let body = crb ^. W.responseBody
-      dataRequest <-
-        parseRequest
-          (YL.yahooDataLink4TimePeriod
-             (T.unpack ticker)
-             (C.unpack $ YL.getCrumble body)
-             (round (utcTimeToPOSIXSeconds startDate) :: Integer)
-             (round (utcTimeToPOSIXSeconds endDate) :: Integer))
-      now2 <- getCurrentTime
-      let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
-      result <-
-        E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
-      case result of
-        Left e -> return $ Left $ C.pack $ show e
-        Right d -> do
-          let body2 = d ^. W.responseBody
-          let status = d ^. W.responseStatus . W.statusCode
-          if status == 200
-            then return $ Right body2
-            else do
-              return $ Left body2 
+  now <- getCurrentTime
+  let crb =
+       case crumb of
+         Right c -> c
+         Left  e -> E.throw e 
+  let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
+  let body = crb ^. W.responseBody
+  dataRequest <-
+    parseRequest
+      (YL.yahooDataLink4TimePeriod
+         (T.unpack ticker)
+         (C.unpack $ YL.getCrumble body)
+         (round (utcTimeToPOSIXSeconds startDate) :: Integer)
+         (round (utcTimeToPOSIXSeconds endDate) :: Integer))
+  now2 <- getCurrentTime
+  let (dataReq, _) = insertCookiesIntoRequest dataRequest jar1 now2
+  result <-
+    E.try (httpLbs dataReq manager) :: IO (Either YL.YahooException (Response C.ByteString))
+  let r =
+       case result of
+         Right res -> res
+         Left  e -> E.throw e 
+  let body2 = r ^. W.responseBody
+  let status = r ^. W.responseStatus . W.statusCode
+  if status == 200
+    then return $ Right body2
+    else do
+      return $ Left body2
