@@ -2,14 +2,10 @@ FROM heroku/heroku:16
 
 ENV LANG C.UTF-8
 
-# Install required packages.
 RUN apt-get update
-RUN apt-get upgrade -y --assume-yes
-# Install packages for stack and ghc.
-RUN apt-get install -y --assume-yes xz-utils gcc libgmp-dev zlib1g-dev
-# Install packages needed for libraries used by our app.
+# RUN apt-get upgrade -y --assume-yes
+RUN apt-get install -y --assume-yes xz-utils gcc libgmp-dev zlib1g-dev libcurl4-gnutls-dev
 RUN apt-get install -y --assume-yes libpq-dev
-# Install convenience utilities, like tree, ping, and vim.
 RUN apt-get install -y --assume-yes tree iputils-ping vim-nox
 RUN apt-get install -y --assume-yes curl
 # Remove apt caches to reduce the size of our container.
@@ -19,8 +15,6 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN mkdir -p /opt/stack/bin
 RUN curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C /opt/stack/bin '*/stack'
 
-# Create /opt/investments-info/bin and /opt/investments-info.  Set
-# /opt/investments-info/ as the working directory.
 RUN mkdir -p /opt/investments-info
 RUN mkdir -p /opt/investments-info/bin
 WORKDIR /opt/investments-info
@@ -30,18 +24,13 @@ ENV PATH "$PATH:/opt/stack/bin:/opt/investments-info/bin"
 
 # Install GHC using stack, based on your app's stack.yaml file.
 COPY ./stack.yaml /opt/investments-info/stack.yaml
-RUN stack --no-terminal setup
+RUN stack setup
 
-# Install all dependencies in app's .cabal file.
 COPY ./investments-info.cabal /opt/investments-info/investments-info.cabal
-RUN stack --no-terminal test --only-dependencies
+# RUN stack --no-terminal test --only-dependencies
 
-# Build application.
 COPY . /opt/investments-info/
-RUN stack --no-terminal build
-
-# Install application binaries to /opt/investments-info/bin.
-RUN stack --no-terminal --local-bin-path /opt/investments-info/bin install
+RUN stack build --local-bin-path /opt/investments-info/bin
 
 # Remove source code.
 #RUN rm -rf /opt/investments-info/
@@ -51,8 +40,5 @@ RUN useradd -ms /bin/bash apiuser
 RUN chown -R apiuser:apiuser /opt/investments-info
 USER apiuser
 ENV PATH "$PATH:/opt/stack/bin:/opt/investments-info/bin"
-
-# Set the working directory as /opt/investments-info/.
-WORKDIR /opt/investments-info
 
 CMD /opt/investments-info/bin/investments-info
