@@ -4,7 +4,7 @@ ENV LANG C.UTF-8
 
 RUN apt-get update
 # RUN apt-get upgrade -y --assume-yes
-RUN apt-get install -y --assume-yes xz-utils gcc libgmp-dev zlib1g-dev libcurl4-gnutls-dev
+RUN apt-get install -y --assume-yes xz-utils gcc libgmp-dev zlib1g-dev libcurl4-gnutls-dev libssl-dev libcairo2-dev
 RUN apt-get install -y --assume-yes libpq-dev
 RUN apt-get install -y --assume-yes tree iputils-ping vim-nox
 RUN apt-get install -y --assume-yes curl
@@ -24,13 +24,13 @@ ENV PATH "$PATH:/opt/stack/bin:/opt/investments-info/bin"
 
 # Install GHC using stack, based on your app's stack.yaml file.
 COPY ./stack.yaml /opt/investments-info/stack.yaml
-RUN stack setup
+# RUN stack setup
 
 COPY ./investments-info.cabal /opt/investments-info/investments-info.cabal
 # RUN stack --no-terminal test --only-dependencies
 
 COPY . /opt/investments-info/
-RUN stack build --local-bin-path /opt/investments-info/bin
+RUN stack build --install-ghc --local-bin-path /opt/investments-info/bin
 
 # Remove source code.
 #RUN rm -rf /opt/investments-info/
