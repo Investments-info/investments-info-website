@@ -4,6 +4,7 @@
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE CPP                   #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Application
@@ -21,44 +22,43 @@ module Application
   , getDbConnectionString
   ) where
 
-import           Control.Concurrent (forkIO)
-import           Control.Monad.Logger (liftLoc, runLoggingT)
+import Control.Concurrent (forkIO)
+import Control.Monad.Logger (liftLoc, runLoggingT)
 import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
                                               runSqlPool)
-import           Import
-import           Language.Haskell.TH.Syntax (qLocation)
-import           Network.Wai (Middleware)
+import Handler.About
+import Handler.Admin
+import Handler.Api
+import Handler.ApiCompanies
+import Handler.Auth
+import Handler.Common
+import Handler.Company
+import Handler.CompanyDetails
+import Handler.CompanyList
+import Handler.Historical
+import Handler.Home
+import Handler.LogViewer
+import Handler.NewsletterManager
+import Handler.NewsletterNewUser
+import Handler.NewsletterSend
+import Handler.NewsletterSendt
+import Handler.Profile
+import Handler.SearchArticles
+import Handler.SearchCompanies
+import Handler.StoryDetails
+import Handler.StoryList
+import Helper.Fixtures as F
+import Helper.YahooHelper as YH
+import Import
+import Language.Haskell.TH.Syntax (qLocation)
+import Network.Wai (Middleware)
 import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
                                            getPort, setHost, setOnException, setPort)
-import           Network.Wai.Handler.WarpTLS
+import Network.Wai.Handler.WarpTLS
 import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
                                                        OutputFormat (..), destination,
                                                        mkRequestLogger, outputFormat)
-import           System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
-
-import           Handler.About
-import           Handler.Admin
-import           Handler.Api
-import           Handler.ApiCompanies
-import           Handler.Auth
-import           Handler.Common
-import           Handler.Company
-import           Handler.CompanyDetails
-import           Handler.CompanyList
-import           Handler.Historical
-import           Handler.Home
-import           Handler.LogViewer
-import           Handler.NewsletterManager
-import           Handler.NewsletterNewUser
-import           Handler.NewsletterSend
-import           Handler.NewsletterSendt
-import           Handler.Profile
-import           Handler.SearchArticles
-import           Handler.SearchCompanies
-import           Handler.StoryDetails
-import           Handler.StoryList
-import           Helper.Fixtures as F
-import           Helper.YahooHelper as YH
+import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
 mkYesodDispatch "App" resourcesApp
 
@@ -74,11 +74,18 @@ makeFoundation appSettings = do
   let mkFoundation appConnPool = App {..}
       tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
       logFunc = messageLoggerSource tempFoundation appLogger
+
+#if defined(DEVELOPMENT)
+  let dbconf = appDatabaseConf appSettings
+#else
+  dbconf <- herokuConf
+#endif
+
   pool <-
     flip runLoggingT logFunc $
     createPostgresqlPool
-      (pgConnStr $ appDatabaseConf appSettings)
-      (pgPoolSize $ appDatabaseConf appSettings)
+      (pgConnStr $ dbconf)
+      (pgPoolSize $ dbconf)
   runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
   return $ mkFoundation pool
 
@@ -129,7 +136,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkIO threader 
+  _ <- forkIO threader
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -154,7 +161,7 @@ appMain = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
-  _ <- forkIO threader 
+  _ <- forkIO threader
   runTLS tlsS (warpSettings foundation) app
 
 --------------------------------------------------------------

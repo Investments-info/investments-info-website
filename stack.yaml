@@ -23,6 +23,7 @@ extra-deps:
   - newsletter
   - yadata
   - blaze-0.0.2
+  - heroku-0.1.2.3
 
-#docker:
-# enable: true
+# docker:
+#  enable: true
