@@ -48,6 +48,7 @@ import Handler.SearchCompanies
 import Handler.StoryDetails
 import Handler.StoryList
 import Helper.Fixtures as F
+import Helper.Heroku
 import Helper.YahooHelper as YH
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
