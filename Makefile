@@ -34,3 +34,6 @@ deploy-bin: copy-bins
 
 ssh-aws:
 	ssh -i ~/Documents/investments-info/finance-info.pem ubuntu@ec2-34-192-129-154.compute-1.amazonaws.com
+
+install:
+	stack build --copy-bins

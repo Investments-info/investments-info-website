@@ -1,1 +1,1 @@
-web: bin/investments-info
+web: investments-info
