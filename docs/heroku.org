@@ -2,6 +2,6 @@
 
  * stack image container
  * heroku container:login
- * docker tag vodich/investments-info-stack registry.heroku.com/investments-info/web
+ * docker tag vodich/investments-info registry.heroku.com/investments-info/web
  * docker push registry.heroku.com/investments-info/web
  * heroku container:release web

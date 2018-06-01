@@ -144,7 +144,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  _ <- forkIO threader
+  -- _ <- forkIO threader
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -169,7 +169,7 @@ appMain = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
-  _ <- forkIO threader
+  -- _ <- forkIO threader
   -- runTLS tlsS (warpSettings foundation) app
   runSettings (warpSettings foundation) app
 
