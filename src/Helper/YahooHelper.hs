@@ -51,14 +51,26 @@ data YahooData = YahooData
 instance FromRecord YahooData where
   parseRecord v
     | length v == 7 =
-      YahooData <$> v .! 0 <*> v .! 1 <*> v .! 2 <*> v .! 3 <*> v .! 4 <*> v .!
-      5 <*>
-      v .!
-      6
+      YahooData <$>
+      v .! 0 <*>
+      v .! 1 <*>
+      v .! 2 <*>
+      v .! 3 <*>
+      v .! 4 <*>
+      v .! 5 <*>
+      v .! 6
     | otherwise = mzero
 
 instance ToRecord YahooData where
-  toRecord (YahooData yahooDataDate yahooDataOpen yahooDataHigh yahooDataLow yahooDataClose yahooDataAdjClose yahooDataVolume) =
+  toRecord (
+    YahooData
+    yahooDataDate
+    yahooDataOpen
+    yahooDataHigh
+    yahooDataLow
+    yahooDataClose
+    yahooDataAdjClose
+    yahooDataVolume) =
     record
       [ toField (show yahooDataDate)
       , toField yahooDataOpen
@@ -208,19 +220,19 @@ readerThread queue = forkIO loop
 
 go :: TChan Text -> [Entity Company] -> IO ()
 go queue (Entity k c:cs) = do
-  _ <- mapConcurrently (yaction queue k) [c] 
+  _ <- mapConcurrently (yaction queue k) [c]
   go queue cs
-go _ _ = return () 
+go _ _ = return ()
 
 threader :: IO ()
 threader = do
   queue <- atomically $ newTChan
   companies <- liftIO $ runDBA allCompanies
   _ <- readerThread queue
-  writeQ queue $ Just "[START]" 
+  writeQ queue $ Just "[START]"
   go queue companies
-  writeQ queue $ Just "[END]" 
-  return () 
+  writeQ queue $ Just "[END]"
+  return ()
 
 yaction :: (MonadIO m, MonadBase IO m) => TChan Text -> CompanyId -> Company -> m ()
 yaction queue cid c = do
@@ -245,7 +257,7 @@ yaction queue cid c = do
       _ <- liftIO $ writeQ queue $
              Just $ "error result for " ++
                (companyTitle c) ++
-               (T.pack $ show e) 
+               (T.pack $ show e)
       return ()
 
 getYahoo :: Text -> IO (Either C.ByteString C.ByteString)
@@ -265,7 +277,7 @@ getYahooHisto ticker startDate endDate = do
   let crb =
        case crumb of
          Right c -> c
-         Left  e -> E.throw e 
+         Left  e -> E.throw e
   let (jar1, _) = updateCookieJar crb cookieRequest now (createCookieJar [])
   let body = crb ^. W.responseBody
   dataRequest <-
@@ -282,7 +294,7 @@ getYahooHisto ticker startDate endDate = do
   let r =
        case result of
          Right res -> res
-         Left  e -> E.throw e 
+         Left  e -> E.throw e
   let body2 = r ^. W.responseBody
   let status = r ^. W.responseStatus . W.statusCode
   if status == 200

@@ -48,7 +48,9 @@ import Handler.SearchCompanies
 import Handler.StoryDetails
 import Handler.StoryList
 import Helper.Fixtures as F
+#ifndef DEVELOPMENT
 import Helper.Heroku
+# endif
 import Helper.YahooHelper as YH
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
