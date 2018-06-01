@@ -24,8 +24,8 @@ module Application
 
 import Control.Concurrent (forkIO)
 import Control.Monad.Logger (liftLoc, runLoggingT)
-import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
-                                              runSqlPool)
+import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr,
+                                              pgPoolSize, runSqlPool)
 import Handler.About
 import Handler.Admin
 import Handler.Api
@@ -55,12 +55,17 @@ import Helper.YahooHelper as YH
 import Import
 import Language.Haskell.TH.Syntax (qLocation)
 import Network.Wai (Middleware)
-import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
-                                           getPort, setHost, setOnException, setPort)
+import           Network.Wai.Handler.Warp (Settings, defaultSettings,
+                                           defaultShouldDisplayException,
+                                           getPort, setHost, setOnException,
+                                           setPort, runSettings)
 import Network.Wai.Handler.WarpTLS
-import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
-                                                       OutputFormat (..), destination,
-                                                       mkRequestLogger, outputFormat)
+import           Network.Wai.Middleware.RequestLogger (Destination (Logger),
+                                                       IPAddrSource (..),
+                                                       OutputFormat (..),
+                                                       destination,
+                                                       mkRequestLogger,
+                                                       outputFormat)
 import System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
 mkYesodDispatch "App" resourcesApp
@@ -165,7 +170,8 @@ appMain = do
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
   _ <- forkIO threader
-  runTLS tlsS (warpSettings foundation) app
+  -- runTLS tlsS (warpSettings foundation) app
+  runSettings (warpSettings foundation) app
 
 --------------------------------------------------------------
 -- Functions for DevelMain.hs (a way to run the app from GHCi)

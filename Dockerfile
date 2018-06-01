@@ -1,15 +1,16 @@
-FROM heroku/heroku:16
+FROM vodich/investments-info
+# FROM heroku/heroku:16
 
-ENV LANG C.UTF-8
+# ENV LANG C.UTF-8
 
-RUN apt-get update
+# RUN apt-get update
 # RUN apt-get upgrade -y --assume-yes
-RUN apt-get install -y --assume-yes xz-utils gcc libgmp-dev zlib1g-dev libcurl4-gnutls-dev libssl-dev libcairo2-dev
-RUN apt-get install -y --assume-yes libpq-dev
-RUN apt-get install -y --assume-yes tree iputils-ping vim-nox
-RUN apt-get install -y --assume-yes curl
+# RUN apt-get install -y --assume-yes xz-utils gcc libgmp-dev zlib1g-dev libcurl4-gnutls-dev libssl-dev libcairo2-dev
+# RUN apt-get install -y --assume-yes libpq-dev
+# RUN apt-get install -y --assume-yes tree iputils-ping vim-nox
+# RUN apt-get install -y --assume-yes curl
 # Remove apt caches to reduce the size of our container.
-RUN rm -rf /var/lib/apt/lists/*
+# RUN rm -rf /var/lib/apt/lists/*
 
 # Install stack to /opt/stack/bin.
 RUN mkdir -p /opt/stack/bin
@@ -23,14 +24,14 @@ WORKDIR /opt/investments-info
 ENV PATH "$PATH:/opt/stack/bin:/opt/investments-info/bin"
 
 # Install GHC using stack, based on your app's stack.yaml file.
-COPY ./stack.yaml /opt/investments-info/stack.yaml
+# COPY ./stack.yaml /opt/investments-info/stack.yaml
 # RUN stack setup
 
-COPY ./investments-info.cabal /opt/investments-info/investments-info.cabal
+# COPY ./investments-info.cabal /opt/investments-info/investments-info.cabal
 # RUN stack --no-terminal test --only-dependencies
 
-COPY . /opt/investments-info/
-RUN stack build --install-ghc --local-bin-path /opt/investments-info/bin
+# COPY . /opt/investments-info/
+# RUN stack build --install-ghc --local-bin-path /opt/investments-info/bin
 
 # Remove source code.
 #RUN rm -rf /opt/investments-info/
