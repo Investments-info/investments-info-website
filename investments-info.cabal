@@ -71,7 +71,6 @@ library
                , monad-logger >=0.3 && <0.4
                , mtl >=2.2.1
                , news-fetcher
-               , newsletter
                , persistent >=2.0 && <2.8
                , persistent-postgresql >2.5.0 && <=2.6.1
                , persistent-sqlite >2.6.0 && <=2.6.2
@@ -126,11 +125,6 @@ library
       Handler.Historical
       Handler.Home
       Handler.LogViewer
-      Handler.NewsletterManager
-      Handler.NewsletterNewUser
-      Handler.NewsletterView
-      Handler.NewsletterSend
-      Handler.NewsletterSendt
       Handler.Profile
       Handler.SearchArticles
       Handler.SearchCompanies
@@ -210,7 +204,6 @@ executable investments-info
                 , monad-logger >=0.3 && <0.4
                 , mtl >=2.2.1
                 , news-fetcher
-                , newsletter
                 , persistent >=2.0 && <2.8
                 , persistent-postgresql >2.5.0 && <=2.6.1
                 , persistent-sqlite >2.6.0 && <=2.6.2
@@ -311,7 +304,6 @@ test-suite test
                 , monad-logger >=0.3 && <0.4
                 , mtl >=2.2.1
                 , news-fetcher
-                , newsletter
                 , persistent >=2.0 && <2.8
                 , persistent-postgresql >2.5.0 && <=2.6.1
                 , persistent-sqlite >2.6.0 && <=2.6.2

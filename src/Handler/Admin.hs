@@ -11,8 +11,6 @@ getAdminR = do
     <h3>Welcome to the Admin page
     <ul>
       <li><a href="@{CompanyR}">Create new company
-      <li><a href="@{NewsletterSendtR}">Send a [TEST] newsletter
-      <li><a href="@{NewsletterSendR}">Send a real newsletter
 
 
 

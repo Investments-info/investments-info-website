@@ -167,8 +167,6 @@ instance YesodBreadcrumbs App where
   breadcrumb AboutR = return ("About", Just HomeR)
   breadcrumb SignupR = return ("Signup", Just HomeR)
   breadcrumb LoginR = return ("Login", Just HomeR)
-  breadcrumb NewsletterNewUserR = return ("Newsletter - New User", Just HomeR)
-  breadcrumb NewsletterSendR = return ("Newsletter - Send", Just HomeR)
   breadcrumb _ = return ("Home", Nothing)
 
 instance YesodPersist App where

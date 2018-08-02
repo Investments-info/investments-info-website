@@ -21,7 +21,6 @@ module Application
   , getDbConnectionString
   ) where
 
-import           Control.Concurrent (forkIO)
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
                                               runSqlPool)
@@ -29,8 +28,8 @@ import           Import
 import           Language.Haskell.TH.Syntax (qLocation)
 import           Network.Wai (Middleware)
 import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
-                                           getPort, setHost, setOnException, setPort)
-import           Network.Wai.Handler.WarpTLS
+                                           getPort, setHost, setOnException, setPort, runSettings)
+-- import           Network.Wai.Handler.WarpTLS
 import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
                                                        OutputFormat (..), destination,
                                                        mkRequestLogger, outputFormat)
@@ -48,10 +47,6 @@ import           Handler.CompanyList
 import           Handler.Historical
 import           Handler.Home
 import           Handler.LogViewer
-import           Handler.NewsletterManager
-import           Handler.NewsletterNewUser
-import           Handler.NewsletterSend
-import           Handler.NewsletterSendt
 import           Handler.Profile
 import           Handler.SearchArticles
 import           Handler.SearchCompanies
@@ -129,7 +124,7 @@ getApplicationDev = do
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
-  -- _ <- withAsync \_ -> threader 
+  -- _ <- withAsync \_ -> threader
   return (wsettings, app)
 
 getAppSettings :: IO AppSettings
@@ -139,11 +134,11 @@ getAppSettings = loadYamlSettings [configSettingsYml] [] useEnv
 develMain :: IO ()
 develMain = develMainHelper getApplicationDev
 
-tlsS :: TLSSettings
-tlsS =
-  tlsSettings
-    "/etc/letsencrypt/live/investments-info.com/fullchain.pem"
-    "/etc/letsencrypt/live/investments-info.com/privkey.pem"
+-- tlsS :: TLSSettings
+-- tlsS =
+--   tlsSettings
+--     "/etc/letsencrypt/live/investments-info.com/fullchain.pem"
+--     "/etc/letsencrypt/live/investments-info.com/privkey.pem"
 
 -- | The @main@ function for an executable running this site.
 appMain :: IO ()
@@ -154,7 +149,8 @@ appMain = do
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
-  runTLS tlsS (warpSettings foundation) app
+  -- runTLS tlsS (warpSettings foundation) app
+  runSettings (warpSettings foundation) app
 
 --------------------------------------------------------------
 -- Functions for DevelMain.hs (a way to run the app from GHCi)
