@@ -1,9 +1,9 @@
 static-dir:     "_env:STATIC_DIR:static"
 host:           "_env:HOST:a4" # any IPv4 host
-port:           "_env:PORT:3000" # NB: The port `yesod devel` uses is distinct from this value. Set the `yesod devel` port from the command line.
+port:           "_env:PORT:5000" # NB: The port `yesod devel` uses is distinct from this value. Set the `yesod devel` port from the command line.
 ip-from-header: "_env:IP_FROM_HEADER:false"
 
-#approot:        "_env:APPROOT:http://localhost:3000"
+approot:        "_env:APPROOT:http://localhost:5000"
 
 # Optional values with the following production defaults.
 # In development, they default to the inverse.
@@ -14,33 +14,40 @@ ip-from-header: "_env:IP_FROM_HEADER:false"
 # mutable-static: false
 # skip-combining: false
 # auth-dummy-login : false
-database:
-  user:     "_env:PGUSER:aaaaaaaaaaa"
-  password: "_env:PGPASS:aaaaaaaaaaa"
-  host:     "_env:PGHOST:aaaaaaaaaa"
-  port:     "_env:PGPORT:11111"
-  database: "_env:PGDATABASE:aaaaaaaaaaaa"
-  poolsize: "_env:PGPOOLSIZE:10"
 
-# this is used in the IO db runner
-dbuser:     "aaaaaaaaaaa"
-dbpassword: "aaaaaaaaaaa"
-dbhost:     "aaaaaaaaaaa"
-dbport:     "aaaaaaaaaaa"
-dbdatabase: "aaaaaaaaaaa"
+
+# local db settings
+database:
+
+
+  user:     "_env:PGUSER:postgres"
+  password: "_env:PGPASS:postgres"
+  host:     "_env:PGHOST:localhost"
+  port:     "_env:PGPORT:5432"
+  database: "_env:PGDATABASE:ii"
+  poolsize: "_env:PGPOOLSIZE:10"
 
 aws-ses-access-key: aaaaaaaaaaaa
 aws-ses-secret-key: aaaaaaaaaaaa
 
 aws-access-key:  aaaaaaaaaaaaaaa
 aws-secret-key:  aaaaaaaaaaaaaaa
-mailchimp-api-key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 
+mailchimp-api-key: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
+# this is used in the IO db runner
+dbuser:     "postgres"
+dbpassword: "postgres"
+dbhost:     "localhost"
+dbport:     "5432"
+dbdatabase: "ii"
+
 
 admins:
   [
-   {aemail: aaaaaaaaaa, apassword: aaaaaaaaa},
-   {aemail: aaaaaaaaaa, apassword: aaaaaaaa}
+   { aemail: brutallesale@gmail.com, apassword: sasa },
+   { aemail: vpleta@gmx.ch, apassword: vidas }
   ]
 
-copyright: Investments-info 2017
-analytics: aaaaaaaaaaaa
+
+copyright: Investments-info 2018
+analytics: UA-109838792-1
