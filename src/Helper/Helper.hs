@@ -84,3 +84,11 @@ getAdmins
 getAdmins = do
   settings <- liftIO $ loadYamlSettings ["config/settings.yml"] [] useEnv
   return $ fromJust (administrators settings)
+
+reutersUrl :: String
+reutersUrl = "http://www.reuters.com/finance/markets"
+
+buildFullUrl :: String -> Text -> Text
+buildFullUrl reuters storylink = pack $ reuters ++ storylink_
+  where
+    storylink_ = unpack storylink :: String

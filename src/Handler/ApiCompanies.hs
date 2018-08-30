@@ -5,13 +5,15 @@ module Handler.ApiCompanies where
 
 import           Import
 
-instance {-# OVERLAPPABLE #-} (ToJSON a) => ToContent a where
+newtype ApiCompany a = ApiCompany { companyName :: String } deriving (Eq,Show)
+
+instance {-# OVERLAPPABLE #-} (ToJSON (ApiCompany Company)) => ToContent (ApiCompany Company) where
   toContent = toContent . toJSON
-instance {-# OVERLAPPABLE #-} (ToJSON a) => ToTypedContent a where
+instance {-# OVERLAPPABLE #-} (ToJSON (ApiCompany Company)) => ToTypedContent (ApiCompany Company) where
   toTypedContent = TypedContent typeJson . toContent
 
-getApiCompaniesR :: Handler [Company]
+getApiCompaniesR :: Handler Value
 getApiCompaniesR = do
   cmps <- runDB allCompanies
-  return $ map entityVal cmps
+  returnJson $ map entityVal cmps
 

@@ -5,8 +5,7 @@
 module Handler.StoryDetails where
 
 import Import
-import qualified Text.HTML.Fscraper as F
-
+import Helper.Helper as H
 
 getStoryDetailsR :: Int -> Handler Html
 getStoryDetailsR hashId = do
@@ -20,9 +19,9 @@ getStoryDetailsR hashId = do
      <div>
        <p>
          $maybe img <- storyImage story
-             <a href=#{(pack F.reutersUrl) <> storyLink story} target=_blank><img src=#{img} width=100 />
+             <a href=#{(pack H.reutersUrl) <> storyLink story} target=_blank><img src=#{img} width=100 />
          $nothing
-             <a href=#{(pack F.reutersUrl) <> storyLink story} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
+             <a href=#{(pack H.reutersUrl) <> storyLink story} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
          $maybe content <- storyContent story
              <p>#{content}
 |]

@@ -19,7 +19,6 @@ extra-deps:
   - persistent-sqlite-2.6.2
   - word24-1.0.7
   - MailchimpSimple
-  - news-fetcher
   - yadata
   - blaze-0.0.2
 

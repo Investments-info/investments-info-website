@@ -70,7 +70,6 @@ library
                , monad-control >=0.3 && <1.1
                , monad-logger >=0.3 && <0.4
                , mtl >=2.2.1
-               , news-fetcher
                , persistent >=2.0 && <2.8
                , persistent-postgresql >2.5.0 && <=2.6.1
                , persistent-sqlite >2.6.0 && <=2.6.2
@@ -203,7 +202,6 @@ executable investments-info
                 , monad-control >=0.3 && <1.1
                 , monad-logger >=0.3 && <0.4
                 , mtl >=2.2.1
-                , news-fetcher
                 , persistent >=2.0 && <2.8
                 , persistent-postgresql >2.5.0 && <=2.6.1
                 , persistent-sqlite >2.6.0 && <=2.6.2
@@ -303,7 +301,6 @@ test-suite test
                 , monad-control >=0.3 && <1.1
                 , monad-logger >=0.3 && <0.4
                 , mtl >=2.2.1
-                , news-fetcher
                 , persistent >=2.0 && <2.8
                 , persistent-postgresql >2.5.0 && <=2.6.1
                 , persistent-sqlite >2.6.0 && <=2.6.2

@@ -9,7 +9,6 @@ module Handler.StoryList where
 
 import Import
 import Database.Esqueleto as E
-import qualified Text.HTML.Fscraper as F
 import Helper.Helper as H
 
 getStoryListR :: Page -> Handler Html
@@ -30,12 +29,12 @@ getStoryListR currentPage = do
     $forall Entity _ Story{..} <- allStories
           <li .list-group-item>
             <div>
-              <h4><a href=#{F.buildFullUrl F.reutersUrl storyLink } target=_blank> #{storyTitle}
+              <h4><a href=#{buildFullUrl reutersUrl storyLink } target=_blank> #{storyTitle}
               <p>
                 $maybe img <- storyImage
-                  <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
+                  <a href=#{(pack reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
                 $nothing
-                  <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
+                  <a href=#{(pack reutersUrl) <> storyLink} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
                 $maybe content <- storyContent
                   <p>#{content}
   <hr />
