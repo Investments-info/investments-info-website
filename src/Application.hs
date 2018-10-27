@@ -74,11 +74,7 @@ makeFoundation appSettings = do
   dbConnStr <- getEnv "iiservant"
   pool <-
     flip runLoggingT logFunc $
-    createPostgresqlPool
-      (pack dbConnStr)
-      (pgPoolSize $ appDatabaseConf appSettings)
-  --     (pgConnStr $ appDatabaseConf appSettings)
-  --     (pgPoolSize $ appDatabaseConf appSettings)
+    createPostgresqlPool (pack dbConnStr) 10
   runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
   return $ mkFoundation pool
 
@@ -123,9 +119,7 @@ warpSettings foundation =
 getApplicationDev :: IO (Settings, Application)
 getApplicationDev = do
   YH.writeYahooLog "[SYSTEM] development start!" False
-  settings <- getAppSettings
-  foundation <- makeFoundation settings
-  wsettings <- getDevSettings $ warpSettings foundation
+  (foundation, wsettings) <- getEssentials
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
@@ -148,8 +142,7 @@ develMain = develMainHelper getApplicationDev
 -- | The @main@ function for an executable running this site.
 appMain :: IO ()
 appMain = do
-  settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
-  foundation <- makeFoundation settings
+  (foundation, _) <- getEssentials
   app <- makeApplication foundation
   F.runDeleteAdminsAction
   F.runInsertAdminsAction
@@ -162,9 +155,7 @@ appMain = do
 --------------------------------------------------------------
 getApplicationRepl :: IO (Int, App, Application)
 getApplicationRepl = do
-  settings <- getAppSettings
-  foundation <- makeFoundation settings
-  wsettings <- getDevSettings $ warpSettings foundation
+  (foundation, wsettings) <- getEssentials
   app1 <- makeApplication foundation
   return (getPort wsettings, foundation, app1)
 
@@ -183,6 +174,14 @@ db :: ReaderT SqlBackend (HandlerT App IO) a -> IO a
 db = handler . runDB
 
 getDbConnectionString :: IO ByteString
-getDbConnectionString = do
+getDbConnectionString =
+  pack <$> getEnv "iiservant"
+
+getEssentials :: IO (App, Settings)
+getEssentials = do
   settings <- getAppSettings
-  return $ pgConnStr $ appDatabaseConf settings
+  -- main: settings <- loadYamlSettingsArgs [configSettingsYmlValue] useEnv
+  foundation <- makeFoundation settings
+  wsettings <- getDevSettings $ warpSettings foundation
+  return (foundation, wsettings)
+
