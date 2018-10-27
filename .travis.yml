@@ -1,24 +1,39 @@
-language: haskell
-
-install:
-  - mkdir -p ~/.local/bin
-  - export PATH=~/.local/bin:$PATH
-  - travis_retry curl -L https://www.stackage.org/stack/linux-x86_64 | tar xz --wildcards --strip-components=1 -C ~/.local/bin '*/stack'
-  - chmod +x ~/.local/bin/stack
-
-
-script:
-  - stack setup --no-terminal
-  - stack build -j2 --fast --no-terminal
+# Adapted from https://github.com/commercialhaskell/stack
+language: nix
+sudo: false
 
 cache:
-  timeout: 2000
-  directories:
-  - $HOME/.cabal
-  - $HOME/.ghc
-  - $HOME/.stack
-  - .stack-work/
+    directories:
+        - $HOME/.ghc
+        - $HOME/.cabal
+        - $HOME/.stack
+        - .stack-work
 
-  apt: true
+matrix:
+  fast_finish: true
+  include:
+    # Add build targets here
+    - env: GHCVER=8.4.3 CACHE_NAME=8.4.3 BUILD_BINARY=1
+      compiler: ": #stack 8.4.3"
+      addons: {apt: {packages: [ghc-8.4.3], sources: [hvr-ghc]}}
 
-  dist: trusty
+
+install:
+ - unset CC
+ - export PATH=$HOME/.local/bin:/opt/ghc/$GHCVER/bin:$PATH
+ - ./.travis/install-ghr.sh
+ - ./.travis/install-stack.sh
+
+script:
+ - echo "$(ghc --version) [$(ghc --print-project-git-commit-id 2> /dev/null || echo '?')]"
+ - GHC_OPTIONS="-Werror"
+ - |
+   set -ex
+   # Run tests
+   stack --no-terminal test --ghc-options="$GHC_OPTIONS"
+   set +ex
+
+after_success:
+ - |
+   # Build and ship binary
+   ./.travis/attach-binary.sh
