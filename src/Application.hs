@@ -22,13 +22,14 @@ module Application
   ) where
 
 import           Control.Monad.Logger (liftLoc, runLoggingT)
+import           Data.ByteString.Char8 (pack)
 import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
                                               runSqlPool)
-import           Import
+import           Import hiding (pack)
 import           Language.Haskell.TH.Syntax (qLocation)
 import           Network.Wai (Middleware)
 import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
-                                           getPort, setHost, setOnException, setPort, runSettings)
+                                           getPort, runSettings, setHost, setOnException, setPort)
 -- import           Network.Wai.Handler.WarpTLS
 import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
                                                        OutputFormat (..), destination,
@@ -54,6 +55,7 @@ import           Handler.StoryDetails
 import           Handler.StoryList
 import           Helper.Fixtures as F
 import           Helper.YahooHelper as YH
+import           System.Environment (getEnv)
 
 mkYesodDispatch "App" resourcesApp
 
@@ -69,11 +71,14 @@ makeFoundation appSettings = do
   let mkFoundation appConnPool = App {..}
       tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
       logFunc = messageLoggerSource tempFoundation appLogger
+  db <- getEnv "iiservant"
   pool <-
     flip runLoggingT logFunc $
     createPostgresqlPool
-      (pgConnStr $ appDatabaseConf appSettings)
+      (pack db)
       (pgPoolSize $ appDatabaseConf appSettings)
+  --     (pgConnStr $ appDatabaseConf appSettings)
+  --     (pgPoolSize $ appDatabaseConf appSettings)
   runLoggingT (runSqlPool (runMigration migrateAll) pool) logFunc
   return $ mkFoundation pool
 
