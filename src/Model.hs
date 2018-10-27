@@ -15,16 +15,18 @@ module Model
   , module Model
   ) where
 
-import Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
-import ClassyPrelude.Yesod hiding ((==.), hash, on, groupBy)
-import Data.Maybe (listToMaybe)
-import Database.Esqueleto
+import           ClassyPrelude.Yesod hiding (groupBy, hash, on, pack, (==.))
+import           Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
+import           Data.ByteString.Char8 (pack)
+import           Data.Maybe (listToMaybe)
+import           Data.Yaml
+import           Database.Esqueleto
 import qualified Database.Persist as P
-import Database.Persist.Sqlite (runSqlite)
-import Model.BCrypt as Import
-import Model.Instances as Import ()
-import Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
-import Data.Yaml
+import           Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
+import           Database.Persist.Sqlite (runSqlite)
+import           Model.BCrypt as Import
+import           Model.Instances as Import ()
+import           System.Environment (getEnv)
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User json sql=users
@@ -322,9 +324,10 @@ devConn = do
 
 runDBA :: DB a -> IO a
 runDBA a = do
-  conn <- devConn
+  conn <- getEnv "iiservant"
+  -- conn <- devConn
   runNoLoggingT $
-    withPostgresqlPool conn 10
+    withPostgresqlPool (pack conn) 10
       $ \pool -> liftIO $ runSqlPersistMPool a pool
 
 runDevDBV :: DB a -> IO a
