@@ -71,11 +71,11 @@ makeFoundation appSettings = do
   let mkFoundation appConnPool = App {..}
       tempFoundation = mkFoundation $ error "connPool forced in tempFoundation"
       logFunc = messageLoggerSource tempFoundation appLogger
-  db <- getEnv "iiservant"
+  dbConnStr <- getEnv "iiservant"
   pool <-
     flip runLoggingT logFunc $
     createPostgresqlPool
-      (pack db)
+      (pack dbConnStr)
       (pgPoolSize $ appDatabaseConf appSettings)
   --     (pgConnStr $ appDatabaseConf appSettings)
   --     (pgPoolSize $ appDatabaseConf appSettings)
