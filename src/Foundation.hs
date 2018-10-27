@@ -9,18 +9,18 @@
 
 module Foundation where
 
-import Control.Applicative (pure)
-import Control.Monad.Logger (MonadLogger, monadLoggerLog)
+import           Control.Applicative (pure)
+import           Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import qualified Data.CaseInsensitive as CI
 import qualified Data.Text.Encoding as TE
-import Database.Persist.Sql (ConnectionPool, runSqlPool)
-import Handler.Sessions
-import Import.NoFoundation
-import Text.Hamlet (hamletFile)
-import Text.Jasmine (minifym)
-import Yesod.Core.Types (Logger)
+import           Database.Persist.Sql (ConnectionPool, runSqlPool)
+import           Handler.Sessions
+import           Import.NoFoundation
+import           Text.Hamlet (hamletFile)
+import           Text.Jasmine (minifym)
+import           Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
-import Yesod.Default.Util (addStaticContentExternal)
+import           Yesod.Default.Util (addStaticContentExternal)
 
 -- had to implement this due to non existing MonadLogger IO instance
 instance MonadLogger IO where
@@ -47,30 +47,10 @@ htmlOnly = selectRep . provideRep
 
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
--- navLayout :: Maybe (Entity User) -> Widget
--- navLayout user =
---   [whamlet|
--- <!-- <div class="top-bar">
---   <div class="top-bar-left">
---     <ul class="menu">
---       <li .menu-logo>
---         <a href="@{HomeR}" .plain>Home
---   <div class="top-bar-right">
---     <ul class="menu">
---       $maybe _ u <- userId
---         <li>
---           <a href="@{SignoutR}">Signout #{userEmail u}
---       $nothing
---         <li>
---           <a href="@{LoginR}">Login
---         <li>
---           <a href="@{SignupR}">Signup -->
--- |]
 baseLayout :: Html -> Maybe (Entity User) -> WidgetT App IO () -> Handler Html
 baseLayout title _ content = do
   defaultLayout $ do
     setTitle title
-    -- ^{navLayout user}
     [whamlet|
 ^{content}
 |]

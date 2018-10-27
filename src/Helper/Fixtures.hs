@@ -43,7 +43,9 @@ makeAccount = createUser
 makeAccounts :: DB [Entity User]
 makeAccounts = do
   admins <- getAdmins
-  traverse (\x -> makeAccount (aemail x) (apassword x)) admins
+  case admins of
+    Nothing -> return []
+    Just a -> traverse (\x -> makeAccount (aemail x) (apassword x)) a
 
 makeAdmin :: Key User -> DB (Entity Admin)
 makeAdmin = createAdmin
@@ -72,16 +74,6 @@ makeCompanies =
         makeCompany "Alcoa Corporation" "http://alcoa.com" "" "" "Alcoa Corporation is an American industrial corporation. It is the world's fifth largest producer of aluminum, with corporate headquarters in Pittsburgh, Pennsylvania. Alcoa conducts operations in 10 countries." "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Alcoa_logo_2016.png/300px-Alcoa_logo_2016.png" "AA",
         makeCompany "Aac Holdings" "www.americanaddictioncenters.com" "" "" "AAC Holdings, Inc. provides inpatient substance abuse treatment services for individuals with drug and alcohol addiction in the United States. Its therapy services include motivational interviewing, cognitive behavioral therapy, rational emotive behavior therapy, dialectical behavioral therapy, solution-focused therapy, eye movement desensitization and reprocessing, and systematic family intervention services. As of December 31, 2016, the company operated 12 residential substance abuse treatment facilities, 18 standalone outpatient centers, and 202 sober living beds. It also offers Internet marketing services to families and individuals, who are struggling with addiction and seeking treatment options through online directories of treatment providers, treatment provider reviews, forums, and professional communities; and online marketing solutions to other treatment providers, such as facility profiles, audience targeting, lead generation, and tools for digital reputation management. In addition, it performs drug testing and diagnostic laboratory services; and provides physician services to its clients. AAC Holdings, Inc. was incorporated in 2014 and is headquartered in Brentwood, Tennessee." "https://americanaddictioncenters.org/wp-content/themes/AAC/pub/images/300xNxaac_horiz_white.png.pagespeed.ic.8yl6KxliXV.png" "AAC"
     ]
-
-runDeleteAdminsAction :: IO ()
-runDeleteAdminsAction = runDBA $ do
-    deleteAdminPasswords "brutallesale@gmail.com"
-    deleteAdminPasswords "vpleta@gmx.ch"
-    deleteAdminUsers "brutallesale@gmail.com"
-    deleteAdminUsers "vpleta@gmx.ch"
-    _ <- deleteUserAdmins "brutallesale@gmail.com"
-    _ <- deleteUserAdmins "vpleta@gmx.ch"
-    return ()
 
 runInsertAdminsAction :: IO ()
 runInsertAdminsAction = do

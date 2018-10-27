@@ -80,7 +80,7 @@ getAwsKey t = do
 -- | Read admin users from settings.yml
 getAdmins
   :: MonadIO m
-  => m [AdminUsers]
+  => m (Maybe [AdminUsers])
 getAdmins = do
   settings <- liftIO $ loadYamlSettings ["config/settings.yml"] [] useEnv
-  return $ fromJust (administrators settings)
+  return $ administrators settings

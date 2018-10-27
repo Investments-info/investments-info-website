@@ -46,6 +46,7 @@ Password sql=passwords
   user UserId
   UniquePasswordUser user
   deriving Eq Show
+
 Story
     hashId Int
     title Text
@@ -60,6 +61,7 @@ Admin sql=admins
   account UserId
   UniqueAdminUser account
   deriving Eq Show
+
 Company json
     title Text
     website Text Maybe

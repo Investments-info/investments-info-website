@@ -23,8 +23,7 @@ module Application
 
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Data.ByteString.Char8 (pack)
-import           Database.Persist.Postgresql (createPostgresqlPool, pgConnStr, pgPoolSize,
-                                              runSqlPool)
+import           Database.Persist.Postgresql (createPostgresqlPool, runSqlPool)
 import           Import hiding (pack)
 import           Language.Haskell.TH.Syntax (qLocation)
 import           Network.Wai (Middleware)
@@ -121,7 +120,6 @@ getApplicationDev = do
   YH.writeYahooLog "[SYSTEM] development start!" False
   (foundation, wsettings) <- getEssentials
   app <- makeApplication foundation
-  F.runDeleteAdminsAction
   F.runInsertAdminsAction
   -- _ <- withAsync \_ -> threader
   return (wsettings, app)
@@ -144,7 +142,6 @@ appMain :: IO ()
 appMain = do
   (foundation, _) <- getEssentials
   app <- makeApplication foundation
-  F.runDeleteAdminsAction
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
   -- runTLS tlsS (warpSettings foundation) app
