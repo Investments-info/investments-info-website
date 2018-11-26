@@ -47,11 +47,17 @@ makeAccounts = do
     Nothing -> return []
     Just a -> traverse (\x -> makeAccount (aemail x) (apassword x)) a
 
-makeAdmin :: Key User -> DB (Entity Admin)
-makeAdmin = createAdmin
+makeAdmin :: Key User -> DB (Maybe (Entity Admin))
+makeAdmin k = do
+  a <- createAdmin k
+  case a of
+    Left admin -> pure $ Just admin
+    Right _ -> pure Nothing
 
 makeAdmins :: [Key User] -> DB [Entity Admin]
-makeAdmins = traverse makeAdmin
+makeAdmins k = do
+  admins <- traverse makeAdmin k
+  pure $ catMaybes admins
 
 {-# INLINABLE unsafeIdx #-}
 unsafeIdx :: (MonoFoldable c) => c -> Integer -> Element c

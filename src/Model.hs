@@ -126,19 +126,31 @@ createUser :: Text -> Text -> DB (Entity User)
 createUser email pass = do
   now <- liftIO $ getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing Nothing now
-  userId <- insert $ newUser
-  hash <- liftIO $ hashPassword pass
-  _ <- insert $ Password hash userId
-  return (Entity userId newUser)
+  user <- insertBy $ newUser
+  case user of
+    Left (Entity userId _) -> do
+      hash <- liftIO $ hashPassword pass
+      _ <- insertBy $ Password hash userId
+      return (Entity userId newUser)
+    Right userId -> do
+      hash <- liftIO $ hashPassword pass
+      _ <- insertBy $ Password hash userId
+      return (Entity userId newUser)
 
 createUserForNewsletter :: Text -> Text -> Maybe Int -> DB (Entity User)
 createUserForNewsletter email pass newsletter = do
   now <- liftIO $ getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing newsletter now
-  userId <- insert $ newUser
-  hash <- liftIO $ hashPassword pass
-  _ <- insert $ Password hash userId
-  return (Entity userId newUser)
+  user <- insertBy $ newUser
+  case user of
+    Left (Entity userId _) -> do
+      hash <- liftIO $ hashPassword pass
+      _ <- insertBy $ Password hash userId
+      return (Entity userId newUser)
+    Right userId  -> do
+      hash <- liftIO $ hashPassword pass
+      _ <- insertBy $ Password hash userId
+      return (Entity userId newUser)
 
 setUserForNewsletter :: Maybe Int -> UserId -> DB (Key User)
 setUserForNewsletter newsletter userId = do
@@ -146,11 +158,10 @@ setUserForNewsletter newsletter userId = do
   return userId
 
 
-createAdmin :: Key User -> DB (Entity Admin)
+createAdmin :: Key User -> DB (Either (Entity Admin) AdminId)
 createAdmin userKey = do
   let newAdmin = Admin userKey
-  adminKey <- insert $ newAdmin
-  return (Entity adminKey newAdmin)
+  insertBy newAdmin
 
 createCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
 createCompany title website description image ticker gicssector gicssubindustry = do
