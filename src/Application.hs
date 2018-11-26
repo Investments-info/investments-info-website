@@ -29,7 +29,7 @@ import           Language.Haskell.TH.Syntax (qLocation)
 import           Network.Wai (Middleware)
 import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
                                            getPort, runSettings, setHost, setOnException, setPort)
--- import           Network.Wai.Handler.WarpTLS
+import           Network.Wai.Handler.WarpTLS
 import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
                                                        OutputFormat (..), destination,
                                                        mkRequestLogger, outputFormat)
@@ -131,11 +131,11 @@ getAppSettings = loadYamlSettings [configSettingsYml] [] useEnv
 develMain :: IO ()
 develMain = develMainHelper getApplicationDev
 
--- tlsS :: TLSSettings
--- tlsS =
---   tlsSettings
---     "/etc/letsencrypt/live/investments-info.com/fullchain.pem"
---     "/etc/letsencrypt/live/investments-info.com/privkey.pem"
+tlsS :: TLSSettings
+tlsS =
+  tlsSettings
+    "/etc/letsencrypt/live/investments-info.com/fullchain.pem"
+    "/etc/letsencrypt/live/investments-info.com/privkey.pem"
 
 -- | The @main@ function for an executable running this site.
 appMain :: IO ()
@@ -144,8 +144,8 @@ appMain = do
   app <- makeApplication foundation
   F.runInsertAdminsAction
   YH.writeYahooLog "[SYSTEM] production start!" False
-  -- runTLS tlsS (warpSettings foundation) app
-  runSettings (warpSettings foundation) app
+  runTLS tlsS (warpSettings foundation) app
+  -- runSettings (warpSettings foundation) app
 
 --------------------------------------------------------------
 -- Functions for DevelMain.hs (a way to run the app from GHCi)
