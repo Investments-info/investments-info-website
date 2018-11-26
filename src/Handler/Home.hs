@@ -31,7 +31,6 @@ getHomeR  = do
                 <ul class="features">
                   $forall Entity _ Story{..} <- allStories
                     <li>
-                        -- <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank> #{storyTitle}
                         <a href=#{ F.buildFullUrl F.reutersUrl storyLink } target=_blank> #{storyTitle}
                         <p>
                             $maybe img <- storyImage

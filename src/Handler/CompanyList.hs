@@ -28,6 +28,7 @@ getCompanyListR currentPage = do
                 <h2>#{companyTitle}
                 <p>Ticker:
                   <b>#{companyTicker}
+                <br />
                 <p>
                   <a .btn .btn-sm .btn-primary .pull-right href=@{CompanyDetailsR cid}>view details
                 <br />
