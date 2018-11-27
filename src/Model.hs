@@ -130,11 +130,11 @@ createUser email pass = do
   case user of
     Left (Entity userId _) -> do
       hash <- liftIO $ hashPassword pass
-      _ <- insertBy $ Password hash userId
+      void $ insertBy $ Password hash userId
       return (Entity userId newUser)
     Right userId -> do
       hash <- liftIO $ hashPassword pass
-      _ <- insertBy $ Password hash userId
+      void $ insertBy $ Password hash userId
       return (Entity userId newUser)
 
 createUserForNewsletter :: Text -> Text -> Maybe Int -> DB (Entity User)
@@ -145,11 +145,11 @@ createUserForNewsletter email pass newsletter = do
   case user of
     Left (Entity userId _) -> do
       hash <- liftIO $ hashPassword pass
-      _ <- insertBy $ Password hash userId
+      void $ insertBy $ Password hash userId
       return (Entity userId newUser)
     Right userId  -> do
       hash <- liftIO $ hashPassword pass
-      _ <- insertBy $ Password hash userId
+      void $ insertBy $ Password hash userId
       return (Entity userId newUser)
 
 setUserForNewsletter :: Maybe Int -> UserId -> DB (Key User)
@@ -352,7 +352,13 @@ runDevDBV a = do
 
 readConfig :: IO Text
 readConfig = do
-    cnf <- decodeFile "config/settings.yml" :: IO (Maybe DBConfig)
-    case cnf of
-        Nothing -> error "Could not read database credentials!"
-        Just DBConfig {..} -> return $ "dbname=" <> dbdatabase  <> " host=" <> dbhost <> " user=" <> dbuser <> " password=" <> dbpassword  <>  " port=" <> dbport
+  cnf <- decodeFile "config/settings.yml" :: IO (Maybe DBConfig)
+  case cnf of
+    Nothing -> error "Could not read database credentials!"
+    Just DBConfig {..} ->
+      return $
+      "dbname=" <> dbdatabase <> " host=" <> dbhost <> " user=" <> dbuser <>
+      " password=" <>
+      dbpassword <>
+      " port=" <>
+      dbport

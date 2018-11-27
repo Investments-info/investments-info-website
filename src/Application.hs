@@ -24,17 +24,6 @@ module Application
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Data.ByteString.Char8 (pack)
 import           Database.Persist.Postgresql (createPostgresqlPool, runSqlPool)
-import           Import hiding (pack)
-import           Language.Haskell.TH.Syntax (qLocation)
-import           Network.Wai (Middleware)
-import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
-                                           getPort, runSettings, setHost, setOnException, setPort)
-import           Network.Wai.Handler.WarpTLS
-import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
-                                                       OutputFormat (..), destination,
-                                                       mkRequestLogger, outputFormat)
-import           System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
-
 import           Handler.About
 import           Handler.Admin
 import           Handler.Api
@@ -54,7 +43,17 @@ import           Handler.StoryDetails
 import           Handler.StoryList
 import           Helper.Fixtures as F
 import           Helper.YahooHelper as YH
+import           Import hiding (pack)
+import           Language.Haskell.TH.Syntax (qLocation)
+import           Network.Wai (Middleware)
+import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
+                                           getPort, setHost, setOnException, setPort)
+import           Network.Wai.Handler.WarpTLS
+import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPAddrSource (..),
+                                                       OutputFormat (..), destination,
+                                                       mkRequestLogger, outputFormat)
 import           System.Environment (getEnv)
+import           System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
 
 mkYesodDispatch "App" resourcesApp
 

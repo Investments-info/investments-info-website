@@ -4,24 +4,21 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# OPTIONS_GHC -Wno-unused-matches #-}
+
 module Handler.Home where
 
-import Import
-import qualified Text.HTML.Fscraper as F
+import           Data.Time.Clock (diffUTCTime)
+import           Helper.Helper as H
+import           Import
 import qualified Text.HTML.Freader as R
-import Data.Time.Clock (diffUTCTime)
-import Helper.Helper  as H
-
-
+import qualified Text.HTML.Fscraper as F
 
 getHomeR :: Handler Html
 getHomeR  = do
-      -- _ <- insertStoriesReuters
-      allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
-      defaultLayout $ do
-        setTitle "Investments info"
-        toWidget [whamlet|
+  allStories <- runDB $ selectList [] [Desc StoryCreated, LimitTo 6]
+  defaultLayout $ do
+    setTitle "Investments info"
+    toWidget [whamlet|
 <section id="intro" class="main">
     <div class="spotlight">
         <div class="content">
@@ -43,7 +40,7 @@ getHomeR  = do
 
 |]
 
-        toWidget [julius|
+    toWidget [julius|
  $(document).ready(function(){
    var searchString = "";
    $("#article-finder").on('keyup', function(e){
@@ -76,7 +73,7 @@ getHomeR  = do
  });
 |]
 
-        toWidget [julius|
+    toWidget [julius|
 $(document).ready(function(){
    $('#nav .hidable').each(function(key, item){
       var hr = $(item).attr('href').replace(/#/g,"");
@@ -88,64 +85,27 @@ $(document).ready(function(){
  });
 |]
 
-insertStoriesReuters :: Handler ()
-insertStoriesReuters = do
-  now <- liftIO getCurrentTime
-  topnews <- getTopStory
-  fnews <- getFeatureStories
-  snews <- getSideStories
-  rssnews <- liftIO $ R.parseXml "http://feeds.reuters.com/reuters/businessNews"
-  let topstories = mapM convertImageStory topnews now
-      fstories = mapM convertImageStory fnews now
-      sstories = mapM convertStory snews now
-      rssstories = mapM convertRssFeed rssnews now
-      allS = topstories <> fstories <> sstories <> rssstories
-  firststory <- runDB $ selectFirst [] [Desc StoryCreated]
-  case firststory of
-    Nothing -> do
-      _ <- mapM checkStorySaved allS
-      return ()
-    Just fs -> do
-      let tdiff = diffUTCTime now (storyCreated $ entityVal fs)
-      if (tdiff > 7200)
-        then do
-          _ <- mapM checkStorySaved allS
-          return ()
-        else return ()
-      return ()
-
-
 checkStorySaved :: Story -> HandlerT App IO (Maybe (Entity Story))
 checkStorySaved story = do
   insertedStory <- runDB $ selectFirst [StoryHashId ==. storyHashId story] []
   case insertedStory of
-    Nothing -> do
-      _ <- runDB $ insert story
-      return Nothing
-    Just s -> return $ Just s
+    Nothing -> runDB $ insert story >> pure Nothing
+    Just s -> pure $ Just s
 
 getTopStory :: MonadIO m => m [F.News]
 getTopStory = do
   headStory <- liftIO $ F.topStory "olympics-topStory" F.reutersUrl
-  case headStory of
-    Nothing -> return []
-    Just a -> return a
-
+  pure $ fromMaybe [] headStory
 
 getFeatureStories :: MonadIO m => m [F.News]
 getFeatureStories = do
   stories <- liftIO $ F.featureNews "column1" F.reutersUrl
-  case stories of
-    Nothing -> return []
-    Just a -> return a
-
+  pure $ fromMaybe [] stories
 
 getSideStories :: MonadIO m => m [F.News]
 getSideStories = do
   stories <- liftIO $ F.leftColumnNews "more-headlines" F.reutersUrl
-  case stories of
-    Nothing -> return []
-    Just a -> return a
+  pure $ fromMaybe [] stories
 
 convertImageStory :: F.News -> UTCTime -> Story
 convertImageStory news now =

@@ -1,19 +1,15 @@
 {-# LANGUAGE ConstraintKinds            #-}
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE DeriveDataTypeable         #-}
-{-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE EmptyDataDecls             #-}
 {-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE NoMonomorphismRestriction  #-}
 {-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE QuasiQuotes                #-}
 {-# LANGUAGE RankNTypes                 #-}
 {-# LANGUAGE RecordWildCards            #-}
+
 module Helper.Fixtures where
 
 import           Helper.Helper (getAdmins)
@@ -68,9 +64,7 @@ unsafeIdx xs n
                                    _ -> r (k-1)) (error ("index too large: " ++ show n)) xs n
 
 makeCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
-makeCompany title website description image ticker gicss gicssub = do
-  compEnt <- createCompany title website description image ticker gicss gicssub
-  return compEnt
+makeCompany = createCompany
 
 makeCompanies :: DB [Entity Company]
 makeCompanies =
