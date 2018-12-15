@@ -4,24 +4,10 @@ packages:
   - '.'
 
 extra-deps:
-  - wreq-0.5.1.0
-  - scalpel-core-0.5.1
-  - scalpel-0.5.1
-  - webdriver-0.8.5
-  - aeson-lens-0.5.0.0
-  - Chart-diagrams-1.8.2
-  - amazonka-core-1.5.0
-  - amazonka-1.5.0
-  - amazonka-ses-1.5.0
   - bcrypt-0.0.10
-  - generic-deriving-1.11.2
-  - persistent-postgresql-2.6.1
-  - persistent-sqlite-2.6.2
-  - word24-1.0.7
-  - MailchimpSimple
-  - news-fetcher
-  - yadata
   - blaze-0.0.2
+  - ses-html-0.4.0.0@sha256:0f8fea6229951e565b6e37041175b0f578e5458e2c3395e7cdc84c187a69275d
+
 
 #docker:
 # enable: true

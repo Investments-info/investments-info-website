@@ -1,8 +1,5 @@
 {-# LANGUAGE CPP               #-}
 {-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
 -- | Settings are centralized, as much as possible, into this file. This
@@ -12,15 +9,16 @@
 -- declared in the Foundation.hs file.
 module Settings where
 
-import           ClassyPrelude.Yesod
 import qualified Control.Exception as Exception
-import           Data.Aeson (Result (..), fromJSON, withObject, (.!=), (.:?))
 import           Data.FileEmbed (embedFile)
 import           Data.Yaml (decodeEither')
 import           Language.Haskell.TH.Syntax (Exp, Name, Q)
 import           Network.Wai.Handler.Warp (HostPreference)
+import           Universum
+import           Yesod.Core
 import           Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
 import           Yesod.Default.Util (WidgetFileSettings, widgetFileNoReload, widgetFileReload)
+import           Yesod.Routes.Dispatch
 
 data AdminUsers =
     AdminUsers

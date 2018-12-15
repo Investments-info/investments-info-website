@@ -1,10 +1,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude     #-}
-{-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Application
   ( getApplicationDev
@@ -26,8 +23,6 @@ import           Data.ByteString.Char8 (pack)
 import           Database.Persist.Postgresql (createPostgresqlPool, runSqlPool)
 import           Handler.About
 import           Handler.Admin
-import           Handler.Api
-import           Handler.ApiCompanies
 import           Handler.Auth
 import           Handler.Common
 import           Handler.Company

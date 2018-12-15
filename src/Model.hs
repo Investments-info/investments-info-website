@@ -1,32 +1,37 @@
+{-# LANGUAGE ConstraintKinds            #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE EmptyDataDecls             #-}
+{-# LANGUAGE FlexibleContexts           #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE NoImplicitPrelude          #-}
-{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE DeriveGeneric              #-}
-{-# LANGUAGE ScopedTypeVariables        #-}
-{-# LANGUAGE RecordWildCards            #-}
+
 module Model
   ( module Import
   , module Model
   ) where
 
-import           ClassyPrelude.Yesod hiding (groupBy, hash, on, pack, (==.))
 import           Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
+import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Data.ByteString.Char8 (pack)
 import           Data.Maybe (listToMaybe)
+import           Data.Time (UTCTime, getCurrentTime)
 import           Data.Yaml
 import           Database.Esqueleto
 import qualified Database.Persist as P
 import           Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
 import           Database.Persist.Sqlite (runSqlite)
+import           Database.Persist.TH
 import           Model.BCrypt as Import
-import           Model.Instances as Import ()
 import           System.Environment (getEnv)
+import           Universum hiding (on, (^.))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User json sql=users
