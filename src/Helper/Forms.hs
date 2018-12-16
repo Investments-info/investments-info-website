@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Helper.Forms where
 
 import           Import.NoFoundation

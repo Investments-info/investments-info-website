@@ -3,7 +3,6 @@ module Import.NoFoundation
     ( module Import
     ) where
 
-import           ClassyPrelude.Yesod as Import
 import           Control.Error.Safe as Import (justZ)
 import           Database.Persist.Sql as Import
 import           Model as Import

@@ -81,6 +81,7 @@ library
                , yesod-core
                , yesod-form
                , yesod-static
+               , data-default
                , universum
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O0
@@ -192,6 +193,7 @@ executable investments-info
                 , yesod-core
                 , yesod-form
                 , yesod-static
+                , data-default
                 , universum
   if flag(library-only)
     buildable: False
@@ -275,6 +277,7 @@ test-suite test
                 , yesod-form
                 , yesod-static
                 , yesod-test
+                , data-default
                 , universum
   other-modules:
       Handler.CommentSpec

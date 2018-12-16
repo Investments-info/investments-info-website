@@ -10,15 +10,19 @@
 module Settings where
 
 import qualified Control.Exception as Exception
+import           Data.Aeson
+import           Data.Default
 import           Data.FileEmbed (embedFile)
+import qualified Data.Text as T
 import           Data.Yaml (decodeEither')
 import           Language.Haskell.TH.Syntax (Exp, Name, Q)
 import           Network.Wai.Handler.Warp (HostPreference)
+import           Prelude (id)
 import           Universum
-import           Yesod.Core
+import           Yesod.Auth
 import           Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
 import           Yesod.Default.Util (WidgetFileSettings, widgetFileNoReload, widgetFileReload)
-import           Yesod.Routes.Dispatch
+import           Yesod.Static
 
 data AdminUsers =
     AdminUsers
@@ -142,7 +146,7 @@ configSettingsYmlValue = either Exception.throw id
 compileTimeAppSettings :: AppSettings
 compileTimeAppSettings =
     case fromJSON $ applyEnvValue False mempty configSettingsYmlValue of
-        Error e          -> error e
+        Error e          -> error $ T.pack e
         Success settings -> settings
 
 -- The following two functions can be used to combine multiple CSS or JS files
