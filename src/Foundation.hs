@@ -1,30 +1,28 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE ViewPatterns #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# OPTIONS_GHC -Wno-orphans #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TemplateHaskell       #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ViewPatterns          #-}
 
 module Foundation where
 
-import           Control.Applicative (pure)
-import           Control.Monad.Logger (MonadLogger, monadLoggerLog)
 import qualified Data.CaseInsensitive as CI
+import           Data.Text (Text)
 import qualified Data.Text.Encoding as TE
 import           Database.Persist.Sql (ConnectionPool, runSqlPool)
 import           Handler.Sessions
 import           Import.NoFoundation
+import           Network.HTTP.Client (Manager, HasHttpManager (..))
 import           Text.Hamlet (hamletFile)
 import           Text.Jasmine (minifym)
+import           Universum
 import           Yesod.Core.Types (Logger)
 import qualified Yesod.Core.Unsafe as Unsafe
 import           Yesod.Default.Util (addStaticContentExternal)
-
--- had to implement this due to non existing MonadLogger IO instance
-instance MonadLogger IO where
-  monadLoggerLog _ _ _ = pure $ pure ()
+import           Yesod.Static
+import           Yesod.Core
+import           Yesod.Persist.Core
+import           Yesod.Form
 
 data App = App
   { appSettings :: AppSettings
@@ -48,7 +46,7 @@ htmlOnly = selectRep . provideRep
 type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
 
 baseLayout :: Html -> Maybe (Entity User) -> WidgetT App IO () -> Handler Html
-baseLayout title _ content = do
+baseLayout title _ content =
   defaultLayout $ do
     setTitle title
     [whamlet|
@@ -71,9 +69,9 @@ errorFragment = errorFragment' Nothing
 instance Yesod App where
   approot =
     ApprootRequest $ \app req ->
-      case appRoot $ appSettings app of
-        Nothing -> getApprootText guessApproot app req
-        Just root -> root
+     (fromMaybe (getApprootText guessApproot app req)
+       (appRoot $ appSettings app))
+
   makeSessionBackend _ =
     Just <$>
     defaultClientSessionBackend

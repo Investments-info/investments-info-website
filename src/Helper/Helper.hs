@@ -1,20 +1,20 @@
 {-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE GADTs                 #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude     #-}
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 
 module Helper.Helper where
 
-import           Data.Maybe (fromJust)
+import           Data.Hashable
 import           Database.Esqueleto as E
 import           Database.Esqueleto.Internal.Language
 import           Database.Persist.Sql (SqlBackend, rawSql, unSingle)
 import           Import
+import           Safe
+import           Universum
 
 truncateTables
   :: MonadIO m
@@ -69,11 +69,11 @@ getAwsKey
 getAwsKey t = do
   settings <- liftIO $ loadYamlSettings ["config/settings.yml"] [] useEnv
   case t of
-    "awsAccessKey"      -> return $ fromJust (awsAccessKey settings)
-    "awsSecretKey"      -> return $ fromJust (awsSecretKey settings)
-    "awsSesAccessKey"   -> return $ fromJust (awsSesAccessKey settings)
-    "awsSesSecretKey"   -> return $ fromJust (awsSesSecretKey settings)
-    "mailchimp-api-key" -> return $ fromJust (mailchimpApiKey settings)
+    "awsAccessKey"      -> return $ fromMaybe "" (awsAccessKey settings)
+    "awsSecretKey"      -> return $ fromMaybe "" (awsSecretKey settings)
+    "awsSesAccessKey"   -> return $ fromMaybe "" (awsSesAccessKey settings)
+    "awsSesSecretKey"   -> return $ fromMaybe "" (awsSesSecretKey settings)
+    "mailchimp-api-key" -> return $ fromMaybe "" (mailchimpApiKey settings)
 
     _                   -> error "no such key in settings file!"
 

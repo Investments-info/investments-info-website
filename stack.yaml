@@ -2,6 +2,10 @@ resolver: lts-10.4
 
 packages:
   - '.'
+  - location:
+      git: git@github.com:v0d1ch/financial-news-scraper
+      commit: 703bae2c646b580787b0ffe408bee8374e9c82e2
+    extra-dep: true
 
 extra-deps:
   - bcrypt-0.0.10

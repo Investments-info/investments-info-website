@@ -1,10 +1,20 @@
+{-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies        #-}
 
 module Handler.Sessions where
 
 import           Control.Monad.Trans.Maybe
+import           Data.Map (lookup)
+import qualified Data.Text as T
+import           Data.Time
 import           Data.Time.Clock (addUTCTime)
 import           Import.NoFoundation
+import           Safe
+import           Universum hiding (get)
+import           Yesod.Core
+import           Yesod.Persist.Core
 
 type YesodLog site = (Yesod site)
 
@@ -35,8 +45,8 @@ newtype SessionTime =
      deriving (Eq, Read, Show)
 
 instance PathPiece SessionTime where
-    fromPathPiece = readMay . unpack
-    toPathPiece = tshow
+    fromPathPiece = readMay . T.unpack
+    toPathPiece = show
 
 sessionTooOld
     :: (YesodLog site)
@@ -85,7 +95,7 @@ getSessionUserK = getSessionKey userSess
 handleDumpSessionR
     :: YesodLog site
     => HandlerT site IO Text
-handleDumpSessionR = tshow <$> getSession
+handleDumpSessionR = show <$> getSession
 
 deleteLoginData
     :: YesodLog site

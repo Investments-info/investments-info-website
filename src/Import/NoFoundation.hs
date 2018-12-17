@@ -3,7 +3,7 @@ module Import.NoFoundation
     ( module Import
     ) where
 
-import           Control.Error.Safe as Import (justZ)
+import           Control.Error.Safe as Import
 import           Database.Persist.Sql as Import
 import           Model as Import
 import           Settings as Import

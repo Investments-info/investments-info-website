@@ -2,7 +2,10 @@
 
 module Helper.Forms where
 
-import           Import.NoFoundation
+import           Data.Text (Text)
+import           Text.Shakespeare.I18N
+import           Universum
+import           Yesod.Form
 
 named :: Text -> FieldSettings master -> FieldSettings master
 named t f =
@@ -12,9 +15,9 @@ named t f =
     }
 
 labelled
-    :: forall master.
-       SomeMessage master -> FieldSettings master -> FieldSettings master
-labelled t f = f { fsLabel = t }
+  :: forall master.
+     SomeMessage master -> FieldSettings master -> FieldSettings master
+labelled t f = f {fsLabel = t}
 
 placeholder :: Text -> FieldSettings master -> FieldSettings master
 placeholder t f = f { fsAttrs = ("placeholder", t) : fsAttrs f }

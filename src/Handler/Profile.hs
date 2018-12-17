@@ -1,8 +1,11 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE QuasiQuotes #-}
+
 module Handler.Profile where
 
-import Import
-import MailchimpSimple as MC
+import           Import
+import           Yesod.Core
+import           Universum
+import           Yesod.Persist
 
 -- move this to helper
 listName :: String
@@ -30,15 +33,15 @@ postProfileR = do
   Just (Entity dbUKey user) <- getUser
   case newsletter of
       Just "yes" -> do
-            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
+            -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
             _ <- runDB $ setUserForNewsletter (Just 1) dbUKey
             getProfileR
       Just _ -> do
-            _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
+            -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
             _ <- runDB $ setUserForNewsletter Nothing dbUKey
             getProfileR
       Nothing -> do
-            _ <- liftIO $ MC.removeSubscriber apiKey (unpack $ userEmail user) listName
+            -- _ <- liftIO $ MC.removeSubscriber apiKey (unpack $ userEmail user) listName
             _ <- runDB $ setUserForNewsletter Nothing dbUKey
             getProfileR
 
@@ -50,7 +53,6 @@ profileForm User {..} =
 renderProfile :: User -> Widget -> Handler Html
 renderProfile u widget = do
   baseLayout "Profile" Nothing [whamlet|
-
 <section id="content" class="main">
   <header class="major">
     <div>

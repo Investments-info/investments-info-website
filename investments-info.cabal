@@ -81,8 +81,12 @@ library
                , yesod-core
                , yesod-form
                , yesod-static
+               , yesod-persistent
                , data-default
                , universum
+               , hjsmin
+               , mono-traversable
+               , financial-news-scraper
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O0
     cpp-options: -DDEVELOPMENT
@@ -107,13 +111,11 @@ library
       Handler.Sessions
       Handler.StoryDetails
       Handler.StoryList
-      Helper.Aws
       Helper.Fixtures
       Helper.FormHelper
       Helper.Forms
       Helper.Helper
       Helper.YahooDB
-      Helper.YahooHelper
       Import
       Import.NoFoundation
       Model
@@ -193,8 +195,12 @@ executable investments-info
                 , yesod-core
                 , yesod-form
                 , yesod-static
+                , yesod-persistent
                 , data-default
                 , universum
+                , hjsmin
+                , mono-traversable
+                , financial-news-scraper
   if flag(library-only)
     buildable: False
   other-modules:
@@ -276,9 +282,13 @@ test-suite test
                 , yesod-core
                 , yesod-form
                 , yesod-static
+                , yesod-persistent
                 , yesod-test
                 , data-default
                 , universum
+                , hjsmin
+                , mono-traversable
+                , financial-news-scraper
   other-modules:
       Handler.CommentSpec
       Handler.CommonSpec

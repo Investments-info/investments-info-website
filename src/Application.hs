@@ -37,7 +37,6 @@ import           Handler.SearchCompanies
 import           Handler.StoryDetails
 import           Handler.StoryList
 import           Helper.Fixtures as F
-import           Helper.YahooHelper as YH
 import           Import hiding (pack)
 import           Language.Haskell.TH.Syntax (qLocation)
 import           Network.Wai (Middleware)
@@ -111,7 +110,6 @@ warpSettings foundation =
 -- | For yesod devel, return the Warp settings and WAI Application.
 getApplicationDev :: IO (Settings, Application)
 getApplicationDev = do
-  YH.writeYahooLog "[SYSTEM] development start!" False
   (foundation, wsettings) <- getEssentials
   app <- makeApplication foundation
   F.runInsertAdminsAction
@@ -137,7 +135,6 @@ appMain = do
   (foundation, _) <- getEssentials
   app <- makeApplication foundation
   F.runInsertAdminsAction
-  YH.writeYahooLog "[SYSTEM] production start!" False
   runTLS tlsS (warpSettings foundation) app
   -- runSettings (warpSettings foundation) app
 
@@ -151,7 +148,7 @@ getApplicationRepl = do
   return (getPort wsettings, foundation, app1)
 
 shutdownApp :: App -> IO ()
-shutdownApp _ = return ()
+shutdownApp _ = pass
 
 ---------------------------------------------
 -- Functions for use in development with GHCi

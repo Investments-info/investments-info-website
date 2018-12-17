@@ -1,23 +1,24 @@
 {-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE NoImplicitPrelude     #-}
-{-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
 
 module Handler.SearchCompanies where
 
+import           Data.Aeson
 import           Database.Esqueleto as E
 import           Import
+import           Universum hiding ((^.))
+import           Yesod.Core
+import           Yesod.Persist
 
-postSearchCompaniesR:: Handler Import.Value
+postSearchCompaniesR:: Handler Data.Aeson.Value
 postSearchCompaniesR = do
   postData <- lookupPostParam "sstr"
-  let searchStr = "%" <> (fromMaybe "###############" postData) <> "%"
+  let searchStr = "%" <> fromMaybe "###############" postData <> "%"
   companies <-
     runDB $
     select $
-    E.from $ \a -> do E.where_ (a ^. CompanyTitle `E.ilike` (E.val searchStr))
+    E.from $ \a -> do E.where_ (a ^. CompanyTitle `E.ilike` E.val searchStr)
                       E.limit 10
                       return a
   print companies

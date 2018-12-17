@@ -4,16 +4,15 @@
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE NoImplicitPrelude          #-}
 {-# LANGUAGE NoMonomorphismRestriction  #-}
-{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE RankNTypes                 #-}
-{-# LANGUAGE RecordWildCards            #-}
 
 module Helper.Fixtures where
 
+import           Data.MonoTraversable (MonoFoldable)
 import           Helper.Helper (getAdmins)
 import           Import
+import           Universum
 
 newtype UserFixtures = UserFixtures
   { allUsersF :: [Entity User]
@@ -56,12 +55,13 @@ makeAdmins k = do
   pure $ catMaybes admins
 
 {-# INLINABLE unsafeIdx #-}
-unsafeIdx :: (MonoFoldable c) => c -> Integer -> Element c
+unsafeIdx :: (MonoFoldable c, Container c) => c -> Integer -> Element c
 unsafeIdx xs n
   | n < 0     = error "negative index"
-  | otherwise = foldr (\x r k -> case k of
-                                   0 -> x
-                                   _ -> r (k-1)) (error ("index too large: " ++ show n)) xs n
+  | otherwise = foldr (\x r k ->
+      case k of
+        0 -> x
+        _ -> r (k-1)) (error ("index too large: " <> show n)) xs n
 
 makeCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
 makeCompany = createCompany
@@ -78,7 +78,7 @@ makeCompanies =
 runInsertAdminsAction :: IO ()
 runInsertAdminsAction = do
     _ <- runDBA insertFixtures
-    return ()
+    pass
 
 insertFixtures :: DB Fixtures
 insertFixtures = do
