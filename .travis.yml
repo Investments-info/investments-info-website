@@ -13,15 +13,15 @@ matrix:
   fast_finish: true
   include:
     # Add build targets here
-    - env: GHCVER=8.4.3 CACHE_NAME=8.4.3 BUILD_BINARY=1
-      compiler: ": #stack 8.4.3"
+    - env: GHCVER=8.2.2 CACHE_NAME=8.2.2 BUILD_BINARY=1
+      compiler: ": #stack 8.2.2"
       addons: {apt: {packages: [ghc-8.4.3], sources: [hvr-ghc]}}
 
 
 install:
  - unset CC
  - export PATH=$HOME/.local/bin:/opt/ghc/$GHCVER/bin:$PATH
- - ./.travis/install-ghr.sh
+ - ./.travis/install-ghc.sh
  - ./.travis/install-stack.sh
 
 script:

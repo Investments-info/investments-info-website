@@ -8,8 +8,6 @@ import           Data.Aeson
 import           Database.Esqueleto as E
 import           Import
 import           Universum hiding ((^.))
-import           Yesod.Core
-import           Yesod.Persist
 
 postSearchCompaniesR:: Handler Data.Aeson.Value
 postSearchCompaniesR = do

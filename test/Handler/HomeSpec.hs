@@ -1,11 +1,9 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-
 module Handler.HomeSpec
   ( spec
   ) where
 
 import           TestImport
+import           Universum hiding (get)
 
 spec :: Spec
 spec =

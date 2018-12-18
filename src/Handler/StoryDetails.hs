@@ -6,8 +6,6 @@ import qualified Data.Text as T
 import           Import
 import qualified Text.HTML.Fscraper as F
 import           Universum
-import           Yesod.Core
-import           Yesod.Persist
 
 
 getStoryDetailsR :: Int -> Handler Html

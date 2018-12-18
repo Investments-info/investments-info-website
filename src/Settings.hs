@@ -13,7 +13,6 @@ import qualified Control.Exception as Exception
 import           Data.Aeson
 import           Data.Default
 import           Data.FileEmbed (embedFile)
-import qualified Data.Text as T
 import           Data.Yaml (decodeEither')
 import           Language.Haskell.TH.Syntax (Exp, Name, Q)
 import           Network.Wai.Handler.Warp (HostPreference)

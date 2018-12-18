@@ -13,8 +13,6 @@ import           Helper.Helper as H
 import           Import
 import qualified Text.HTML.Fscraper as F
 import           Universum hiding ((^.))
-import           Yesod.Core
-import           Yesod.Persist
 
 getStoryListR :: Page -> Handler Html
 getStoryListR currentPage = do

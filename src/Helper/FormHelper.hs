@@ -3,9 +3,7 @@ module Helper.FormHelper where
 import           Data.Text (Text)
 import           Data.Time (UTCTime)
 import           Import
-import           Text.Shakespeare.I18N
 import           Universum
-import           Yesod.Form
 
 titleSettings :: FieldSettings master
 titleSettings = FieldSettings {
