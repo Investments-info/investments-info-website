@@ -1,7 +1,9 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE QuasiQuotes #-}
+
 module Handler.CompanyDetails where
 
-import Import
+import           Import
+import           Universum
 
 getCompanyDetailsR :: CompanyId -> Handler Html
 getCompanyDetailsR cid = do

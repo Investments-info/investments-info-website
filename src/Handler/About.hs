@@ -1,14 +1,13 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE QuasiQuotes      #-}
 
 module Handler.About where
 
-import Import
-import Database.Esqueleto (unValue)
+import           Database.Esqueleto (unValue)
+import           Import
+import           Universum
 
 getAboutR :: Handler Html
 getAboutR  = do

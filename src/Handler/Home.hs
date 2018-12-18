@@ -1,17 +1,19 @@
-{-# LANGUAGE NoImplicitPrelude #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE NoImplicitPrelude     #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# OPTIONS_GHC -fno-warn-unused-matches #-}
 
 module Handler.Home where
 
-import           Data.Time.Clock (diffUTCTime)
+import           Data.Time (UTCTime)
 import           Helper.Helper as H
 import           Import
 import qualified Text.HTML.Freader as R
 import qualified Text.HTML.Fscraper as F
+import           Universum
 
 getHomeR :: Handler Html
 getHomeR  = do
@@ -31,9 +33,9 @@ getHomeR  = do
                         <a href=#{ F.buildFullUrl F.reutersUrl storyLink } target=_blank> #{storyTitle}
                         <p>
                             $maybe img <- storyImage
-                                   <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
+                                   <a href=#{(toText F.reutersUrl) <> storyLink} target=_blank><img src=#{img} width=100 />
                             $nothing
-                                   <a href=#{(pack F.reutersUrl) <> storyLink} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
+                                   <a href=#{(toText F.reutersUrl) <> storyLink} target=_blank><img src=@{StaticR images_defaultimage_gif} width=100 />
 
             <ul class="actions">
                   <li><a href="@{StoryListR 1}" class="button">All articles</a></li>
@@ -111,10 +113,10 @@ convertImageStory :: F.News -> UTCTime -> Story
 convertImageStory news now =
   Story
   { storyHashId = H.makeHash (F.newstitle news)
-  , storyTitle = pack $ F.newstitle news
-  , storyLink = pack $ F.newslink news
-  , storyContent = Just (pack $ F.newstext news)
-  , storyImage = Just (pack $ F.newsimage news)
+  , storyTitle = toText $ F.newstitle news
+  , storyLink = toText  $ F.newslink news
+  , storyContent = Just (toText $ F.newstext news)
+  , storyImage = Just (toText $ F.newsimage news)
   , storyCreated = now
   }
 
@@ -123,9 +125,9 @@ convertStory :: F.News -> UTCTime -> Story
 convertStory news now =
   Story
   { storyHashId = H.makeHash (F.newstitle news)
-  , storyTitle = pack $ F.newstitle news
-  , storyLink = pack $ F.newslink news
-  , storyContent = Just (pack $ F.newstext news)
+  , storyTitle = toText  $ F.newstitle news
+  , storyLink = toText $ F.newslink news
+  , storyContent = Just (toText $ F.newstext news)
   , storyImage = Nothing
   , storyCreated = now
   }

@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE QuasiQuotes #-}
 {-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module Handler.NewsletterManager where
@@ -42,7 +42,7 @@ postNewsletterManagerR = do
           setMessage
             "You have signed-up for our newsletter! Expect it in your inbox once a week !"
           redirect ProfileR
-        Just (Entity dbUKey dbUser) -> do
+        Just (Entity dbUKey dbUser) ->
           case userNewsletter dbUser of
             Just 1 -> do
               setMessage "You are already signed-up for our newsletter!"
@@ -73,12 +73,8 @@ signupForm =
   renderDivs $ areq textField (named "email" (placeheld "Email")) Nothing
 
 renderSignup :: Widget -> Handler Html
-renderSignup widget = do
-  baseLayout
-    "Signup"
-    Nothing
-    [whamlet|
-
+renderSignup widget =
+  baseLayout "Signup" Nothing [whamlet|
 <section id="content" class="main">
     <div>
       <div .col-md-6>
@@ -95,5 +91,5 @@ redirectIfLoggedIn
 redirectIfLoggedIn r = do
   maybeUser <- getUser
   case maybeUser of
-    Nothing -> return ()
+    Nothing -> pass
     (Just _) -> redirect r

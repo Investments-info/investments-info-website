@@ -38,14 +38,14 @@ setUserSession keyUser rememberMe = do
     else deleteSession rememberSess
   t <- liftIO getCurrentTime
   setSession timestampSess (toPathPiece (SessionTime t))
-  return ()
+  pass
 
 newtype SessionTime =
     SessionTime UTCTime
      deriving (Eq, Read, Show)
 
 instance PathPiece SessionTime where
-    fromPathPiece = readMay . T.unpack
+    fromPathPiece = readMay . toString
     toPathPiece = show
 
 sessionTooOld
@@ -62,7 +62,7 @@ sessionTooOld currentTime = do
             let shortLife = 60 * 60 * 2
                 -- shortLife = 5 -- for testing
                 -- there was a remember flag, so we give it 1 month
-                longLife = 60 * 60 * 24 * 30 * 1
+                longLife = 60 * 60 * 24 * 30
                 secondsToLast = maybe shortLife (const longLife) remember
                 deadline = addUTCTime secondsToLast t
             -- if currentTime is greater than the
@@ -119,7 +119,7 @@ getUser
     => HandlerT site IO (Maybe (Entity User))
 getUser =
     runMaybeT $
-    do userKey <- MaybeT $ getUserKey
+    do userKey <- MaybeT getUserKey
        user <- MaybeT $ runDB $ get userKey
        return $ Entity userKey user
 
@@ -130,7 +130,7 @@ requireAdmin = do
   case maybeUser of
     Nothing -> notAuthenticated
     (Just user) -> do
-      maybeAdmin <- runDB $ selectFirst [AdminAccount ==. (entityKey user)] []
+      maybeAdmin <- runDB $ selectFirst [AdminAccount ==. entityKey user] []
       case maybeAdmin of
         Nothing      -> permissionDenied "You are not an administrator"
         (Just admin) -> return (user, admin)

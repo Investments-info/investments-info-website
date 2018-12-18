@@ -1,7 +1,11 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE QuasiQuotes      #-}
+
 module Handler.Auth where
 
-import Import
-import Text.Email.Validate (isValid)
+import           Import
+import           Text.Email.Validate (isValid)
+import           Universum
 
 loginForm :: Form (Text, Text)
 loginForm =
@@ -13,11 +17,11 @@ redirectIfLoggedIn :: (RedirectUrl App r) => r -> Handler ()
 redirectIfLoggedIn r = do
   maybeUser <- getUser
   case maybeUser of
-    Nothing -> return ()
+    Nothing -> pass
     (Just _) -> redirect r
 
 renderLogin :: Widget -> Handler Html
-renderLogin widget = do
+renderLogin widget =
   baseLayout "Login" Nothing [whamlet|
 <section id="content" class="main">
  <header class="major">
@@ -48,7 +52,7 @@ postLoginR = do
   case result of
     FormSuccess (email, password) -> do
       maybeUP <- runDB (getUserPassword email)
-      if (not (isValid (encodeUtf8 email))) then
+      if not (isValid (encodeUtf8 email)) then
           do
           setMessage "That is not a valid email!"
           redirect LoginR
@@ -56,13 +60,14 @@ postLoginR = do
           case maybeUP of
             Nothing ->
               notFound
-            (Just ((Entity dbUserKey _), (Entity _ dbPass))) -> do
+            (Just (Entity dbUserKey _, Entity _ dbPass)) -> do
               let success = passwordMatches (passwordHash dbPass) password
-              case success of
-                False -> notAuthenticated
-                True -> do
+              if success
+                 then do
                   setUserSession dbUserKey True
                   redirect ProfileR
+                 else
+                   notAuthenticated
     _ -> renderLogin widget
 
 
@@ -73,7 +78,7 @@ signupForm = loginForm
   --     <*> areq passwordField (named "password" (placeheld "Password")) Nothing
 
 renderSignup :: Widget -> Handler Html
-renderSignup widget = do
+renderSignup widget =
   baseLayout "Login" Nothing [whamlet|
 <section id="content" class="main">
  <header class="major">
@@ -101,7 +106,7 @@ postSignupR = do
   case result of
     FormSuccess (email, password) -> do
       maybeUP <- runDB (getUserEntity email)
-      if (not (isValid (encodeUtf8 email))) then
+      if not (isValid (encodeUtf8 email)) then
           do
           setMessage "That is not a valid email"
           renderSignup widget

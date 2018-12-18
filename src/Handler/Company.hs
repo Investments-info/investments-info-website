@@ -1,8 +1,11 @@
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE TemplateHaskell  #-}
+
 module Handler.Company where
 
+import           Data.Time (getCurrentTime)
 import           Helper.FormHelper as FH
 import           Import
+import           Universum
 
 getCompanyR :: Handler Html
 getCompanyR = do

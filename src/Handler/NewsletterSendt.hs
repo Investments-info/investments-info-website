@@ -62,5 +62,5 @@ redirectIfLoggedIn r = do
   case maybeUser of
     Nothing -> do
       setMessage "You are not authorized to do this!"
-      return ()
+      pass
     (Just _) -> redirect r

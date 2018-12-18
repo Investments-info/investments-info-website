@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-unused-matches #-}
-{-# LANGUAGE OverloadedStrings      #-}
+{-# LANGUAGE QuasiQuotes #-}
 
 module Handler.NewsletterView where
 
@@ -57,6 +57,6 @@ getNewsletterViewR = do
 newsletterLayout :: Widget -> Handler Html
 newsletterLayout widget = do
   master <- getYesod
-  pc <- widgetToPageContent $ do $(widgetFile "newsletter-layout")
+  pc <- widgetToPageContent $(widgetFile "newsletter-layout")
   withUrlRenderer
     $(hamletFile "templates/layout/newsletter-layout-wrapper.hamlet")

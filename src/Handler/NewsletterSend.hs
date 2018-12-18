@@ -67,5 +67,5 @@ redirectIfLoggedIn
 redirectIfLoggedIn r = do
   maybeUser <- getUser
   case maybeUser of
-    Nothing  -> return ()
+    Nothing  -> pass
     (Just _) -> redirect r

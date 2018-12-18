@@ -87,6 +87,8 @@ library
                , hjsmin
                , mono-traversable
                , financial-news-scraper
+               , conduit
+               , conduit-combinators
   if (flag(dev)) || (flag(library-only))
     ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O0
     cpp-options: -DDEVELOPMENT
@@ -201,6 +203,8 @@ executable investments-info
                 , hjsmin
                 , mono-traversable
                 , financial-news-scraper
+                , conduit
+                , conduit-combinators
   if flag(library-only)
     buildable: False
   other-modules:
@@ -289,6 +293,8 @@ test-suite test
                 , hjsmin
                 , mono-traversable
                 , financial-news-scraper
+                , conduit
+                , conduit-combinators
   other-modules:
       Handler.CommentSpec
       Handler.CommonSpec

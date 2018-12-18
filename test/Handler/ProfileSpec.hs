@@ -9,7 +9,7 @@ import           TestImport
 
 spec :: Spec
 spec =
-  withApp $ do
+  withApp $
     describe "Profile page" $ do
       it "asserts no access to my-account for anonymous users" $ do
         get ProfileR

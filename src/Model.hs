@@ -21,7 +21,6 @@ module Model
 import           Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
 import           Control.Monad.Trans.Control (MonadBaseControl)
 import           Data.ByteString.Char8 (pack)
-import           Data.Maybe (listToMaybe)
 import           Data.Time (UTCTime, getCurrentTime)
 import           Data.Yaml
 import           Database.Esqueleto
@@ -128,40 +127,33 @@ instance FromJSON DBConfig
 -------------------------------------------------------
 
 createUser :: Text -> Text -> DB (Entity User)
-createUser email pass = do
-  now <- liftIO $ getCurrentTime
+createUser email password = do
+  now <- liftIO getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing Nothing now
-  user <- insertBy $ newUser
+  user <- insertBy newUser
   case user of
-    Left (Entity userId _) -> do
-      hash <- liftIO $ hashPassword pass
-      void $ insertBy $ Password hash userId
-      return (Entity userId newUser)
-    Right userId -> do
-      hash <- liftIO $ hashPassword pass
-      void $ insertBy $ Password hash userId
-      return (Entity userId newUser)
+    Left (Entity userId _) -> insertHashed password userId newUser
+    Right userId -> insertHashed password userId newUser
 
 createUserForNewsletter :: Text -> Text -> Maybe Int -> DB (Entity User)
-createUserForNewsletter email pass newsletter = do
-  now <- liftIO $ getCurrentTime
+createUserForNewsletter email password newsletter = do
+  now <- liftIO getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing newsletter now
-  user <- insertBy $ newUser
+  user <- insertBy newUser
   case user of
-    Left (Entity userId _) -> do
-      hash <- liftIO $ hashPassword pass
-      void $ insertBy $ Password hash userId
-      return (Entity userId newUser)
-    Right userId  -> do
-      hash <- liftIO $ hashPassword pass
-      void $ insertBy $ Password hash userId
-      return (Entity userId newUser)
+    Left (Entity userId _) -> insertHashed password userId newUser
+    Right userId  -> insertHashed password userId newUser
+
+insertHashed :: Text -> Key User -> User -> DB (Entity User)
+insertHashed password userId newUser = do
+  hash <- liftIO $ hashPassword password
+  void $ insertBy $ Password hash userId
+  return (Entity userId newUser)
 
 setUserForNewsletter :: Maybe Int -> UserId -> DB (Key User)
 setUserForNewsletter newsletter userId = do
-  P.update (userId) [UserNewsletter P.=. newsletter]
+  P.update userId [UserNewsletter P.=. newsletter]
   return userId
-
 
 createAdmin :: Key User -> DB (Either (Entity Admin) AdminId)
 createAdmin userKey = do
@@ -170,9 +162,9 @@ createAdmin userKey = do
 
 createCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
 createCompany title website description image ticker gicssector gicssubindustry = do
-  now <- liftIO $ getCurrentTime
+  now <- liftIO getCurrentTime
   let newCompany = Company title (Just website) (Just description) (Just image) ticker (Just gicssector) (Just gicssubindustry) now
-  companyId <- insert $ newCompany
+  companyId <- insert newCompany
   return (Entity companyId newCompany)
 
 ---------------------------------------------------------
@@ -182,10 +174,10 @@ createCompany title website description image ticker gicssector gicssubindustry 
 getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
 getUserPassword email = fmap listToMaybe $
   select $
-  from $ \(user `InnerJoin` pass) -> do
-  on (user ^. UserId ==. pass ^. PasswordUser)
-  where_ (user ^. UserEmail ==. val email)
-  return (user, pass)
+  from $ \(u `InnerJoin` p) -> do
+  on (u ^. UserId ==. p ^. PasswordUser)
+  where_ (u ^. UserEmail ==. val email)
+  return (u, p)
 
 getUserEntity :: Text -> DB (Maybe (Entity User))
 getUserEntity email = fmap listToMaybe $
@@ -203,11 +195,10 @@ getUserForNewsletter email = fmap listToMaybe $
   return user
 
 allCompanies :: DB [Entity Company]
-allCompanies = do
-  companies <- select $
-    from $ \company -> do
-    return company
-  return companies
+allCompanies =
+  select $
+    from $ \c ->
+    return c
 
 getCompanyById :: CompanyId -> DB (Maybe(Entity Company))
 getCompanyById cid = fmap listToMaybe $
@@ -227,14 +218,13 @@ getAllCompanyHistoricalDataById cid =
   return c
 
 getLatestUniqueStories :: DB [Entity Story]
-getLatestUniqueStories = do
-  stories <- select $
+getLatestUniqueStories =
+  select $
     from $ \story -> do
     groupBy (story ^. StoryId, story ^. StoryHashId)
     orderBy [desc (story ^. StoryCreated)]
     limit 10
     return story
-  return stories
 
 
 --------------------------------------------------------
@@ -243,35 +233,34 @@ getLatestUniqueStories = do
 
 deleteAllCompanies :: DB Int64
 deleteAllCompanies =
-  Database.Esqueleto.deleteCount $ from $ \(_ :: SqlExpr (Entity Company)) -> return ()
+  Database.Esqueleto.deleteCount $ from $ \(_ :: SqlExpr (Entity Company)) -> pass
 
 deleteAdminUsers :: Text -> DB ()
 deleteAdminUsers email = do
   mUser <- selectFirst [UserEmail P.==. email] []
   case mUser of
-    Nothing -> return ()
-    Just u -> do
+    Nothing -> pass
+    Just u ->
       Database.Esqueleto.delete $
          from $ \p  -> do
          where_ (p ^. AdminAccount  ==. val (entityKey u))
-         return ()
+         pass
 
 deleteAdminPasswords :: Text -> DB ()
 deleteAdminPasswords email = do
   mUser <- selectFirst [UserEmail P.==. email] []
   case mUser of
-    Nothing -> return ()
-    Just u -> do
+    Nothing -> pass
+    Just u ->
       Database.Esqueleto.delete $
         from $ \p -> do
         where_ (p ^. PasswordUser ==. val (entityKey u))
-        return ()
+        pass
 
 deleteUserAdmins :: Text -> DB Int64
 deleteUserAdmins email =
   Database.Esqueleto.deleteCount $
-  from $ \u -> do
-    where_ (u ^. UserEmail ==. val email)
+  from $ \u -> where_ (u ^. UserEmail ==. val email)
 
 --------------------------------------------------------
 -- count
@@ -280,46 +269,46 @@ deleteUserAdmins email =
 countUsersByEmail :: Text -> DB Int
 countUsersByEmail email = do
   (cnt:_) :: [Database.Esqueleto.Value Int] <-
-    select $
+    select .
      from $ \u -> do
      where_ (u ^. UserEmail ==. val email)
-     return $ countRows
+     return countRows
   return $ unValue cnt
 
 getCompanyCount :: IO (Database.Esqueleto.Value Int)
 getCompanyCount = do
   (companies:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
-    select $
-    from $ \(_ :: SqlExpr (Entity Company)) -> do
-      return $ countRows
+    select .
+    from $ \(_ :: SqlExpr (Entity Company)) ->
+      return countRows
   return companies
 
 getUserCount :: IO (Database.Esqueleto.Value Int)
 getUserCount = do
   (users:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
-    select $
-    from $ \(_ :: SqlExpr (Entity User)) -> do
-      return $ countRows
+    select .
+    from $ \(_ :: SqlExpr (Entity User)) ->
+      return countRows
   return users
 
 getArticleCount :: IO (Database.Esqueleto.Value Int)
 getArticleCount = do
   (articles:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
-    select $
-    from $ \(_ :: SqlExpr (Entity Story)) -> do
-      return $ countRows
+    select .
+    from $ \(_ :: SqlExpr (Entity Story)) ->
+      return countRows
   return articles
 
 getHistoryCount :: IO (Database.Esqueleto.Value Int)
 getHistoryCount = do
   (history:_) :: [Database.Esqueleto.Value Int] <-
     runDBA $
-    select $
-    from $ \(_ :: SqlExpr (Entity Historical)) -> do
-      return $ countRows
+    select .
+    from $ \(_ :: SqlExpr (Entity Historical)) ->
+      return countRows
   return history
 
 --------------------------------------------------------

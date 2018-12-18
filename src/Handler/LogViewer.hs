@@ -1,6 +1,8 @@
 module Handler.LogViewer where
 
+import           Conduit
 import           Import
+import           Universum
 
 
 getLogViewerR :: Handler Value

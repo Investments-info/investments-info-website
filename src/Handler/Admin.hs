@@ -1,6 +1,9 @@
+{-# LANGUAGE QuasiQuotes      #-}
+
 module Handler.Admin where
 
-import Import
+import           Import
+import           Universum
 
 getAdminR :: Handler Html
 getAdminR = do
@@ -11,11 +14,7 @@ getAdminR = do
     <h3>Welcome to the Admin page
     <ul>
       <li><a href="@{CompanyR}">Create new company
-
-
-
 |]
-
 
 getAdminDeckR :: Handler Html
 getAdminDeckR = do

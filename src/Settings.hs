@@ -146,7 +146,7 @@ configSettingsYmlValue = either Exception.throw id
 compileTimeAppSettings :: AppSettings
 compileTimeAppSettings =
     case fromJSON $ applyEnvValue False mempty configSettingsYmlValue of
-        Error e          -> error $ T.pack e
+        Error e          -> error $ toText e
         Success settings -> settings
 
 -- The following two functions can be used to combine multiple CSS or JS files

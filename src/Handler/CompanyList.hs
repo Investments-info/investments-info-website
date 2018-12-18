@@ -1,9 +1,13 @@
+{-# LANGUAGE QuasiQuotes #-}
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+
 module Handler.CompanyList where
 
-import Import
-import Helper.Helper as H
-import Database.Esqueleto as E
+import           Data.Time (getCurrentTime)
+import           Database.Esqueleto as E
+import           Helper.Helper as H
+import           Import
+import           Universum hiding ((^.))
 
 getCompanyListR :: Page -> Handler Html
 getCompanyListR currentPage = do

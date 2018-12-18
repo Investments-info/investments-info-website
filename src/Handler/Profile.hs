@@ -1,18 +1,14 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE QuasiQuotes      #-}
 
 module Handler.Profile where
 
 import           Import
-import           Yesod.Core
 import           Universum
-import           Yesod.Persist
 
 -- move this to helper
 listName :: String
 listName = "investments-info"
-
-apiKey :: String
-apiKey = "ab4685034f82cdd3c97286e4839b7cee-us17"
 
 getProfileR :: Handler Html
 getProfileR = do
@@ -30,7 +26,7 @@ postProfileR :: Handler Html
 postProfileR = do
   redirectIfNotLoggedIn HomeR
   newsletter <- lookupPostParam "newsletter"
-  Just (Entity dbUKey user) <- getUser
+  Just (Entity dbUKey _) <- getUser
   case newsletter of
       Just "yes" -> do
             -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
@@ -51,7 +47,7 @@ profileForm User {..} =
       areq checkBoxField checkboxSettings (Just (isJust userNewsletter))
 
 renderProfile :: User -> Widget -> Handler Html
-renderProfile u widget = do
+renderProfile u widget =
   baseLayout "Profile" Nothing [whamlet|
 <section id="content" class="main">
   <header class="major">
@@ -78,7 +74,7 @@ redirectIfNotLoggedIn r = do
   maybeUser <- getUser
   case maybeUser of
     Nothing -> redirect r
-    (Just _) -> return ()
+    (Just _) -> pass
 
 checkboxSettings :: FieldSettings master
 checkboxSettings = FieldSettings {

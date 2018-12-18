@@ -11,7 +11,7 @@ import           TestImport
 spec :: Spec
 spec =
   withApp $ do
-    describe "valid request" $ do
+    describe "valid request" $
       it "gives a 200" $ do
         get HomeR
         statusIs 200
@@ -27,7 +27,7 @@ spec =
         [Entity _id comment] <-
           runDB $ selectList [CommentMessage ==. message] []
         assertEq "Should have " comment (Comment message Nothing)
-    describe "invalid requests" $ do
+    describe "invalid requests" $
       it "400s when the JSON body is invalid" $ do
         get HomeR
         let body = object ["foo" .= ("My message" :: Value)]

@@ -1,13 +1,15 @@
 {-# OPTIONS_GHC -Wno-unused-matches #-}
+{-# LANGUAGE QuasiQuotes #-}
+
 module Handler.NewsletterNewUser where
 
 import Import
 import Text.Hamlet (hamletFile)
 
 getNewsletterNewUserR :: Handler Html
-getNewsletterNewUserR = do
-  newsletterLayout $ do
-      toWidget [whamlet|
+getNewsletterNewUserR =
+  newsletterLayout $
+    toWidget [whamlet|
 <section id="intro" class="main">
     <div class="spotlight">
         <div class="content">
@@ -17,7 +19,6 @@ getNewsletterNewUserR = do
 
 newsletterLayout :: Widget -> Handler Html
 newsletterLayout widget = do
-    master <- getYesod
-    pc <- widgetToPageContent $ do
-      $(widgetFile "newsletter-layout")
-    withUrlRenderer $(hamletFile "templates/layout/newsletter-layout-newuser-wrapper.hamlet")
+  master <- getYesod
+  pc <- widgetToPageContent $(widgetFile "newsletter-layout")
+  withUrlRenderer $(hamletFile "templates/layout/newsletter-layout-newuser-wrapper.hamlet")

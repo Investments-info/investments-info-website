@@ -1,9 +1,7 @@
 module Migration where
 
-import           Prelude
-
 import           Model
+import           Universum
 
 main :: IO ()
-main = do
-  runDBA runMigrations
+main = runDBA runMigrations

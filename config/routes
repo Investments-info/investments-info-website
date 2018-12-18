@@ -19,5 +19,3 @@
 /!company/#CompanyId           CompanyDetailsR         GET
 /logview                       LogViewerR              GET
 /profile                       ProfileR                GET POST
-/!api/v1                       ApiR                    GET
-/!api/v1/companies             ApiCompaniesR           GET

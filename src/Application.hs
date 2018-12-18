@@ -2,6 +2,7 @@
 {-# LANGUAGE RecordWildCards       #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE ViewPatterns          #-}
 
 module Application
   ( getApplicationDev
@@ -20,6 +21,7 @@ module Application
 
 import           Control.Monad.Logger (liftLoc, runLoggingT)
 import           Data.ByteString.Char8 (pack)
+import           Data.Default
 import           Database.Persist.Postgresql (createPostgresqlPool, runSqlPool)
 import           Handler.About
 import           Handler.Admin
@@ -37,8 +39,9 @@ import           Handler.SearchCompanies
 import           Handler.StoryDetails
 import           Handler.StoryList
 import           Helper.Fixtures as F
-import           Import hiding (pack)
+import           Import
 import           Language.Haskell.TH.Syntax (qLocation)
+import           Network.HTTP.Client (defaultManagerSettings, newManager)
 import           Network.Wai (Middleware)
 import           Network.Wai.Handler.Warp (Settings, defaultSettings, defaultShouldDisplayException,
                                            getPort, setHost, setOnException, setPort)
@@ -48,12 +51,13 @@ import           Network.Wai.Middleware.RequestLogger (Destination (Logger), IPA
                                                        mkRequestLogger, outputFormat)
 import           System.Environment (getEnv)
 import           System.Log.FastLogger (defaultBufSize, newStdoutLoggerSet, toLogStr)
+import           Universum
 
 mkYesodDispatch "App" resourcesApp
 
 makeFoundation :: AppSettings -> IO App
 makeFoundation appSettings = do
-  appHttpManager <- newManager
+  appHttpManager <- newManager defaultManagerSettings
   appLogger <- newStdoutLoggerSet defaultBufSize >>= makeYesodLogger
   appStatic <-
     (if appMutableStatic appSettings
