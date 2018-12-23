@@ -17,19 +17,14 @@ module Model
   , module Model
   ) where
 
-import           Control.Monad.Logger (runNoLoggingT, runStdoutLoggingT)
-import           Control.Monad.Trans.Control (MonadBaseControl)
-import           Data.ByteString.Char8 (pack)
 import           Data.Time (UTCTime, getCurrentTime)
 import           Data.Yaml
 import           Database.Esqueleto
+import           Database.Esqueleto.Internal.Sql (SqlSelect)
 import qualified Database.Persist as P
-import           Database.Persist.Postgresql (ConnectionString, withPostgresqlPool)
-import           Database.Persist.Sqlite (runSqlite)
 import           Database.Persist.TH
 import           Model.BCrypt as Import
-import           System.Environment (getEnv)
-import           Universum hiding (on, (^.))
+import           Universum hiding (Key, on, (^.))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User json sql=users
@@ -91,17 +86,13 @@ Historical json
     deriving Show
 |]
 
-type ControlIO m = (MonadIO m, MonadBaseControl IO m)
-
-type DBM m a =
-  (ControlIO m, MonadThrow m, Monad m) => SqlPersistT m a
-
-type DB a = forall m. DBM m a
-
-type DBVal val =
-  ( PersistEntity val
-  , PersistEntityBackend val ~ SqlBackend
-  , PersistStore (PersistEntityBackend val))
+type Title = Text
+type Website = Text
+type Description = Text
+type Image = Text
+type Ticker = Text
+type Gicssector = Text
+type Gicssubindustry = Text
 
 instance ToJSON (Entity Story) where
     toJSON (Entity _ p) = object
@@ -121,11 +112,16 @@ data DBConfig = DBConfig
 
 instance FromJSON DBConfig
 
+selectHead
+  :: (SqlSelect a r, MonadIO m)
+  => SqlQuery a -> SqlReadT m (Maybe r)
+selectHead query = listToMaybe <$> select query
+
 -------------------------------------------------------
 -- create
 -------------------------------------------------------
 
-createUser :: Text -> Text -> DB (Entity User)
+createUser :: MonadIO m => Text -> Text -> SqlPersistT m (Entity User)
 createUser email password = do
   now <- liftIO getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing Nothing now
@@ -134,7 +130,7 @@ createUser email password = do
     Left (Entity userId _) -> insertHashed password userId newUser
     Right userId -> insertHashed password userId newUser
 
-createUserForNewsletter :: Text -> Text -> Maybe Int -> DB (Entity User)
+createUserForNewsletter :: MonadIO m => Text -> Text -> Maybe Int -> SqlPersistT m (Entity User)
 createUserForNewsletter email password newsletter = do
   now <- liftIO getCurrentTime
   let newUser = User email Nothing Nothing Nothing Nothing Nothing newsletter now
@@ -143,23 +139,32 @@ createUserForNewsletter email password newsletter = do
     Left (Entity userId _) -> insertHashed password userId newUser
     Right userId  -> insertHashed password userId newUser
 
-insertHashed :: Text -> Key User -> User -> DB (Entity User)
+insertHashed :: MonadIO m => Text -> Key User -> User -> SqlPersistT m (Entity User)
 insertHashed password userId newUser = do
   hash <- liftIO $ hashPassword password
   void $ insertBy $ Password hash userId
   return (Entity userId newUser)
 
-setUserForNewsletter :: Maybe Int -> UserId -> DB (Key User)
+setUserForNewsletter :: MonadIO m => Maybe Int -> UserId -> SqlPersistT m (Key User)
 setUserForNewsletter newsletter userId = do
   P.update userId [UserNewsletter P.=. newsletter]
   return userId
 
-createAdmin :: Key User -> DB (Either (Entity Admin) AdminId)
+createAdmin :: MonadIO m => Key User -> SqlPersistT m (Either (Entity Admin) AdminId)
 createAdmin userKey = do
   let newAdmin = Admin userKey
   insertBy newAdmin
 
-createCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
+createCompany
+  :: MonadIO m
+  => Title
+  -> Website
+  -> Description
+  -> Image
+  -> Ticker
+  -> Gicssector
+  -> Gicssubindustry
+  -> SqlPersistT m (Entity Company)
 createCompany title website description image ticker gicssector gicssubindustry = do
   now <- liftIO getCurrentTime
   let newCompany = Company title (Just website) (Just description) (Just image) ticker (Just gicssector) (Just gicssubindustry) now
@@ -170,7 +175,7 @@ createCompany title website description image ticker gicssector gicssubindustry 
 -- get
 ---------------------------------------------------------
 
-getUserPassword :: Text -> DB (Maybe (Entity User, Entity Password))
+getUserPassword :: MonadIO m => Text -> SqlPersistT m (Maybe (Entity User, Entity Password))
 getUserPassword email = fmap listToMaybe $
   select $
   from $ \(u `InnerJoin` p) -> do
@@ -178,14 +183,14 @@ getUserPassword email = fmap listToMaybe $
   where_ (u ^. UserEmail ==. val email)
   return (u, p)
 
-getUserEntity :: Text -> DB (Maybe (Entity User))
+getUserEntity :: MonadIO m => Text -> SqlPersistT m (Maybe (Entity User))
 getUserEntity email = fmap listToMaybe $
   select $
   from $ \user -> do
   where_ (user ^. UserEmail ==. val email)
   return user
 
-getUserForNewsletter :: Text -> DB (Maybe (Entity User))
+getUserForNewsletter :: MonadIO m => Text -> SqlPersistT m (Maybe (Entity User))
 getUserForNewsletter email = fmap listToMaybe $
   select $
   from $ \user -> do
@@ -193,20 +198,20 @@ getUserForNewsletter email = fmap listToMaybe $
   -- where_ (user ^. UserNewsletter ==. val (Just True))
   return user
 
-allCompanies :: DB [Entity Company]
+allCompanies :: MonadIO m => SqlPersistT m [Entity Company]
 allCompanies =
   select $
     from $ \c ->
     return c
 
-getCompanyById :: CompanyId -> DB (Maybe(Entity Company))
+getCompanyById :: MonadIO m => CompanyId -> SqlPersistT m (Maybe(Entity Company))
 getCompanyById cid = fmap listToMaybe $
   select $
   from $ \c -> do
   where_ (c ^. CompanyId ==. val cid)
   return c
 
-getAllCompanyHistoricalDataById :: CompanyId -> DB [Entity Historical]
+getAllCompanyHistoricalDataById :: MonadIO m => CompanyId -> SqlPersistT m [Entity Historical]
 getAllCompanyHistoricalDataById cid =
   select $
   from $ \c -> do
@@ -216,7 +221,7 @@ getAllCompanyHistoricalDataById cid =
   limit 1000
   return c
 
-getLatestUniqueStories :: DB [Entity Story]
+getLatestUniqueStories :: MonadIO m => SqlPersistT m [Entity Story]
 getLatestUniqueStories =
   select $
     from $ \story -> do
@@ -225,16 +230,15 @@ getLatestUniqueStories =
     limit 10
     return story
 
-
 --------------------------------------------------------
 -- delete
 --------------------------------------------------------
 
-deleteAllCompanies :: DB Int64
+deleteAllCompanies :: MonadIO m => SqlPersistT m Int64
 deleteAllCompanies =
   Database.Esqueleto.deleteCount $ from $ \(_ :: SqlExpr (Entity Company)) -> pass
 
-deleteAdminUsers :: Text -> DB ()
+deleteAdminUsers :: MonadIO m => Text -> SqlPersistT m ()
 deleteAdminUsers email = do
   mUser <- selectFirst [UserEmail P.==. email] []
   case mUser of
@@ -245,7 +249,7 @@ deleteAdminUsers email = do
          where_ (p ^. AdminAccount  ==. val (entityKey u))
          pass
 
-deleteAdminPasswords :: Text -> DB ()
+deleteAdminPasswords :: MonadIO m => Text -> SqlPersistT m ()
 deleteAdminPasswords email = do
   mUser <- selectFirst [UserEmail P.==. email] []
   case mUser of
@@ -256,7 +260,7 @@ deleteAdminPasswords email = do
         where_ (p ^. PasswordUser ==. val (entityKey u))
         pass
 
-deleteUserAdmins :: Text -> DB Int64
+deleteUserAdmins :: MonadIO m => Text -> SqlPersistT m Int64
 deleteUserAdmins email =
   Database.Esqueleto.deleteCount $
   from $ \u -> where_ (u ^. UserEmail ==. val email)
@@ -265,7 +269,7 @@ deleteUserAdmins email =
 -- count
 --------------------------------------------------------
 
-countUsersByEmail :: Text -> DB Int
+countUsersByEmail :: MonadIO m => Text -> SqlPersistT m Int
 countUsersByEmail email = do
   (cnt:_) :: [Database.Esqueleto.Value Int] <-
     select .
@@ -274,84 +278,33 @@ countUsersByEmail email = do
      return countRows
   return $ unValue cnt
 
-getCompanyCount :: IO (Database.Esqueleto.Value Int)
-getCompanyCount = do
-  (companies:_) :: [Database.Esqueleto.Value Int] <-
-    runDBA $
-    select .
-    from $ \(_ :: SqlExpr (Entity Company)) ->
-      return countRows
-  return companies
+getCompanyCount :: MonadIO m => SqlPersistT m (Maybe (Database.Esqueleto.Value Int))
+getCompanyCount =
+  selectHead .  from $ \(_ :: SqlExpr (Entity Company)) ->
+    return countRows
 
-getUserCount :: IO (Database.Esqueleto.Value Int)
+getUserCount :: MonadIO m => SqlPersistT m (Maybe (Database.Esqueleto.Value Int))
 getUserCount = do
-  (users:_) :: [Database.Esqueleto.Value Int] <-
-    runDBA $
-    select .
-    from $ \(_ :: SqlExpr (Entity User)) ->
-      return countRows
-  return users
+  selectHead .  from $ \(_ :: SqlExpr (Entity User)) ->
+    return countRows
 
-getArticleCount :: IO (Database.Esqueleto.Value Int)
-getArticleCount = do
-  (articles:_) :: [Database.Esqueleto.Value Int] <-
-    runDBA $
-    select .
-    from $ \(_ :: SqlExpr (Entity Story)) ->
-      return countRows
-  return articles
+getArticleCount :: MonadIO m => SqlPersistT m (Maybe (Database.Esqueleto.Value Int))
+getArticleCount =
+  selectHead .  from $ \(_ :: SqlExpr (Entity Story)) ->
+    return countRows
 
-getHistoryCount :: IO (Database.Esqueleto.Value Int)
-getHistoryCount = do
-  (history:_) :: [Database.Esqueleto.Value Int] <-
-    runDBA $
-    select .
-    from $ \(_ :: SqlExpr (Entity Historical)) ->
-      return countRows
-  return history
+getHistoryCount :: MonadIO m => SqlPersistT m (Maybe (Database.Esqueleto.Value Int))
+getHistoryCount =
+  selectHead . from $ \(_ :: SqlExpr (Entity Historical)) ->
+    return countRows
 
 --------------------------------------------------------
 -- run actions
 --------------------------------------------------------
 
-dumpMigration :: DB ()
+dumpMigration :: MonadIO m => SqlPersistT m ()
 dumpMigration = printMigration migrateAll
 
-runMigrations :: DB ()
+runMigrations :: MonadIO m => SqlPersistT m ()
 runMigrations = runMigration migrateAll
 
-runDBSqlite :: DB a -> IO a
-runDBSqlite = runSqlite "investments-info.sqlite3"
-
-devConn :: IO ConnectionString
-devConn = do
-  cs <- readConfig
-  return $ encodeUtf8 cs
-
-runDBA :: DB a -> IO a
-runDBA a = do
-  conn <- getEnv "iiservant"
-  -- conn <- devConn
-  runNoLoggingT $
-    withPostgresqlPool (pack conn) 10
-      $ \pool -> liftIO $ runSqlPersistMPool a pool
-
-runDevDBV :: DB a -> IO a
-runDevDBV a = do
-  conn <- devConn
-  runStdoutLoggingT $
-    withPostgresqlPool conn 10
-      $ \pool -> liftIO $ runSqlPersistMPool a pool
-
-readConfig :: IO Text
-readConfig = do
-  cnf <- decodeFile "config/settings.yml" :: IO (Maybe DBConfig)
-  case cnf of
-    Nothing -> error "Could not read database credentials!"
-    Just DBConfig {..} ->
-      return $
-      "dbname=" <> dbdatabase <> " host=" <> dbhost <> " user=" <> dbuser <>
-      " password=" <>
-      dbpassword <>
-      " port=" <>
-      dbport

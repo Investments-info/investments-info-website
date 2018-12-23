@@ -85,7 +85,7 @@ $(document).ready(function(){
  });
 |]
 
-checkStorySaved :: Story -> HandlerT App IO (Maybe (Entity Story))
+checkStorySaved :: Story -> Handler (Maybe (Entity Story))
 checkStorySaved story = do
   insertedStory <- runDB $ selectFirst [StoryHashId ==. storyHashId story] []
   case insertedStory of

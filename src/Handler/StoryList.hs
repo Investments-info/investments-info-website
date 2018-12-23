@@ -17,11 +17,12 @@ import           Universum hiding ((^.))
 getStoryListR :: Page -> Handler Html
 getStoryListR currentPage = do
   now <- liftIO getCurrentTime
-  entriesCount <-
-    runDB $ selectCount $ \story ->  E.where_ (story ^. StoryCreated E.<=. E.val now)
-  let next = H.calculateNextPage entriesCount H.postsByPage currentPage
-  let previous = H.calculatePreviousPage entriesCount H.postsByPage currentPage
-  let off = (currentPage - 1) * postsByPage
+  entries <-
+    runDB $ select . from $ \story ->  E.where_ (story ^. StoryCreated E.<=. E.val now)
+  let entriesCount = length entries
+      next = H.calculateNextPage entriesCount H.postsByPage currentPage
+      previous = H.calculatePreviousPage entriesCount H.postsByPage currentPage
+      off = (currentPage - 1) * postsByPage
   allStories <-
     runDB $ selectList [] [Desc StoryCreated, LimitTo H.postsByPage, OffsetBy off]
   defaultLayout $ do

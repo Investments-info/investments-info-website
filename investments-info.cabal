@@ -115,7 +115,6 @@ library
       Helper.FormHelper
       Helper.Forms
       Helper.Helper
-      Helper.YahooDB
       Import
       Import.NoFoundation
       Model

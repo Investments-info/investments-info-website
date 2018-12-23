@@ -135,9 +135,6 @@ widgetFile = (if appReloadTemplates compileTimeAppSettings
 configSettingsYmlBS :: ByteString
 configSettingsYmlBS = $(embedFile configSettingsYml)
 
-id :: a -> a
-id a = a
-
 -- | @config/settings.yml@, parsed to a @Value@.
 configSettingsYmlValue :: Value
 configSettingsYmlValue = either Exception.throw id

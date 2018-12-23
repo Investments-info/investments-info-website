@@ -133,9 +133,6 @@ instance Yesod App where
       content
     where
       genFileName lbs = "autogen-" ++ base64md5 lbs
-  shouldLog app _source level =
-    appShouldLogAll (appSettings app) ||
-    level == LevelWarn || level == LevelError
   makeLogger = return . appLogger
 
 instance YesodBreadcrumbs App where

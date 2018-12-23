@@ -30,21 +30,6 @@ makeHash = hash
 postsByPage :: Int
 postsByPage = 10
 
-selectCount
-  :: ( BaseBackend backend ~ SqlBackend
-     , Database.Esqueleto.Internal.Language.From SqlQuery SqlExpr SqlBackend t
-     , MonadIO m
-     , Num a
-     , IsPersistBackend backend
-     , PersistQueryRead backend
-     , PersistUniqueRead backend
-     , PersistField a
-     )
-  => (t -> SqlQuery a1) -> ReaderT backend m a
-selectCount q = do
-  res <- select $ from (\x -> q x >> return countRows)
-  return $ maybe 0 (\(Value a) -> a) (headMay res)
-
 calculatePreviousPage :: Int -> Int -> Page -> Maybe Int
 calculatePreviousPage entries pageSize currentPage =
   if n <= entries && n > 0

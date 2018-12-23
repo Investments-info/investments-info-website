@@ -4,4 +4,4 @@ import           Model
 import           Universum
 
 main :: IO ()
-main = runDBA runMigrations
+main = undefined -- runDBA runMigrations

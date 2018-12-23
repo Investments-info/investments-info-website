@@ -1,24 +1,28 @@
+{-# LANGUAGE FlexibleContexts      #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE QuasiQuotes      #-}
+{-# LANGUAGE QuasiQuotes           #-}
+{-# LANGUAGE TypeFamilies          #-}
 
 module Handler.About where
 
-import           Database.Esqueleto (unValue)
+import           Database.Esqueleto (unValue, Value (..))
 import           Import
 import           Universum
 
 getAboutR :: Handler Html
 getAboutR  = do
-      companyCount <- lift getCompanyCount
-      userCount <- lift getUserCount
-      articleCount <- lift getArticleCount
-      historyCount <- lift getHistoryCount
-      defaultLayout $ do
-        setTitle "Finance portal"
-        toWidget [whamlet|
-
+  res <-
+    runMaybeT $ do
+      cc <- MaybeT $ runDB getCompanyCount
+      uc <- MaybeT $ runDB getUserCount
+      ac <- MaybeT $ runDB getArticleCount
+      hc <- MaybeT $ runDB getHistoryCount
+      return (cc, uc,ac,hc)
+  let (companyCount, userCount, articleCount, historyCount) =
+        fromMaybe (Value 0, Value 0, Value 0, Value 0) res
+  defaultLayout $ do
+    setTitle "Finance portal"
+    toWidget [whamlet|
 <section id="first" class="main">
     <header class="major">
         <p>We are building the investment platform to support people in making better investment decisions.
@@ -45,7 +49,7 @@ getAboutR  = do
 
 |]
 
-        toWidget [julius|
+    toWidget [julius|
  $(document).ready(function(){
    var searchString = "";
    $("#article-finder").on('keyup', function(e){

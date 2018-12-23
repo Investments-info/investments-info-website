@@ -12,7 +12,7 @@ module Helper.Fixtures where
 import           Data.MonoTraversable (MonoFoldable)
 import           Helper.Helper (getAdmins)
 import           Import
-import           Universum
+import           Universum hiding (Key)
 
 newtype UserFixtures = UserFixtures
   { allUsersF :: [Entity User]
@@ -32,24 +32,24 @@ data Fixtures = Fixtures
   -- , companyF :: CompanyFixtures
   } deriving (Eq, Show)
 
-makeAccount :: Text -> Text -> DB (Entity User)
+makeAccount :: MonadIO m => Text -> Text -> SqlPersistT m (Entity User)
 makeAccount = createUser
 
-makeAccounts :: DB [Entity User]
+makeAccounts :: MonadIO m => SqlPersistT m [Entity User]
 makeAccounts = do
   admins <- getAdmins
   case admins of
     Nothing -> return []
     Just a -> traverse (\x -> makeAccount (aemail x) (apassword x)) a
 
-makeAdmin :: Key User -> DB (Maybe (Entity Admin))
+makeAdmin :: MonadIO m => Key User -> SqlPersistT m (Maybe (Entity Admin))
 makeAdmin k = do
   a <- createAdmin k
   case a of
     Left admin -> pure $ Just admin
     Right _ -> pure Nothing
 
-makeAdmins :: [Key User] -> DB [Entity Admin]
+makeAdmins :: MonadIO m => [Key User] -> SqlPersistT m [Entity Admin]
 makeAdmins k = do
   admins <- traverse makeAdmin k
   pure $ catMaybes admins
@@ -63,10 +63,19 @@ unsafeIdx xs n
         0 -> x
         _ -> r (k-1)) (error ("index too large: " <> show n)) xs n
 
-makeCompany :: Text -> Text -> Text -> Text -> Text -> Text -> Text -> DB (Entity Company)
+makeCompany
+  :: MonadIO m
+  => Title
+  -> Website
+  -> Description
+  -> Image
+  -> Ticker
+  -> Gicssector
+  -> Gicssubindustry
+  -> SqlPersistT m (Entity Company)
 makeCompany = createCompany
 
-makeCompanies :: DB [Entity Company]
+makeCompanies :: MonadIO m => SqlPersistT m [Entity Company]
 makeCompanies =
   sequenceA
     [
@@ -76,11 +85,9 @@ makeCompanies =
     ]
 
 runInsertAdminsAction :: IO ()
-runInsertAdminsAction = do
-    _ <- runDBA insertFixtures
-    pass
+runInsertAdminsAction = undefined --void $ insertFixtures
 
-insertFixtures :: DB Fixtures
+insertFixtures ::MonadIO m =>  SqlPersistT m Fixtures
 insertFixtures = do
   allUsersF <- makeAccounts
   -- allCompaniesF <- makeCompanies
