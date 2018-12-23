@@ -5,13 +5,12 @@ module Model.BCrypt
   , module Import
   ) where
 
-import           Prelude
-
 import           Crypto.BCrypt as Import hiding (hashPassword)
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as TE
 import           Database.Persist.Sql
 import           Safe (fromJustNote)
+import           Universum
 
 policy :: HashingPolicy
 policy =
@@ -29,6 +28,6 @@ hashPassword rawPassword = do
   return $ BCrypt $ TE.decodeUtf8 $ fromJustNote "Invalid hashing policy" mPassword
 
 passwordMatches :: BCrypt -> T.Text -> Bool
-passwordMatches hash' pass =
+passwordMatches hash' passw =
   validatePassword (TE.encodeUtf8 $ unBCrypt hash')
-                   (TE.encodeUtf8 pass)
+                   (TE.encodeUtf8 passw)

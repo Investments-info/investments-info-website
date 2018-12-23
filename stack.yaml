@@ -6,12 +6,9 @@ packages:
       git: git@github.com:v0d1ch/financial-news-scraper
       commit: 703bae2c646b580787b0ffe408bee8374e9c82e2
     extra-dep: true
-
-extra-deps:
-  - bcrypt-0.0.10
-  - blaze-0.0.2
-  - ses-html-0.4.0.0@sha256:0f8fea6229951e565b6e37041175b0f578e5458e2c3395e7cdc84c187a69275d
-
+  - location:
+      git: git@github.com:bitemyapp/esqueleto.git
+      commit: 5f98e7b25334ec120125ca84ef647d5c4575a010
 
 #docker:
 # enable: true

@@ -16,7 +16,6 @@ import           Data.FileEmbed (embedFile)
 import           Data.Yaml (decodeEither')
 import           Language.Haskell.TH.Syntax (Exp, Name, Q)
 import           Network.Wai.Handler.Warp (HostPreference)
-import           Prelude (id)
 import           Universum
 import           Yesod.Auth
 import           Yesod.Default.Config2 (applyEnvValue, configSettingsYml)
@@ -135,6 +134,9 @@ widgetFile = (if appReloadTemplates compileTimeAppSettings
 -- | Raw bytes at compile time of @config/settings.yml@
 configSettingsYmlBS :: ByteString
 configSettingsYmlBS = $(embedFile configSettingsYml)
+
+id :: a -> a
+id a = a
 
 -- | @config/settings.yml@, parsed to a @Value@.
 configSettingsYmlValue :: Value

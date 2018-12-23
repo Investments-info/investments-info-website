@@ -1,5 +1,5 @@
 import           Application (appMain)
-import           Prelude (IO)
+import           Universum
 
 main :: IO ()
 main = appMain

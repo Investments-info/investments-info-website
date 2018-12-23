@@ -1,6 +1,6 @@
 {-# LANGUAGE PackageImports #-}
 import           "investments-info" Application (develMain)
-import           Prelude (IO)
+import           Universum
 
 main :: IO ()
 main = develMain
