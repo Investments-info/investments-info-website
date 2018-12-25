@@ -8,11 +8,8 @@
 module Helper.Helper where
 
 import           Data.Hashable
-import           Database.Esqueleto as E
-import           Database.Esqueleto.Internal.Language
 import           Database.Persist.Sql (SqlBackend, rawSql, unSingle)
 import           Import
-import           Safe
 import           Universum
 
 truncateTables

@@ -43,9 +43,9 @@ htmlOnly
   => m Html -> m TypedContent
 htmlOnly = selectRep . provideRep
 
-type Form x = Html -> MForm (HandlerT App IO) (FormResult x, Widget)
+type Form x = Html -> MForm Handler (FormResult x, Widget)
 
-baseLayout :: Html -> Maybe (Entity User) -> WidgetT App IO () -> Handler Html
+baseLayout :: Html -> Maybe (Entity User) -> Widget -> Handler Html
 baseLayout title _ content =
   defaultLayout $ do
     setTitle title
