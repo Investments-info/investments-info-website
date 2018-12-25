@@ -3,7 +3,7 @@ resolver: lts-13.0
 packages:
   - '.'
   - location:
-      git: git@github.com:bitemyapp/esqueleto.git
+      git: https://github.com/bitemyapp/esqueleto.git
       commit: 5f98e7b25334ec120125ca84ef647d5c4575a010
     extra-dep: true
   - location:
