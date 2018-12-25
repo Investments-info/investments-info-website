@@ -85,7 +85,7 @@ makeCompanies =
     ]
 
 runInsertAdminsAction :: IO ()
-runInsertAdminsAction = undefined --void $ insertFixtures
+runInsertAdminsAction = void $ runDBA insertFixtures
 
 insertFixtures ::MonadIO m =>  SqlPersistT m Fixtures
 insertFixtures = do

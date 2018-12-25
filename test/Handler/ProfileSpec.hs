@@ -9,7 +9,7 @@ import qualified Data.Text as T
 spec :: Spec
 spec =
   withApp $
-    describe "Profile page" $ do
+    describe "Profile page" $
       it "asserts no access to my-account for anonymous users" $ do
         get ProfileR
         statusIs 403

@@ -12,34 +12,37 @@ listName = "investments-info"
 
 getProfileR :: Handler Html
 getProfileR = do
-    redirectIfNotLoggedIn HomeR
-    user <- getUser
-    case user of
-        Just (Entity _ u) -> do
-            (profileFormWidget, _) <- generateFormPost $ profileForm u
-            renderProfile u profileFormWidget
-        Nothing -> do
-            setMessage "You must be logged-in to see this page!"
-            return $ toHtml ("Nothing" :: Text)
+  redirectIfNotLoggedIn HomeR
+  user <- getUser
+  case user of
+    Just (Entity _ u) -> do
+      (profileFormWidget, _) <- generateFormPost $ profileForm u
+      renderProfile u profileFormWidget
+    Nothing -> do
+      setMessage "You must be logged-in to see this page!"
+      return $ toHtml ("Nothing" :: Text)
 
 postProfileR :: Handler Html
 postProfileR = do
   redirectIfNotLoggedIn HomeR
   newsletter <- lookupPostParam "newsletter"
-  Just (Entity dbUKey _) <- getUser
-  case newsletter of
-      Just "yes" -> do
-            -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
-            _ <- runDB $ setUserForNewsletter (Just 1) dbUKey
-            getProfileR
-      Just _ -> do
-            -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
-            _ <- runDB $ setUserForNewsletter Nothing dbUKey
-            getProfileR
-      Nothing -> do
-            -- _ <- liftIO $ MC.removeSubscriber apiKey (unpack $ userEmail user) listName
-            _ <- runDB $ setUserForNewsletter Nothing dbUKey
-            getProfileR
+  u <- getUser
+  case u of
+   Nothing -> getProfileR
+   Just (Entity dbUKey _) ->
+     case newsletter of
+         Just "yes" -> do
+               -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
+               _ <- runDB $ setUserForNewsletter (Just 1) dbUKey
+               getProfileR
+         Just _ -> do
+               -- _ <- liftIO $ MC.addSubscriber apiKey listName (unpack $ userEmail user) "newsletter-user" "subscribed"
+               _ <- runDB $ setUserForNewsletter Nothing dbUKey
+               getProfileR
+         Nothing -> do
+               -- _ <- liftIO $ MC.removeSubscriber apiKey (unpack $ userEmail user) listName
+               _ <- runDB $ setUserForNewsletter Nothing dbUKey
+               getProfileR
 
 profileForm :: User -> Form Bool
 profileForm User {..} =

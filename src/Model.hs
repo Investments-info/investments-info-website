@@ -17,14 +17,19 @@ module Model
   , module Model
   ) where
 
+import           Control.Monad.Logger (runStdoutLoggingT)
+import           Data.ByteString.UTF8 (fromString)
+import           Data.Pool (Pool)
 import           Data.Time (UTCTime, getCurrentTime)
 import           Data.Yaml
 import           Database.Esqueleto
 import           Database.Esqueleto.Internal.Sql (SqlSelect)
 import qualified Database.Persist as P
+import           Database.Persist.Postgresql (createPostgresqlPool, runSqlPool)
 import           Database.Persist.TH
 import           Model.BCrypt as Import
-import           Universum hiding (Key, on, (^.))
+import           System.Environment (getEnv)
+import           Universum hiding (Key, fromString, on, (^.))
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 User json sql=users
@@ -116,6 +121,12 @@ selectHead
   :: (SqlSelect a r, MonadIO m)
   => SqlQuery a -> SqlReadT m (Maybe r)
 selectHead query = listToMaybe <$> select query
+
+runDBA :: SqlPersistT IO a -> IO a
+runDBA action = do
+  dbConnStr <- getEnv "iiservant"
+  pool <- runStdoutLoggingT $ createPostgresqlPool (fromString dbConnStr) 10 :: IO (Pool SqlBackend)
+  runSqlPool action pool
 
 -------------------------------------------------------
 -- create
@@ -269,14 +280,16 @@ deleteUserAdmins email =
 -- count
 --------------------------------------------------------
 
-countUsersByEmail :: MonadIO m => Text -> SqlPersistT m Int
+countUsersByEmail
+  :: MonadIO m
+  => Text -> SqlPersistT m Int
 countUsersByEmail email = do
-  (cnt:_) :: [Database.Esqueleto.Value Int] <-
-    select .
-     from $ \u -> do
-     where_ (u ^. UserEmail ==. val email)
-     return countRows
-  return $ unValue cnt
+  cnt <- select . from $ \u -> do
+    where_ (u ^. UserEmail ==. val email)
+    return countRows
+  case cnt of
+    [] -> return 0
+    (x:_) -> return (unValue x)
 
 getCompanyCount :: MonadIO m => SqlPersistT m (Maybe (Database.Esqueleto.Value Int))
 getCompanyCount =
@@ -284,7 +297,7 @@ getCompanyCount =
     return countRows
 
 getUserCount :: MonadIO m => SqlPersistT m (Maybe (Database.Esqueleto.Value Int))
-getUserCount = do
+getUserCount =
   selectHead .  from $ \(_ :: SqlExpr (Entity User)) ->
     return countRows
 
