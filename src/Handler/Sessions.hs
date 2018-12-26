@@ -2,12 +2,12 @@
 {-# LANGUAGE RankNTypes          #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies        #-}
+{-# OPTIONS_GHC -fno-warn-deprecations #-}
 
 module Handler.Sessions where
 
 import           Control.Monad.Trans.Maybe
 import           Data.Map (lookup)
-import qualified Data.Text as T
 import           Data.Time
 import           Data.Time.Clock (addUTCTime)
 import           Import.NoFoundation

@@ -89,10 +89,10 @@ library
                , conduit-combinators
                , resource-pool
   if (flag(dev)) || (flag(library-only))
-    ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O0 -Wno-warnings-deprecations
+    ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O0
     cpp-options: -DDEVELOPMENT
   else
-    ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O2 -Wno-warnings-deprecations.
+    ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports -O2
   exposed-modules:
       Application
       Foundation
@@ -217,7 +217,7 @@ test-suite test
   hs-source-dirs:
       test
   default-extensions: NoImplicitPrelude OverloadedStrings RecordWildCards LambdaCase MultiWayIf
-  ghc-options: -Wall -Wno-warnings-deprecations
+  ghc-options: -Wall -fwarn-tabs -fwarn-unused-imports
   build-depends:
                   aeson
                 , async
