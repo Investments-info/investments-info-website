@@ -5,22 +5,15 @@ module TestImport
 
 import           Application (makeFoundation, makeLogWare)
 import           Database.Persist as X hiding (get)
-import           Database.Persist.Sql (SqlBackend, SqlPersistM, connEscapeName, rawExecute, rawSql,
-                                       runSqlPersistMPool, unSingle)
+import           Database.Persist.Sql (SqlBackend, SqlPersistM, rawSql, runSqlPersistMPool,
+                                       unSingle)
 import           Foundation as X
 import           Model as X
 import           Test.Hspec as X
+import           Universum
 import           Yesod.Core.Unsafe (fakeHandlerGetLogger)
 import           Yesod.Default.Config2 (loadYamlSettings, useEnv)
 import           Yesod.Test as X
-
--- Wiping the database
-import           Control.Monad.Logger (runLoggingT)
-import           Database.Persist.Sqlite (createSqlitePoolFromInfo, fkEnabled,
-                                          mkSqliteConnectionInfo, sqlDatabase)
-import           Settings
-import           Universum
-import           Yesod.Core (messageLoggerSource)
 
 runDB :: SqlPersistM a -> YesodExample App a
 runDB query = do
