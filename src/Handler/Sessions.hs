@@ -27,10 +27,7 @@ rememberSess = "remember_me"
 timestampSess :: Text
 timestampSess = "time_created"
 
-setUserSession :: (YesodLog site)
-               => Key User
-               -> Bool
-               -> HandlerT site IO ()
+setUserSession :: Key User -> Bool -> HandlerT site IO ()
 setUserSession keyUser rememberMe = do
   setSession userSess (toPathPiece keyUser)
   if rememberMe
@@ -48,9 +45,7 @@ instance PathPiece SessionTime where
     fromPathPiece = readMay . toString
     toPathPiece = show
 
-sessionTooOld
-    :: (YesodLog site)
-    => UTCTime -> HandlerT site IO Bool
+sessionTooOld :: UTCTime -> HandlerT site IO Bool
 sessionTooOld currentTime = do
     remember <- getSessionKey rememberSess
     timestamp <- getSessionKey timestampSess
@@ -69,9 +64,7 @@ sessionTooOld currentTime = do
             -- session deadline, it's too old.
             return (currentTime > deadline)
 
-sessionMiddleware
-    :: (YesodLog site)
-    => HandlerT site IO resp -> HandlerT site IO resp
+sessionMiddleware :: HandlerT site IO resp -> HandlerT site IO resp
 sessionMiddleware handler = do
     t <- liftIO getCurrentTime
     tooOld <- sessionTooOld t
@@ -80,34 +73,24 @@ sessionMiddleware handler = do
         else handler
 
 getSessionKey
-    :: Text
-    -> YesodLog site =>
-       HandlerT site IO (Maybe ByteString)
+    :: Text -> HandlerT site IO (Maybe ByteString)
 getSessionKey k = do
     sess <- getSession
     return $ lookup k sess
 
-getSessionUserK
-    :: YesodLog site
-    => HandlerT site IO (Maybe ByteString)
+getSessionUserK :: HandlerT site IO (Maybe ByteString)
 getSessionUserK = getSessionKey userSess
 
-handleDumpSessionR
-    :: YesodLog site
-    => HandlerT site IO Text
+handleDumpSessionR :: HandlerT site IO Text
 handleDumpSessionR = show <$> getSession
 
-deleteLoginData
-    :: YesodLog site
-    => HandlerT site IO ()
+deleteLoginData :: HandlerT site IO ()
 deleteLoginData = do
   deleteSession userSess
   deleteSession rememberSess
   deleteSession timestampSess
 
-getUserKey
-    :: (YesodLog site)
-    => HandlerT site IO (Maybe (Key User))
+getUserKey :: HandlerT site IO (Maybe (Key User))
 getUserKey =
     runMaybeT $
     do userId <- MaybeT getSessionUserK
@@ -115,7 +98,7 @@ getUserKey =
        return (toSqlKey userInt)
 
 getUser
-    :: (YesodLog site, YesodPersist site, YesodPersistBackend site ~ SqlBackend)
+    :: (YesodPersist site, YesodPersistBackend site ~ SqlBackend)
     => HandlerT site IO (Maybe (Entity User))
 getUser =
     runMaybeT $
@@ -123,7 +106,7 @@ getUser =
        user <- MaybeT $ runDB $ get userKey
        return $ Entity userKey user
 
-requireAdmin :: (YesodLog site, YesodPersist site, YesodPersistBackend site ~ SqlBackend)
+requireAdmin :: (YesodPersist site, YesodPersistBackend site ~ SqlBackend)
              => HandlerT site IO (Entity User, Entity Admin)
 requireAdmin = do
   maybeUser <- getUser

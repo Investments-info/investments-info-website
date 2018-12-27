@@ -9,7 +9,6 @@
 
 module Helper.Fixtures where
 
-import           Data.MonoTraversable (MonoFoldable)
 import           Helper.Helper (getAdmins)
 import           Import
 import           Universum hiding (Key)
@@ -55,7 +54,7 @@ makeAdmins k = do
   pure $ catMaybes admins
 
 {-# INLINABLE unsafeIdx #-}
-unsafeIdx :: (MonoFoldable c, Container c) => c -> Integer -> Element c
+unsafeIdx :: Container c => c -> Integer -> Element c
 unsafeIdx xs n
   | n < 0     = error "negative index"
   | otherwise = foldr (\x r k ->
