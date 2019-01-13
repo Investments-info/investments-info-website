@@ -26,7 +26,7 @@ getAboutR  = do
 <section id="first" class="main">
     <header class="major">
         <p>We are building the investment platform to support people in making better investment decisions.
-        <p>The latest invetions in Machine Learning and Artificial Intelligence will power invetments-info.com to:
+        <p>investments-info.com will enable you to:
         <dl class="alt">
             <dd>read, track, filter and consolidate global news</dd>
             <dd>drive investments strategies and predictive models in navigating financial markets fluctuations
